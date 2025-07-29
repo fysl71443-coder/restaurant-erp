@@ -1,0 +1,702 @@
+{% extends "base.html" %}
+
+{% block title %}التقارير - نظام المحاسبة{% endblock %}
+{% block page_title %}التقارير المالية{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-chart-bar text-info"></i> التقارير المالية</h2>
+                    <p class="text-muted">إنشاء وعرض التقارير المالية التفصيلية</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <button class="btn btn-info" id="newReportBtn" onclick="showCreateReportModal()">
+                            <i class="fas fa-plus"></i> تقرير جديد
+                        </button>
+                        <button class="btn btn-outline-success" id="exportAllReportsBtn" onclick="exportAllReports()">
+                            <i class="fas fa-download"></i> تصدير جميع التقارير
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مرشحات التقارير -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-filter"></i> مرشحات التقارير</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="reportType" class="form-label">نوع التقرير</label>
+                            <select class="form-select" id="reportType">
+                                <option value="">جميع التقارير</option>
+                                <option value="profit_loss">تقرير الأرباح والخسائر</option>
+                                <option value="income">تقرير الإيرادات</option>
+                                <option value="expenses">تقرير المصروفات</option>
+                                <option value="balance_sheet">الميزانية العمومية</option>
+                                <option value="cash_flow">تقرير التدفق النقدي</option>
+                                <option value="vat">تقرير ضريبة القيمة المضافة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateFrom" class="form-label">من تاريخ</label>
+                            <input type="date" class="form-control" id="dateFrom" value="2024-01-01">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateTo" class="form-label">إلى تاريخ</label>
+                            <input type="date" class="form-control" id="dateTo" value="2024-12-31">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="period" class="form-label">الفترة</label>
+                            <select class="form-select" id="period">
+                                <option value="monthly">شهري</option>
+                                <option value="quarterly">ربع سنوي</option>
+                                <option value="yearly">سنوي</option>
+                                <option value="custom">فترة مخصصة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <button class="btn btn-primary" id="applyFilters" onclick="applyReportFilters()">
+                                <i class="fas fa-search"></i> تطبيق المرشحات
+                            </button>
+                            <button class="btn btn-outline-secondary" id="resetFilters" onclick="resetReportFilters()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإحصائيات الرئيسية -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_sales or 0) }}</div>
+                    <div class="stats-label">إجمالي الإيرادات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-file-invoice"></i> {{ sales_count or 0 }} فاتورة
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_purchases or 0) }}</div>
+                    <div class="stats-label">إجمالي المصروفات (ر.س)</div>
+                    <div class="stats-change negative">
+                        <i class="fas fa-file-invoice"></i> {{ purchases_count or 0 }} فاتورة
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(net_profit or 0) }}</div>
+                    <div class="stats-label">صافي الربح (ر.س)</div>
+                    <div class="stats-change {% if (net_profit or 0) >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-{% if (net_profit or 0) >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                        {% if (net_profit or 0) >= 0 %}ربح{% else %}خسارة{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:.1f}".format(profit_margin or 0) }}%</div>
+                    <div class="stats-label">نسبة الربحية</div>
+                    <div class="stats-change {% if (profit_margin or 0) >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-{% if (profit_margin or 0) >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                        {% if (profit_margin or 0) >= 20 %}ممتاز{% elif (profit_margin or 0) >= 10 %}جيد{% else %}ضعيف{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-area"></i> المبيعات والمشتريات الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> الأرباح الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="profitChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- فئات التقارير -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="quick-actions">
+                <h5><i class="fas fa-filter"></i> فئات التقارير</h5>
+                <a href="#financial-reports" class="quick-action-btn">
+                    <i class="fas fa-chart-line"></i>
+                    <span>التقارير المالية</span>
+                </a>
+                <a href="#sales-reports" class="quick-action-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>تقارير المبيعات</span>
+                </a>
+                <a href="#purchase-reports" class="quick-action-btn">
+                    <i class="fas fa-truck"></i>
+                    <span>تقارير المشتريات</span>
+                </a>
+                <a href="#inventory-reports" class="quick-action-btn">
+                    <i class="fas fa-boxes"></i>
+                    <span>تقارير المخزون</span>
+                </a>
+                <a href="#employee-reports" class="quick-action-btn">
+                    <i class="fas fa-users"></i>
+                    <span>تقارير الموظفين</span>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-8 mb-4">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-star"></i> التقارير الأكثر استخداماً</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-primary" id="createReportBtn" onclick="createNewReport()">
+                            <i class="fas fa-plus"></i> إنشاء تقرير
+                        </button>
+                        <button class="btn btn-sm btn-success" id="exportReportBtn" onclick="exportCurrentReport()">
+                            <i class="fas fa-download"></i> تصدير التقرير
+                        </button>
+                        <button class="btn btn-sm btn-info" id="printReportBtn" onclick="printCurrentReport()">
+                            <i class="fas fa-print"></i> طباعة التقرير
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" id="refreshDataBtn" onclick="refreshReportData()">
+                            <i class="fas fa-sync-alt"></i> تحديث البيانات
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="viewDetailsBtn" onclick="viewReportDetails()">
+                            <i class="fas fa-eye"></i> عرض التفاصيل
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>نوع التقرير</th>
+                                <th>الفترة</th>
+                                <th>المبلغ</th>
+                                <th>النسبة</th>
+                                <th>التاريخ</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>تقرير الأرباح والخسائر</strong></td>
+                                <td>ديسمبر 2024</td>
+                                <td>{{ "{:,.0f}".format(net_profit or 0) }} ر.س</td>
+                                <td>{{ "{:.1f}".format(profit_margin or 0) }}%</td>
+                                <td>2024-12-15</td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-primary" title="عرض التفاصيل" onclick="viewReportDetails(1)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" title="تصدير التقرير" onclick="exportReport(1)">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" title="طباعة التقرير" onclick="printReport(1)">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تقرير الإيرادات</strong></td>
+                                <td>ديسمبر 2024</td>
+                                <td>{{ "{:,.0f}".format(total_sales or 0) }} ر.س</td>
+                                <td>{{ "{:.1f}".format((total_sales or 0) / ((total_sales or 0) + (total_purchases or 0)) * 100 if (total_sales or 0) + (total_purchases or 0) > 0 else 0) }}%</td>
+                                <td>2024-12-14</td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-primary" title="عرض التفاصيل" onclick="viewReportDetails(2)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" title="تصدير التقرير" onclick="exportReport(2)">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" title="طباعة التقرير" onclick="printReport(2)">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تقرير المخزون</strong></td>
+                                <td><span class="badge bg-info">مخزون</span></td>
+                                <td>2024-12-13</td>
+                                <td>28 مرة</td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-primary" title="عرض" onclick="viewReportDetails(3)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" title="تحميل" onclick="exportReport(3)">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" title="طباعة" onclick="printReport(3)">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تقرير الأرباح والخسائر</strong></td>
+                                <td><span class="badge bg-primary">مالي</span></td>
+                                <td>2024-12-12</td>
+                                <td>21 مرة</td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-primary" title="عرض" onclick="viewReportDetails(4)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" title="تحميل" onclick="exportReport(4)">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" title="طباعة" onclick="printReport(4)">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نماذج إنشاء التقارير -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-plus-circle"></i> إنشاء تقرير جديد</h6>
+                </div>
+                <div class="card-body">
+                    <form id="createReportForm">
+                        <div class="mb-3">
+                            <label for="newReportType" class="form-label">نوع التقرير</label>
+                            <select class="form-select" id="newReportType" required>
+                                <option value="">اختر نوع التقرير</option>
+                                <option value="profit_loss">تقرير الأرباح والخسائر</option>
+                                <option value="income">تقرير الإيرادات</option>
+                                <option value="expenses">تقرير المصروفات</option>
+                                <option value="balance_sheet">الميزانية العمومية</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reportName" class="form-label">اسم التقرير</label>
+                            <input type="text" class="form-control" id="reportName" placeholder="أدخل اسم التقرير" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="reportDateFrom" class="form-label">من تاريخ</label>
+                                <input type="date" class="form-control" id="reportDateFrom" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="reportDateTo" class="form-label">إلى تاريخ</label>
+                                <input type="date" class="form-control" id="reportDateTo" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="createReportSubmitBtn" onclick="createNewReport()">
+                            <i class="fas fa-plus"></i> إنشاء التقرير
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-cog"></i> إعدادات التقارير</h6>
+                </div>
+                <div class="card-body">
+                    <form id="reportSettingsForm">
+                        <div class="mb-3">
+                            <label for="defaultCurrency" class="form-label">العملة الافتراضية</label>
+                            <select class="form-select" id="defaultCurrency">
+                                <option value="SAR">ريال سعودي (ر.س)</option>
+                                <option value="USD">دولار أمريكي ($)</option>
+                                <option value="EUR">يورو (€)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reportFormat" class="form-label">تنسيق التقرير</label>
+                            <select class="form-select" id="reportFormat">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeCharts" checked>
+                                <label class="form-check-label" for="includeCharts">
+                                    تضمين الرسوم البيانية
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success" id="saveReportSettingsBtn" onclick="saveReportSettings()">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جميع التقارير -->
+    <div class="row">
+        <div class="col-12">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-list"></i> جميع التقارير المتاحة</h5>
+                    <div class="table-actions">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fas fa-filter"></i> فلترة
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">جميع التقارير</a></li>
+                                <li><a class="dropdown-item" href="#">التقارير المالية</a></li>
+                                <li><a class="dropdown-item" href="#">تقارير المبيعات</a></li>
+                                <li><a class="dropdown-item" href="#">تقارير المشتريات</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-sm btn-outline-light" id="exportAllBtn" onclick="exportAllReports()">
+                            <i class="fas fa-download"></i> تصدير الكل
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>اسم التقرير</th>
+                                <th>الوصف</th>
+                                <th>الفئة</th>
+                                <th>تاريخ الإنشاء</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>تقرير المبيعات اليومي</strong></td>
+                                <td>تقرير تفصيلي لمبيعات اليوم</td>
+                                <td><span class="badge bg-success">مبيعات</span></td>
+                                <td>2024-12-15</td>
+                                <td><span class="status-indicator status-active"><i class="fas fa-check"></i> متاح</span></td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-primary" title="عرض" onclick="viewReportDetails(5)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" title="تحميل" onclick="exportReport(5)">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" title="طباعة" onclick="printReport(5)">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" title="جدولة" onclick="scheduleReport(5)">
+                                            <i class="fas fa-clock"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تقرير المشتريات الشهري</strong></td>
+                                <td>ملخص مشتريات الشهر الحالي</td>
+                                <td><span class="badge bg-warning">مشتريات</span></td>
+                                <td>2024-12-14</td>
+                                <td><span class="status-indicator status-active"><i class="fas fa-check"></i> متاح</span></td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-primary" title="عرض" onclick="viewReportDetails(6)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" title="تحميل" onclick="exportReport(6)">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" title="طباعة" onclick="printReport(6)">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" title="جدولة" onclick="scheduleReport(6)">
+                                            <i class="fas fa-clock"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تقرير حالة المخزون</strong></td>
+                                <td>تقرير شامل لحالة المخزون الحالية</td>
+                                <td><span class="badge bg-info">مخزون</span></td>
+                                <td>2024-12-13</td>
+                                <td><span class="status-indicator status-pending"><i class="fas fa-clock"></i> قيد الإنشاء</span></td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <button class="btn btn-sm btn-outline-secondary" disabled title="غير متاح">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" disabled title="غير متاح">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" disabled title="غير متاح">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" title="جدولة" onclick="scheduleReport(7)">
+                                            <i class="fas fa-clock"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظائف التقارير
+function viewReport(reportId) {
+    window.open(`/view_report/${reportId}`, '_blank');
+}
+
+function downloadReport(reportId, format = 'pdf') {
+    window.location.href = `/download_report/${reportId}?format=${format}`;
+}
+
+function printReport(reportId) {
+    window.open(`/print_report/${reportId}`, '_blank');
+}
+
+function scheduleReport(reportId) {
+    // فتح نافذة جدولة التقرير
+    alert('ميزة جدولة التقارير قيد التطوير');
+}
+
+// رسم بياني للمبيعات والمشتريات الشهرية
+document.addEventListener('DOMContentLoaded', function() {
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    const monthlyChart = new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                     'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+            datasets: [{
+                label: 'المبيعات (ر.س)',
+                data: [{% for data in monthly_data %}{{ data.sales }}{% if not loop.last %},{% endif %}{% endfor %}],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'المشتريات (ر.س)',
+                data: [{% for data in monthly_data %}{{ data.purchases }}{% if not loop.last %},{% endif %}{% endfor %}],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'المبيعات والمشتريات الشهرية'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // رسم بياني دائري للأرباح
+    const profitCtx = document.getElementById('profitChart').getContext('2d');
+    const profitChart = new Chart(profitCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['الأرباح الموجبة', 'الخسائر'],
+            datasets: [{
+                data: [
+                    {% set positive_profit = 0 %}
+                    {% set negative_profit = 0 %}
+                    {% for data in monthly_data %}
+                        {% if data.profit > 0 %}
+                            {% set positive_profit = positive_profit + data.profit %}
+                        {% else %}
+                            {% set negative_profit = negative_profit + (data.profit * -1) %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ positive_profit }}, {{ negative_profit }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
+                ],
+                borderColor: [
+                    'rgb(75, 192, 192)',
+                    'rgb(255, 99, 132)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'توزيع الأرباح والخسائر'
+                }
+            }
+        }
+    });
+});
+
+// وظائف الأزرار
+function showCreateReportModal() {
+    const modal = new bootstrap.Modal(document.getElementById('createReportModal'));
+    modal.show();
+}
+
+function exportAllReports() {
+    // تصدير جميع التقارير
+    window.location.href = '/reports/export_all';
+}
+
+function applyReportFilters() {
+    const reportType = document.getElementById('reportType').value;
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+
+    // تطبيق المرشحات
+    console.log('تطبيق المرشحات:', { reportType, dateFrom, dateTo });
+    location.reload();
+}
+
+function resetReportFilters() {
+    document.getElementById('reportType').value = '';
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+    location.reload();
+}
+
+function createNewReport() {
+    const form = document.getElementById('createReportForm');
+    if (form.checkValidity()) {
+        // إنشاء تقرير جديد
+        console.log('إنشاء تقرير جديد');
+        alert('تم إنشاء التقرير بنجاح!');
+    }
+}
+
+function saveReportSettings() {
+    // حفظ إعدادات التقرير
+    console.log('حفظ إعدادات التقرير');
+    alert('تم حفظ الإعدادات بنجاح!');
+}
+
+function viewReportDetails(reportId) {
+    // عرض تفاصيل التقرير
+    console.log('عرض تفاصيل التقرير:', reportId);
+    alert('عرض تفاصيل التقرير رقم: ' + reportId);
+}
+
+function exportReport(reportId) {
+    // تصدير التقرير
+    console.log('تصدير التقرير:', reportId);
+    alert('تم تصدير التقرير رقم: ' + reportId);
+}
+
+function printReport(reportId) {
+    // طباعة التقرير
+    console.log('طباعة التقرير:', reportId);
+    window.print();
+}
+
+function scheduleReport(reportId) {
+    // جدولة التقرير
+    console.log('جدولة التقرير:', reportId);
+    alert('تم جدولة التقرير رقم: ' + reportId);
+}
+
+// وظائف الأزرار الجديدة
+function createNewReport() {
+    console.log('إنشاء تقرير جديد');
+    showCreateReportModal();
+}
+
+function exportCurrentReport() {
+    console.log('تصدير التقرير الحالي');
+    exportAllReports();
+}
+
+function printCurrentReport() {
+    console.log('طباعة التقرير الحالي');
+    window.print();
+}
+
+function refreshReportData() {
+    console.log('تحديث بيانات التقرير');
+    location.reload();
+}
+
+function viewReportDetails() {
+    console.log('عرض تفاصيل التقرير');
+    alert('عرض تفاصيل التقرير');
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}

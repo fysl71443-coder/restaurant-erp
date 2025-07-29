@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل المورد - {{ supplier.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل المورد
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/suppliers">الموردين</a></li>
+                            <li class="breadcrumb-item"><a href="/view_supplier/{{ supplier.id }}">عرض المورد</a></li>
+                            <li class="breadcrumb-item active">تعديل المورد</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_supplier/{{ supplier.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض
+                    </a>
+                    <a href="/suppliers" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للموردين
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i>
+                        تعديل بيانات المورد
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="editSupplierForm">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">المعلومات الأساسية</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">اسم المورد <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ supplier.name }}" required>
+                                    <div class="invalid-feedback">يرجى إدخال اسم المورد</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="supplier_id" class="form-label">رقم المورد</label>
+                                    <input type="text" class="form-control" id="supplier_id" name="supplier_id" 
+                                           value="{{ supplier.supplier_id or '' }}">
+                                    <small class="form-text text-muted">رقم فريد للمورد (اختياري)</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="business_type" class="form-label">نوع النشاط</label>
+                                    <select class="form-select" id="business_type" name="business_type">
+                                        <option value="">اختر نوع النشاط</option>
+                                        <option value="تجارة" {{ 'selected' if supplier.business_type == 'تجارة' }}>تجارة</option>
+                                        <option value="صناعة" {{ 'selected' if supplier.business_type == 'صناعة' }}>صناعة</option>
+                                        <option value="خدمات" {{ 'selected' if supplier.business_type == 'خدمات' }}>خدمات</option>
+                                        <option value="زراعة" {{ 'selected' if supplier.business_type == 'زراعة' }}>زراعة</option>
+                                        <option value="أخرى" {{ 'selected' if supplier.business_type == 'أخرى' }}>أخرى</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">الحالة</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="active" {{ 'selected' if supplier.status == 'active' }}>نشط</option>
+                                        <option value="inactive" {{ 'selected' if supplier.status == 'inactive' }}>غير نشط</option>
+                                        <option value="suspended" {{ 'selected' if supplier.status == 'suspended' }}>معلق</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="col-md-6">
+                                <h6 class="text-success border-bottom pb-2 mb-3">معلومات الاتصال</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ supplier.email or '' }}">
+                                    <div class="invalid-feedback">يرجى إدخال بريد إلكتروني صحيح</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">رقم الهاتف</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ supplier.phone or '' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="contact_info" class="form-label">جهة الاتصال</label>
+                                    <input type="text" class="form-control" id="contact_info" name="contact_info" 
+                                           value="{{ supplier.contact_info or '' }}">
+                                    <small class="form-text text-muted">اسم الشخص المسؤول</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">العنوان</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3">{{ supplier.address or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Indicator -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-info" id="statusIndicator">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span id="statusText">حالة المورد: نشط</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> حفظ التعديلات
+                                    </button>
+                                    <button type="reset" class="btn btn-warning">
+                                        <i class="fas fa-undo"></i> إعادة تعيين
+                                    </button>
+                                    <a href="/view_supplier/{{ supplier.id }}" class="btn btn-info">
+                                        <i class="fas fa-eye"></i> عرض المورد
+                                    </a>
+                                    <a href="/add_purchase_invoice?supplier_id={{ supplier.id }}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> إضافة فاتورة شراء
+                                    </a>
+                                    <a href="/suppliers" class="btn btn-secondary">
+                                        <i class="fas fa-list"></i> عرض جميع الموردين
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('status');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const statusText = document.getElementById('statusText');
+    const emailInput = document.getElementById('email');
+
+    // تحديث مؤشر الحالة
+    function updateStatusIndicator() {
+        const status = statusSelect.value;
+        
+        switch(status) {
+            case 'active':
+                statusIndicator.className = 'alert alert-success';
+                statusText.innerHTML = '<i class="fas fa-check-circle"></i> حالة المورد: نشط';
+                break;
+            case 'inactive':
+                statusIndicator.className = 'alert alert-warning';
+                statusText.innerHTML = '<i class="fas fa-pause-circle"></i> حالة المورد: غير نشط';
+                break;
+            case 'suspended':
+                statusIndicator.className = 'alert alert-danger';
+                statusText.innerHTML = '<i class="fas fa-ban"></i> حالة المورد: معلق';
+                break;
+            default:
+                statusIndicator.className = 'alert alert-info';
+                statusText.innerHTML = '<i class="fas fa-info-circle"></i> حالة المورد: غير محدد';
+        }
+    }
+
+    // التحقق من صحة البريد الإلكتروني
+    function validateEmail() {
+        const email = emailInput.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (email && !emailRegex.test(email)) {
+            emailInput.classList.add('is-invalid');
+            return false;
+        } else {
+            emailInput.classList.remove('is-invalid');
+            return true;
+        }
+    }
+
+    // ربط الأحداث
+    statusSelect.addEventListener('change', updateStatusIndicator);
+    emailInput.addEventListener('blur', validateEmail);
+
+    // تحديث المؤشر الأولي
+    updateStatusIndicator();
+
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editSupplierForm');
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        
+        // التحقق من البريد الإلكتروني
+        if (!validateEmail()) {
+            isValid = false;
+        }
+        
+        // التحقق من صحة النموذج العامة
+        if (!form.checkValidity()) {
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    });
+
+    // تأكيد إعادة التعيين
+    const resetButton = form.querySelector('button[type="reset"]');
+    resetButton.addEventListener('click', function(event) {
+        if (!confirm('هل أنت متأكد من إعادة تعيين جميع الحقول؟')) {
+            event.preventDefault();
+        } else {
+            setTimeout(() => {
+                updateStatusIndicator();
+            }, 100);
+        }
+    });
+
+    // تنسيق رقم الهاتف
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, ''); // إزالة كل شيء عدا الأرقام
+        if (value.length > 0) {
+            // تنسيق رقم الهاتف السعودي
+            if (value.startsWith('966')) {
+                value = '+' + value;
+            } else if (value.startsWith('05')) {
+                value = '+966' + value.substring(1);
+            }
+        }
+        this.value = value;
+    });
+});
+</script>
+{% endblock %}

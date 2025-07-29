@@ -1,0 +1,188 @@
+{
+  "test_summary": {
+    "total_tests": 25,
+    "passed_tests": 24,
+    "failed_tests": 1,
+    "warning_tests": 0,
+    "success_rate": 96.0,
+    "execution_time": 0.371716
+  },
+  "test_results": [
+    {
+      "test_name": "اتصال الخادم",
+      "status": "FAIL",
+      "details": "HTTP 500",
+      "response_time": 0.17550921440124512,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار الصفحة الرئيسية",
+      "status": "PASS",
+      "details": "إجمالي: 7 | print: 1 | add: 4 | export: 2",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار المبيعات",
+      "status": "PASS",
+      "details": "إجمالي: 9 | edit: 1 | print: 3 | add: 3 | view: 1 | export: 1",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار المشتريات",
+      "status": "PASS",
+      "details": "إجمالي: 14 | edit: 2 | print: 2 | add: 6 | view: 4",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار المخزون",
+      "status": "PASS",
+      "details": "إجمالي: 9 | edit: 1 | delete: 1 | print: 2 | add: 2 | view: 1 | export: 2",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار العملاء",
+      "status": "PASS",
+      "details": "إجمالي: 5 | print: 2 | add: 2 | export: 1",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار الموظفين",
+      "status": "PASS",
+      "details": "إجمالي: 7 | print: 2 | add: 2 | export: 3",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:40"
+    },
+    {
+      "test_name": "أزرار التقارير",
+      "status": "PASS",
+      "details": "إجمالي: 3 | add: 1 | export: 2",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "نموذج إضافة فاتورة مبيعات",
+      "status": "PASS",
+      "details": "نموذج1(POST, 7 حقل, 2 مطلوب)",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "نموذج إضافة فاتورة مشتريات",
+      "status": "PASS",
+      "details": "نموذج1(POST, 6 حقل, 2 مطلوب)",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "نموذج تعديل منتج",
+      "status": "PASS",
+      "details": "نموذج1(POST, 9 حقل, 4 مطلوب)",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "نموذج تعديل عميل",
+      "status": "PASS",
+      "details": "نموذج1(POST, 3 حقل, 1 مطلوب)",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "نموذج تعديل موظف",
+      "status": "PASS",
+      "details": "نموذج1(POST, 14 حقل, 1 مطلوب)",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS الصفحة الرئيسية",
+      "status": "PASS",
+      "details": "functions: 1 | events: 1",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS المبيعات",
+      "status": "PASS",
+      "details": "functions: 3 | events: 3 | dom_queries: 6",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS المشتريات",
+      "status": "PASS",
+      "details": "functions: 1 | events: 1",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS المخزون",
+      "status": "PASS",
+      "details": "functions: 4 | events: 4 | dom_queries: 7",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS العملاء",
+      "status": "PASS",
+      "details": "functions: 2 | events: 2 | dom_queries: 5",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS الموظفين",
+      "status": "PASS",
+      "details": "functions: 4 | events: 5 | dom_queries: 10",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS التقارير",
+      "status": "PASS",
+      "details": "functions: 4",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS إضافة فاتورة مبيعات",
+      "status": "PASS",
+      "details": "functions: 6 | events: 11 | dom_queries: 25 | validation: 2",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS إضافة فاتورة مشتريات",
+      "status": "PASS",
+      "details": "functions: 5 | events: 10 | dom_queries: 23 | validation: 2",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS تعديل منتج",
+      "status": "PASS",
+      "details": "functions: 5 | events: 7 | dom_queries: 9 | validation: 5",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS تعديل عميل",
+      "status": "PASS",
+      "details": "functions: 2 | events: 2 | dom_queries: 4 | validation: 1",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    },
+    {
+      "test_name": "JS تعديل موظف",
+      "status": "PASS",
+      "details": "functions: 2 | events: 2 | dom_queries: 15 | validation: 1",
+      "response_time": 0,
+      "timestamp": "2025-07-29 02:17:41"
+    }
+  ],
+  "generated_at": "2025-07-29T02:17:41.076390"
+}

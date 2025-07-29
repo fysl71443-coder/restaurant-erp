@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة مصروف جديد - نظام المحاسبة{% endblock %}
+{% block page_title %}إضافة مصروف جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- رأس الصفحة -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-money-bill-wave text-primary"></i> إضافة مصروف جديد</h2>
+                    <p class="text-muted">سجل مصروف أو نفقة جديدة</p>
+                </div>
+                <div>
+                    <a href="/expenses" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للمصروفات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> تفاصيل المصروف</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="expenseForm" action="{{ url_for('add_expense') }}">
+                        <div class="row">
+                            <!-- وصف المصروف -->
+                            <div class="col-md-8 mb-3">
+                                <label for="description" class="form-label form-label-enhanced">
+                                    <i class="fas fa-align-left text-primary"></i> وصف المصروف
+                                    <span class="required-indicator">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="description" name="description" required
+                                       placeholder="أدخل وصف المصروف">
+                                <div class="invalid-feedback">
+                                    يرجى إدخال وصف المصروف
+                                </div>
+                                <div class="form-help">أدخل وصفاً واضحاً ومفصلاً للمصروف</div>
+                            </div>
+
+                            <!-- المبلغ -->
+                            <div class="col-md-4 mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="fas fa-money-bill text-success"></i> المبلغ *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="amount" name="amount" required 
+                                           step="0.01" min="0" placeholder="0.00">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- تاريخ المصروف -->
+                            <div class="col-md-4 mb-3">
+                                <label for="expense_date" class="form-label">
+                                    <i class="fas fa-calendar text-info"></i> تاريخ المصروف
+                                </label>
+                                <input type="date" class="form-control" id="expense_date" name="expense_date">
+                            </div>
+
+                            <!-- فئة المصروف -->
+                            <div class="col-md-4 mb-3">
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-tags text-warning"></i> فئة المصروف
+                                </label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">اختر الفئة</option>
+                                    <option value="operational">مصاريف تشغيلية</option>
+                                    <option value="salaries">رواتب وأجور</option>
+                                    <option value="rent">إيجارات</option>
+                                    <option value="utilities">مرافق (كهرباء، ماء، هاتف)</option>
+                                    <option value="marketing">تسويق وإعلان</option>
+                                    <option value="maintenance">صيانة وإصلاح</option>
+                                    <option value="supplies">مستلزمات مكتبية</option>
+                                    <option value="travel">سفر وانتقالات</option>
+                                    <option value="insurance">تأمين</option>
+                                    <option value="legal">رسوم قانونية</option>
+                                    <option value="training">تدريب وتطوير</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                            </div>
+
+                            <!-- طريقة الدفع -->
+                            <div class="col-md-4 mb-3">
+                                <label for="payment_method" class="form-label">
+                                    <i class="fas fa-credit-card text-secondary"></i> طريقة الدفع
+                                </label>
+                                <select class="form-select" id="payment_method" name="payment_method">
+                                    <option value="cash">نقداً</option>
+                                    <option value="bank_transfer">تحويل بنكي</option>
+                                    <option value="credit_card">بطاقة ائتمان</option>
+                                    <option value="debit_card">بطاقة خصم</option>
+                                    <option value="check">شيك</option>
+                                    <option value="online">دفع إلكتروني</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- المورد/البائع -->
+                            <div class="col-md-6 mb-3">
+                                <label for="vendor" class="form-label">
+                                    <i class="fas fa-store text-primary"></i> المورد/البائع
+                                </label>
+                                <input type="text" class="form-control" id="vendor" name="vendor" 
+                                       placeholder="اسم المورد أو البائع">
+                            </div>
+
+                            <!-- رقم الفاتورة/الإيصال -->
+                            <div class="col-md-6 mb-3">
+                                <label for="receipt_number" class="form-label">
+                                    <i class="fas fa-receipt text-info"></i> رقم الفاتورة/الإيصال
+                                </label>
+                                <input type="text" class="form-control" id="receipt_number" name="receipt_number" 
+                                       placeholder="رقم الفاتورة أو الإيصال">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- حالة المصروف -->
+                            <div class="col-md-4 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-flag text-warning"></i> حالة المصروف
+                                </label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="paid">مدفوع</option>
+                                    <option value="pending">معلق</option>
+                                    <option value="approved">معتمد</option>
+                                    <option value="rejected">مرفوض</option>
+                                </select>
+                            </div>
+
+                            <!-- قابل للخصم ضريبياً -->
+                            <div class="col-md-4 mb-3">
+                                <label for="tax_deductible" class="form-label">
+                                    <i class="fas fa-percentage text-success"></i> قابل للخصم الضريبي
+                                </label>
+                                <select class="form-select" id="tax_deductible" name="tax_deductible">
+                                    <option value="yes">نعم</option>
+                                    <option value="no">لا</option>
+                                    <option value="partial">جزئياً</option>
+                                </select>
+                            </div>
+
+                            <!-- مركز التكلفة -->
+                            <div class="col-md-4 mb-3">
+                                <label for="cost_center" class="form-label">
+                                    <i class="fas fa-building text-secondary"></i> مركز التكلفة
+                                </label>
+                                <select class="form-select" id="cost_center" name="cost_center">
+                                    <option value="">اختر مركز التكلفة</option>
+                                    <option value="admin">إدارة عامة</option>
+                                    <option value="sales">مبيعات</option>
+                                    <option value="marketing">تسويق</option>
+                                    <option value="operations">عمليات</option>
+                                    <option value="hr">موارد بشرية</option>
+                                    <option value="it">تقنية معلومات</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- ملاحظات -->
+                            <div class="col-12 mb-4">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-secondary"></i> ملاحظات
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="أي ملاحظات إضافية حول المصروف"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- ملخص المصروف -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title"><i class="fas fa-calculator"></i> ملخص المصروف</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>المبلغ الأساسي:</strong> <span id="baseAmount" class="text-danger">0.00 ر.س</span></p>
+                                                <p class="mb-0"><strong>الضريبة المضافة (15%):</strong> <span id="vatAmount" class="text-info">0.00 ر.س</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>المبلغ الإجمالي:</strong> <span id="totalAmount" class="text-danger fw-bold">0.00 ر.س</span></p>
+                                                <p class="mb-0"><strong>الحالة:</strong> <span id="statusDisplay" class="badge bg-success">مدفوع</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- أزرار الإجراءات -->
+                        <div class="form-actions mt-4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="btn-group-enhanced">
+                                        <button type="button" class="btn btn-outline-secondary btn-enhanced" onclick="history.back()">
+                                            <i class="fas fa-times"></i> إلغاء
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning btn-enhanced undo-btn" disabled>
+                                            <i class="fas fa-undo"></i> تراجع
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-enhanced" onclick="autoSaveForm(document.getElementById('expenseForm'))">
+                                            <i class="fas fa-cloud"></i> حفظ تلقائي
+                                        </button>
+                                        <button type="submit" class="btn btn-danger btn-enhanced save-btn">
+                                            <i class="fas fa-save"></i> حفظ المصروف
+                                        </button>
+                                    </div>
+
+                                    <!-- مؤشر الحالة -->
+                                    <div class="mt-3 text-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-shield-alt"></i> جميع البيانات محمية ومشفرة
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب المبالغ
+function calculateAmounts() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const vatRate = 0.15; // 15% VAT
+    const vatAmount = amount * vatRate;
+    const totalAmount = amount + vatAmount;
+    
+    document.getElementById('baseAmount').textContent = amount.toFixed(2) + ' ر.س';
+    document.getElementById('vatAmount').textContent = vatAmount.toFixed(2) + ' ر.س';
+    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2) + ' ر.س';
+}
+
+// تحديث عرض الحالة
+function updateStatusDisplay() {
+    const status = document.getElementById('status').value;
+    const statusDisplay = document.getElementById('statusDisplay');
+    
+    const statusMap = {
+        'paid': { text: 'مدفوع', class: 'bg-success' },
+        'pending': { text: 'معلق', class: 'bg-warning' },
+        'approved': { text: 'معتمد', class: 'bg-info' },
+        'rejected': { text: 'مرفوض', class: 'bg-danger' }
+    };
+    
+    const statusInfo = statusMap[status] || statusMap['paid'];
+    statusDisplay.textContent = statusInfo.text;
+    statusDisplay.className = `badge ${statusInfo.class}`;
+}
+
+// ربط الأحداث
+document.getElementById('amount').addEventListener('input', calculateAmounts);
+document.getElementById('status').addEventListener('change', updateStatusDisplay);
+
+// تعيين تاريخ اليوم
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('expense_date').value = today;
+    calculateAmounts();
+    updateStatusDisplay();
+});
+
+// التحقق السريع من صحة النموذج
+document.getElementById('expenseForm').addEventListener('submit', function(e) {
+    const description = document.getElementById('description').value.trim();
+    const amount = document.getElementById('amount').value;
+
+    if (!description || !amount) {
+        e.preventDefault();
+        FastFormProcessor.showQuickMessage('يرجى ملء جميع الحقول المطلوبة', 'danger');
+        return false;
+    }
+
+    // معالجة سريعة للزر
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> تم الحفظ';
+        submitBtn.disabled = true;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الحضور - {{ attendance.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل سجل الحضور
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/attendance">الحضور</a></li>
+                            <li class="breadcrumb-item"><a href="/view_attendance/{{ attendance.id }}">عرض الحضور</a></li>
+                            <li class="breadcrumb-item active">تعديل</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_attendance/{{ attendance.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض السجل
+                    </a>
+                    <a href="/attendance" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> قائمة الحضور
+                    </a>
+                </div>
+            </div>
+
+            <!-- Employee Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user"></i>
+                        معلومات الموظف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1">{{ attendance.employee.name }}</h4>
+                                    <p class="text-muted mb-1">رقم الموظف: {{ attendance.employee.employee_id }}</p>
+                                    <p class="text-muted mb-0">{{ attendance.employee.position or 'غير محدد' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">القسم</small>
+                                    <p class="fw-bold">{{ attendance.employee.department or 'غير محدد' }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">الراتب الأساسي</small>
+                                    <p class="fw-bold">{{ attendance.employee.salary or 0 }} ريال</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" id="editAttendanceForm" class="needs-validation" novalidate>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-clock"></i>
+                            تعديل بيانات الحضور
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar text-primary"></i>
+                                    التاريخ <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       value="{{ attendance.date.strftime('%Y-%m-%d') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال التاريخ
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    حالة الحضور <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">اختر الحالة</option>
+                                    <option value="present" {% if attendance.status == 'present' %}selected{% endif %}>حاضر</option>
+                                    <option value="absent" {% if attendance.status == 'absent' %}selected{% endif %}>غائب</option>
+                                    <option value="late" {% if attendance.status == 'late' %}selected{% endif %}>متأخر</option>
+                                    <option value="half_day" {% if attendance.status == 'half_day' %}selected{% endif %}>نصف يوم</option>
+                                    <option value="sick_leave" {% if attendance.status == 'sick_leave' %}selected{% endif %}>إجازة مرضية</option>
+                                    <option value="vacation" {% if attendance.status == 'vacation' %}selected{% endif %}>إجازة</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار حالة الحضور
+                                </div>
+                            </div>
+
+                            <!-- Check In Time -->
+                            <div class="col-md-6 mb-3">
+                                <label for="check_in" class="form-label">
+                                    <i class="fas fa-sign-in-alt text-success"></i>
+                                    وقت الدخول
+                                </label>
+                                <input type="time" class="form-control" id="check_in" name="check_in" 
+                                       value="{{ attendance.check_in.strftime('%H:%M') if attendance.check_in else '' }}">
+                                <small class="form-text text-muted">اتركه فارغاً إذا كان الموظف غائباً</small>
+                            </div>
+
+                            <!-- Check Out Time -->
+                            <div class="col-md-6 mb-3">
+                                <label for="check_out" class="form-label">
+                                    <i class="fas fa-sign-out-alt text-danger"></i>
+                                    وقت الخروج
+                                </label>
+                                <input type="time" class="form-control" id="check_out" name="check_out" 
+                                       value="{{ attendance.check_out.strftime('%H:%M') if attendance.check_out else '' }}">
+                                <small class="form-text text-muted">اتركه فارغاً إذا لم يخرج الموظف بعد</small>
+                            </div>
+
+                            <!-- Break Duration -->
+                            <div class="col-md-6 mb-3">
+                                <label for="break_duration" class="form-label">
+                                    <i class="fas fa-coffee text-warning"></i>
+                                    مدة الاستراحة (بالدقائق)
+                                </label>
+                                <input type="number" class="form-control" id="break_duration" name="break_duration" 
+                                       value="{{ attendance.break_duration or 0 }}" min="0" max="480">
+                                <small class="form-text text-muted">المدة بالدقائق (افتراضي: 0)</small>
+                            </div>
+
+                            <!-- Overtime Hours -->
+                            <div class="col-md-6 mb-3">
+                                <label for="overtime_hours" class="form-label">
+                                    <i class="fas fa-clock text-info"></i>
+                                    ساعات إضافية
+                                </label>
+                                <input type="number" class="form-control" id="overtime_hours" name="overtime_hours" 
+                                       value="{{ attendance.overtime_hours or 0 }}" min="0" max="12" step="0.5">
+                                <small class="form-text text-muted">عدد الساعات الإضافية</small>
+                            </div>
+                        </div>
+
+                        <!-- Working Hours Summary -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">ملخص ساعات العمل</h6>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-business-time fa-2x text-primary mb-2"></i>
+                                        <h6 class="text-primary">ساعات العمل</h6>
+                                        <h4 class="text-primary" id="workingHours">{{ attendance.working_hours or 0 }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-plus-circle fa-2x text-success mb-2"></i>
+                                        <h6 class="text-success">ساعات إضافية</h6>
+                                        <h4 class="text-success" id="overtimeDisplay">{{ attendance.overtime_hours or 0 }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-coffee fa-2x text-warning mb-2"></i>
+                                        <h6 class="text-warning">استراحة (دقيقة)</h6>
+                                        <h4 class="text-warning" id="breakDisplay">{{ attendance.break_duration or 0 }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-calculator fa-2x text-info mb-2"></i>
+                                        <h6 class="text-info">إجمالي الساعات</h6>
+                                        <h4 class="text-info" id="totalHours">{{ (attendance.working_hours or 0) + (attendance.overtime_hours or 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-secondary"></i>
+                                    ملاحظات
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="أدخل أي ملاحظات حول الحضور...">{{ attendance.notes or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <a href="/view_attendance/{{ attendance.id }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> عرض السجل
+                            </a>
+                            <a href="/attendance" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب ساعات العمل تلقائياً
+function calculateWorkingHours() {
+    const checkIn = document.getElementById('check_in').value;
+    const checkOut = document.getElementById('check_out').value;
+    const breakDuration = parseInt(document.getElementById('break_duration').value) || 0;
+    const overtimeHours = parseFloat(document.getElementById('overtime_hours').value) || 0;
+    
+    if (checkIn && checkOut) {
+        const checkInTime = new Date(`2000-01-01 ${checkIn}`);
+        const checkOutTime = new Date(`2000-01-01 ${checkOut}`);
+        
+        if (checkOutTime > checkInTime) {
+            const diffMs = checkOutTime - checkInTime;
+            const diffHours = diffMs / (1000 * 60 * 60);
+            const workingHours = Math.max(0, diffHours - (breakDuration / 60));
+            
+            document.getElementById('workingHours').textContent = workingHours.toFixed(2);
+            document.getElementById('totalHours').textContent = (workingHours + overtimeHours).toFixed(2);
+        }
+    }
+    
+    document.getElementById('overtimeDisplay').textContent = overtimeHours.toFixed(1);
+    document.getElementById('breakDisplay').textContent = breakDuration;
+}
+
+// تحديث الحقول بناءً على حالة الحضور
+function updateFieldsBasedOnStatus() {
+    const status = document.getElementById('status').value;
+    const checkInField = document.getElementById('check_in');
+    const checkOutField = document.getElementById('check_out');
+    const breakField = document.getElementById('break_duration');
+    const overtimeField = document.getElementById('overtime_hours');
+    
+    if (status === 'absent' || status === 'sick_leave' || status === 'vacation') {
+        checkInField.value = '';
+        checkOutField.value = '';
+        breakField.value = '0';
+        overtimeField.value = '0';
+        checkInField.disabled = true;
+        checkOutField.disabled = true;
+        breakField.disabled = true;
+        overtimeField.disabled = true;
+    } else {
+        checkInField.disabled = false;
+        checkOutField.disabled = false;
+        breakField.disabled = false;
+        overtimeField.disabled = false;
+    }
+    
+    calculateWorkingHours();
+}
+
+// إعادة تعيين النموذج
+function resetForm() {
+    if (confirm('هل تريد إعادة تعيين جميع البيانات؟')) {
+        document.getElementById('editAttendanceForm').reset();
+        calculateWorkingHours();
+    }
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // إضافة event listeners
+    document.getElementById('check_in').addEventListener('change', calculateWorkingHours);
+    document.getElementById('check_out').addEventListener('change', calculateWorkingHours);
+    document.getElementById('break_duration').addEventListener('input', calculateWorkingHours);
+    document.getElementById('overtime_hours').addEventListener('input', calculateWorkingHours);
+    document.getElementById('status').addEventListener('change', updateFieldsBasedOnStatus);
+    
+    // حساب أولي
+    updateFieldsBasedOnStatus();
+    calculateWorkingHours();
+    
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editAttendanceForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

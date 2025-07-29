@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}تسجيل حضور - نظام المحاسبة{% endblock %}
+{% block page_title %}تسجيل حضور جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-clock text-primary"></i> تسجيل حضور جديد</h2>
+                    <p class="text-muted">تسجيل حضور وانصراف الموظفين</p>
+                </div>
+                <div>
+                    <a href="/attendance" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> العودة للحضور
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الوقت الحالي -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3 id="currentTime"></h3>
+                            <small>الوقت الحالي</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 id="currentDate"></h3>
+                            <small>التاريخ الحالي</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 id="currentDay"></h3>
+                            <small>اليوم</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج تسجيل الحضور -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-user-clock"></i> تسجيل حضور موظف</h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-light undo-btn" disabled>
+                                <i class="fas fa-undo"></i> تراجع
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light save-btn">
+                                <i class="fas fa-save"></i> حفظ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="attendanceForm" action="{{ url_for('add_attendance') }}">
+                        <!-- معلومات الموظف -->
+                        <div class="form-section">
+                            <h6 class="form-section-title"><i class="fas fa-user"></i> معلومات الموظف</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="employee_id" class="form-label form-label-enhanced">
+                                        <i class="fas fa-user text-primary"></i> الموظف 
+                                        <span class="required-indicator">*</span>
+                                    </label>
+                                    <select class="form-select" id="employee_id" name="employee_id" required>
+                                        <option value="">اختر الموظف</option>
+                                        {% if employees %}
+                                            {% for employee in employees %}
+                                            <option value="{{ employee.id }}" data-name="{{ employee.name }}" data-position="{{ employee.position }}" data-department="{{ employee.department }}">
+                                                {{ employee.employee_id }} - {{ employee.name }}
+                                            </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option value="" disabled>لا توجد موظفين نشطين</option>
+                                        {% endif %}
+                                    </select>
+                                    <div class="form-help">اختر الموظف المراد تسجيل حضوره</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="date" class="form-label form-label-enhanced">
+                                        <i class="fas fa-calendar text-info"></i> التاريخ 
+                                        <span class="required-indicator">*</span>
+                                    </label>
+                                    <input type="date" class="form-control" id="date" name="date" required>
+                                    <div class="form-help">تاريخ الحضور</div>
+                                </div>
+                            </div>
+                            
+                            <!-- معلومات الموظف المختار -->
+                            <div id="employeeInfo" class="alert alert-info" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>المنصب:</strong> <span id="employeePosition"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>القسم:</strong> <span id="employeeDepartment"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>الحالة:</strong> <span class="badge bg-success">نشط</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- أوقات الحضور -->
+                        <div class="form-section">
+                            <h6 class="form-section-title"><i class="fas fa-clock"></i> أوقات الحضور والانصراف</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="check_in" class="form-label form-label-enhanced">
+                                        <i class="fas fa-sign-in-alt text-success"></i> وقت الدخول
+                                    </label>
+                                    <input type="time" class="form-control" id="check_in" name="check_in">
+                                    <div class="form-help">وقت وصول الموظف</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="check_out" class="form-label form-label-enhanced">
+                                        <i class="fas fa-sign-out-alt text-danger"></i> وقت الخروج
+                                    </label>
+                                    <input type="time" class="form-control" id="check_out" name="check_out">
+                                    <div class="form-help">وقت مغادرة الموظف</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="break_start" class="form-label form-label-enhanced">
+                                        <i class="fas fa-pause text-warning"></i> بداية الاستراحة
+                                    </label>
+                                    <input type="time" class="form-control" id="break_start" name="break_start">
+                                    <div class="form-help">وقت بداية استراحة الغداء</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="break_end" class="form-label form-label-enhanced">
+                                        <i class="fas fa-play text-info"></i> نهاية الاستراحة
+                                    </label>
+                                    <input type="time" class="form-control" id="break_end" name="break_end">
+                                    <div class="form-help">وقت انتهاء استراحة الغداء</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- حالة الحضور -->
+                        <div class="form-section">
+                            <h6 class="form-section-title"><i class="fas fa-flag"></i> حالة الحضور</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="status" class="form-label form-label-enhanced">
+                                        <i class="fas fa-info-circle text-primary"></i> الحالة
+                                    </label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="present">حاضر</option>
+                                        <option value="absent">غائب</option>
+                                        <option value="late">متأخر</option>
+                                        <option value="half_day">نصف يوم</option>
+                                    </select>
+                                    <div class="form-help">حالة حضور الموظف</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label form-label-enhanced">
+                                        <i class="fas fa-calculator text-success"></i> الساعات المحسوبة
+                                    </label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-control-plaintext bg-light rounded p-2">
+                                                <small class="text-muted">إجمالي الساعات:</small>
+                                                <div class="fw-bold text-primary" id="totalHours">0.0 ساعة</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-control-plaintext bg-light rounded p-2">
+                                                <small class="text-muted">ساعات إضافية:</small>
+                                                <div class="fw-bold text-warning" id="overtimeHours">0.0 ساعة</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ملاحظات -->
+                        <div class="form-section">
+                            <h6 class="form-section-title"><i class="fas fa-sticky-note"></i> ملاحظات</h6>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="notes" class="form-label form-label-enhanced">
+                                        <i class="fas fa-comment text-secondary"></i> ملاحظات إضافية
+                                    </label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="أي ملاحظات حول حضور الموظف..."></textarea>
+                                    <div class="form-help">ملاحظات إضافية أو أسباب التأخير/الغياب</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار الإجراءات -->
+                        <div class="form-actions">
+                            <div class="btn-group-enhanced">
+                                <button type="button" class="btn btn-outline-secondary btn-enhanced" onclick="history.back()">
+                                    <i class="fas fa-times"></i> إلغاء
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-enhanced undo-btn" disabled>
+                                    <i class="fas fa-undo"></i> تراجع
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-enhanced" onclick="autoSaveForm(document.getElementById('attendanceForm'))">
+                                    <i class="fas fa-cloud"></i> حفظ تلقائي
+                                </button>
+                                <button type="submit" class="btn btn-success btn-enhanced save-btn">
+                                    <i class="fas fa-clock"></i> تسجيل الحضور
+                                </button>
+                            </div>
+                            
+                            <!-- مؤشر الحالة -->
+                            <div class="mt-3 text-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> سيتم حساب الساعات تلقائياً عند إدخال الأوقات
+                                </small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- لوحة المساعدة -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-question-circle"></i> إرشادات التسجيل</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sign-in-alt text-success me-2"></i>
+                                <div>
+                                    <strong>وقت الدخول</strong>
+                                    <br><small class="text-muted">وقت وصول الموظف للعمل</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sign-out-alt text-danger me-2"></i>
+                                <div>
+                                    <strong>وقت الخروج</strong>
+                                    <br><small class="text-muted">وقت مغادرة الموظف من العمل</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-pause text-warning me-2"></i>
+                                <div>
+                                    <strong>الاستراحة</strong>
+                                    <br><small class="text-muted">فترة استراحة الغداء (اختيارية)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calculator text-info me-2"></i>
+                                <div>
+                                    <strong>الحساب التلقائي</strong>
+                                    <br><small class="text-muted">يتم حساب الساعات تلقائياً</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- إحصائيات سريعة -->
+            <div class="card mt-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> إحصائيات اليوم</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h4 class="text-success">15</h4>
+                                <small class="text-muted">حاضرين</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h4 class="text-danger">3</h4>
+                                <small class="text-muted">غائبين</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row text-center mt-2">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h4 class="text-warning">2</h4>
+                                <small class="text-muted">متأخرين</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h4 class="text-info">120</h4>
+                                <small class="text-muted">إجمالي الساعات</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// تحديث الوقت والتاريخ
+function updateDateTime() {
+    const now = new Date();
+    
+    // الوقت
+    const timeString = now.toLocaleTimeString('ar-SA', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    document.getElementById('currentTime').textContent = timeString;
+    
+    // التاريخ
+    const dateString = now.toLocaleDateString('ar-SA');
+    document.getElementById('currentDate').textContent = dateString;
+    
+    // اليوم
+    const dayString = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+    document.getElementById('currentDay').textContent = dayString;
+}
+
+// تحديث كل ثانية
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// تهيئة النموذج
+document.addEventListener('DOMContentLoaded', function() {
+    // تعيين تاريخ اليوم
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+    
+    // تعيين الوقت الحالي لوقت الدخول
+    const now = new Date();
+    const timeString = now.toTimeString().slice(0, 5);
+    document.getElementById('check_in').value = timeString;
+    
+    // مستمع تغيير الموظف
+    document.getElementById('employee_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const employeeInfo = document.getElementById('employeeInfo');
+        
+        if (selectedOption.value) {
+            document.getElementById('employeePosition').textContent = selectedOption.dataset.position || 'غير محدد';
+            document.getElementById('employeeDepartment').textContent = selectedOption.dataset.department || 'غير محدد';
+            employeeInfo.style.display = 'block';
+        } else {
+            employeeInfo.style.display = 'none';
+        }
+    });
+    
+    // حساب الساعات عند تغيير الأوقات
+    const timeInputs = ['check_in', 'check_out', 'break_start', 'break_end'];
+    timeInputs.forEach(inputId => {
+        document.getElementById(inputId).addEventListener('change', calculateHours);
+    });
+});
+
+// حساب الساعات
+function calculateHours() {
+    const checkIn = document.getElementById('check_in').value;
+    const checkOut = document.getElementById('check_out').value;
+    const breakStart = document.getElementById('break_start').value;
+    const breakEnd = document.getElementById('break_end').value;
+    
+    if (checkIn && checkOut) {
+        // تحويل الأوقات إلى دقائق
+        const checkInMinutes = timeToMinutes(checkIn);
+        const checkOutMinutes = timeToMinutes(checkOut);
+        
+        if (checkOutMinutes > checkInMinutes) {
+            let totalMinutes = checkOutMinutes - checkInMinutes;
+            
+            // خصم وقت الاستراحة
+            if (breakStart && breakEnd) {
+                const breakStartMinutes = timeToMinutes(breakStart);
+                const breakEndMinutes = timeToMinutes(breakEnd);
+                
+                if (breakEndMinutes > breakStartMinutes) {
+                    totalMinutes -= (breakEndMinutes - breakStartMinutes);
+                }
+            }
+            
+            const totalHours = totalMinutes / 60;
+            const overtimeHours = Math.max(0, totalHours - 8);
+            
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1) + ' ساعة';
+            document.getElementById('overtimeHours').textContent = overtimeHours.toFixed(1) + ' ساعة';
+            
+            // تغيير لون الساعات الإضافية
+            const overtimeElement = document.getElementById('overtimeHours');
+            if (overtimeHours > 0) {
+                overtimeElement.className = 'fw-bold text-warning';
+            } else {
+                overtimeElement.className = 'fw-bold text-muted';
+            }
+        }
+    }
+}
+
+// تحويل الوقت إلى دقائق
+function timeToMinutes(timeString) {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+// أزرار سريعة لتعيين الوقت الحالي
+function setCurrentTime(inputId) {
+    const now = new Date();
+    const timeString = now.toTimeString().slice(0, 5);
+    document.getElementById(inputId).value = timeString;
+    calculateHours();
+}
+
+// إضافة أزرار سريعة للأوقات
+document.addEventListener('DOMContentLoaded', function() {
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    timeInputs.forEach(input => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-sm btn-outline-primary ms-2';
+        button.innerHTML = '<i class="fas fa-clock"></i>';
+        button.title = 'الوقت الحالي';
+        button.onclick = () => setCurrentTime(input.id);
+        
+        input.parentNode.appendChild(button);
+    });
+});
+</script>
+{% endblock %}

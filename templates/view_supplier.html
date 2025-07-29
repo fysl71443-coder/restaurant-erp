@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}عرض المورد - {{ supplier.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-truck text-primary"></i>
+                        عرض المورد
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/suppliers">الموردين</a></li>
+                            <li class="breadcrumb-item active">عرض المورد</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/edit_supplier/{{ supplier.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> تعديل
+                    </a>
+                    <button class="btn btn-outline-primary" data-print="supplier-details" data-print-title="تفاصيل المورد - {{ supplier.name }}">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <a href="/suppliers" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للموردين
+                    </a>
+                </div>
+            </div>
+
+            <!-- Supplier Details Card -->
+            <div class="card shadow-sm" id="supplier-details">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        تفاصيل المورد
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">المعلومات الأساسية</h6>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>اسم المورد:</strong></div>
+                                <div class="col-sm-8">{{ supplier.name }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>رقم المورد:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-secondary">{{ supplier.supplier_id or 'غير محدد' }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>نوع النشاط:</strong></div>
+                                <div class="col-sm-8">{{ supplier.business_type or 'غير محدد' }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>الحالة:</strong></div>
+                                <div class="col-sm-8">
+                                    {% if supplier.status == 'active' %}
+                                        <span class="badge bg-success">نشط</span>
+                                    {% elif supplier.status == 'inactive' %}
+                                        <span class="badge bg-warning">غير نشط</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ supplier.status or 'غير محدد' }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-success border-bottom pb-2 mb-3">معلومات الاتصال</h6>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>البريد الإلكتروني:</strong></div>
+                                <div class="col-sm-8">
+                                    {% if supplier.email %}
+                                        <a href="mailto:{{ supplier.email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope"></i> {{ supplier.email }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">غير محدد</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>رقم الهاتف:</strong></div>
+                                <div class="col-sm-8">
+                                    {% if supplier.phone %}
+                                        <a href="tel:{{ supplier.phone }}" class="text-decoration-none">
+                                            <i class="fas fa-phone"></i> {{ supplier.phone }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">غير محدد</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>العنوان:</strong></div>
+                                <div class="col-sm-8">{{ supplier.address or 'غير محدد' }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>جهة الاتصال:</strong></div>
+                                <div class="col-sm-8">{{ supplier.contact_info or 'غير محدد' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Information -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2 mb-3">المعلومات المالية</h6>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-success">إجمالي المشتريات</h5>
+                                    {% set total_purchases = supplier.purchase_invoices|sum(attribute='total_amount') if supplier.purchase_invoices else 0 %}
+                                    <h3 class="text-success">{{ "%.2f"|format(total_purchases) }}</h3>
+                                    <small class="text-muted">ر.س</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-primary">عدد الفواتير</h5>
+                                    <h3 class="text-primary">{{ supplier.purchase_invoices|length if supplier.purchase_invoices else 0 }}</h3>
+                                    <small class="text-muted">فاتورة</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-warning">متوسط الفاتورة</h5>
+                                    {% set avg_invoice = (total_purchases / (supplier.purchase_invoices|length)) if supplier.purchase_invoices and supplier.purchase_invoices|length > 0 else 0 %}
+                                    <h3 class="text-warning">{{ "%.2f"|format(avg_invoice) }}</h3>
+                                    <small class="text-muted">ر.س</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Purchase Invoices -->
+                    {% if supplier.purchase_invoices %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">آخر الفواتير</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>رقم الفاتورة</th>
+                                            <th>التاريخ</th>
+                                            <th>المبلغ</th>
+                                            <th>الحالة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for invoice in supplier.purchase_invoices[:5] %}
+                                        <tr>
+                                            <td>{{ invoice.id }}</td>
+                                            <td>{{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</td>
+                                            <td>{{ "%.2f"|format(invoice.total_amount) }} ر.س</td>
+                                            <td>
+                                                {% if invoice.status == 'paid' %}
+                                                    <span class="badge bg-success">مدفوعة</span>
+                                                {% elif invoice.status == 'pending' %}
+                                                    <span class="badge bg-warning">معلقة</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">متأخرة</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="/view_purchase_invoice/{{ invoice.id }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Additional Information -->
+                    {% if supplier.created_at %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">معلومات إضافية</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        تاريخ الإضافة: {{ supplier.created_at.strftime('%Y-%m-%d %H:%M') if supplier.created_at else 'غير محدد' }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/edit_supplier/{{ supplier.id }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل المورد
+                        </a>
+                        <button class="btn btn-danger" onclick="confirmDelete({{ supplier.id }}, '{{ supplier.name }}')">
+                            <i class="fas fa-trash"></i> حذف المورد
+                        </button>
+                        <a href="/add_purchase_invoice?supplier_id={{ supplier.id }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> إضافة فاتورة شراء
+                        </a>
+                        <a href="/add_supplier" class="btn btn-info">
+                            <i class="fas fa-plus"></i> إضافة مورد جديد
+                        </a>
+                        <a href="/suppliers" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> عرض جميع الموردين
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف المورد "<span id="supplierName"></span>"؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه وسيؤثر على جميع الفواتير المرتبطة.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(supplierId, supplierName) {
+    // الحذف السريع بدون نافذة تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف المورد "${supplierName}"...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = '/delete_supplier/' + supplierId;
+    }, 500);
+}
+</script>
+{% endblock %}

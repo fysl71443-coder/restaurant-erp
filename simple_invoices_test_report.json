@@ -1,0 +1,12 @@
+{
+  "test_date": "2025-07-29T00:40:06.998588",
+  "test_type": "simple_invoices_screen_test",
+  "results": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "errors": []
+  },
+  "success_rate": 100.0,
+  "status": "ممتازة"
+}

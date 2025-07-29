@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}تسجيل دفع جديد - نظام المحاسبة{% endblock %}
+{% block page_title %}تسجيل دفع أو تحصيل جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-money-bill-wave text-primary"></i> تسجيل دفع أو تحصيل جديد</h2>
+                    <p class="text-muted">تسجيل معاملة مالية جديدة (دفع أو تحصيل)</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/payments" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="paymentForm">
+        <div class="row">
+            <!-- بيانات الدفع -->
+            <div class="col-lg-8">
+                <!-- نوع المعاملة -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-exchange-alt"></i> نوع المعاملة</h5>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light undo-btn" disabled>
+                                    <i class="fas fa-undo"></i> تراجع
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light save-btn">
+                                    <i class="fas fa-save"></i> حفظ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_type" class="form-label">
+                                    <i class="fas fa-arrows-alt-v text-primary"></i> نوع المعاملة *
+                                </label>
+                                <select class="form-select" id="payment_type" name="payment_type" required onchange="updatePaymentType()">
+                                    <option value="">اختر نوع المعاملة</option>
+                                    <option value="received">مقبوضات (تحصيل من العملاء)</option>
+                                    <option value="paid">مدفوعات (دفع للموردين)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="fas fa-dollar-sign text-primary"></i> المبلغ *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="amount" name="amount" 
+                                           step="0.01" min="0" required>
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تفاصيل الدفع -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-credit-card"></i> تفاصيل الدفع</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">
+                                    <i class="fas fa-credit-card text-success"></i> طريقة الدفع *
+                                </label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">اختر طريقة الدفع</option>
+                                    <option value="cash">نقدي</option>
+                                    <option value="bank_transfer">تحويل بنكي</option>
+                                    <option value="check">شيك</option>
+                                    <option value="card">بطاقة ائتمان/خصم</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="reference_number" class="form-label">
+                                    <i class="fas fa-hashtag text-success"></i> رقم المرجع
+                                </label>
+                                <input type="text" class="form-control" id="reference_number" name="reference_number" 
+                                       placeholder="رقم الشيك، رقم التحويل، إلخ">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="payment_date" class="form-label">
+                                    <i class="fas fa-calendar text-success"></i> تاريخ الدفع
+                                </label>
+                                <input type="date" class="form-control" id="payment_date" name="payment_date"
+                                       value="{{ datetime.now().strftime('%Y-%m-%d') }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ربط بالفاتورة -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-link"></i> ربط بالفاتورة (اختياري)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="invoiceSection">
+                            <div class="col-md-6 mb-3" id="salesInvoiceSection" style="display: none;">
+                                <label for="invoice_id" class="form-label">
+                                    <i class="fas fa-file-invoice-dollar text-info"></i> فاتورة المبيعات
+                                </label>
+                                <select class="form-select" id="invoice_id" name="invoice_id">
+                                    <option value="">اختر فاتورة مبيعات</option>
+                                    {% for invoice in pending_invoices %}
+                                    <option value="{{ invoice.id }}" data-amount="{{ invoice.total_amount }}">
+                                        #SALES-{{ invoice.id }} - {{ invoice.customer_name }} - {{ "{:,.2f}".format(invoice.total_amount) }} ر.س
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3" id="purchaseInvoiceSection" style="display: none;">
+                                <label for="purchase_invoice_id" class="form-label">
+                                    <i class="fas fa-file-invoice text-info"></i> فاتورة المشتريات
+                                </label>
+                                <select class="form-select" id="purchase_invoice_id" name="purchase_invoice_id">
+                                    <option value="">اختر فاتورة مشتريات</option>
+                                    {% for invoice in pending_purchase_invoices %}
+                                    <option value="{{ invoice.id }}" data-amount="{{ invoice.total_amount }}">
+                                        #PURCH-{{ invoice.id }} - {{ invoice.supplier_name }} - {{ "{:,.2f}".format(invoice.total_amount) }} ر.س
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="customerSection" style="display: none;">
+                                <label for="customer_name" class="form-label">
+                                    <i class="fas fa-user text-info"></i> اسم العميل
+                                </label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" 
+                                       placeholder="اسم العميل">
+                            </div>
+                            <div class="col-md-6 mb-3" id="supplierSection" style="display: none;">
+                                <label for="supplier_name" class="form-label">
+                                    <i class="fas fa-truck text-info"></i> اسم المورد
+                                </label>
+                                <input type="text" class="form-control" id="supplier_name" name="supplier_name" 
+                                       placeholder="اسم المورد">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الشريط الجانبي -->
+            <div class="col-lg-4">
+                <!-- ملاحظات -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-sticky-note"></i> ملاحظات</h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                  placeholder="أضف أي ملاحظات إضافية..."></textarea>
+                    </div>
+                </div>
+
+                <!-- ملخص المعاملة -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> ملخص المعاملة</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small class="text-muted">نوع المعاملة:</small>
+                            <p class="mb-1" id="transactionTypeDisplay">
+                                <span class="badge bg-secondary">غير محدد</span>
+                            </p>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">المبلغ:</small>
+                            <p class="mb-1" id="amountDisplay">
+                                <span class="fs-4 fw-bold text-primary">0.00 ر.س</span>
+                            </p>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">طريقة الدفع:</small>
+                            <p class="mb-1" id="methodDisplay">غير محدد</p>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">التاريخ:</small>
+                            <p class="mb-1">{{ datetime.now().strftime('%Y-%m-%d') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-tools"></i> إجراءات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> تسجيل الدفع
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="calculateChange()">
+                                <i class="fas fa-calculator"></i> حساب الباقي
+                            </button>
+                            <a href="/payments" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- تضمين ملف النماذج المتقدمة -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+
+<script>
+function updatePaymentType() {
+    const paymentType = document.getElementById('payment_type').value;
+    const salesInvoiceSection = document.getElementById('salesInvoiceSection');
+    const purchaseInvoiceSection = document.getElementById('purchaseInvoiceSection');
+    const customerSection = document.getElementById('customerSection');
+    const supplierSection = document.getElementById('supplierSection');
+    const transactionTypeDisplay = document.getElementById('transactionTypeDisplay');
+    
+    // إخفاء جميع الأقسام أولاً
+    salesInvoiceSection.style.display = 'none';
+    purchaseInvoiceSection.style.display = 'none';
+    customerSection.style.display = 'none';
+    supplierSection.style.display = 'none';
+    
+    if (paymentType === 'received') {
+        salesInvoiceSection.style.display = 'block';
+        customerSection.style.display = 'block';
+        transactionTypeDisplay.innerHTML = '<span class="badge bg-success"><i class="fas fa-arrow-down"></i> مقبوضات</span>';
+    } else if (paymentType === 'paid') {
+        purchaseInvoiceSection.style.display = 'block';
+        supplierSection.style.display = 'block';
+        transactionTypeDisplay.innerHTML = '<span class="badge bg-danger"><i class="fas fa-arrow-up"></i> مدفوعات</span>';
+    } else {
+        transactionTypeDisplay.innerHTML = '<span class="badge bg-secondary">غير محدد</span>';
+    }
+}
+
+function updateAmountDisplay() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const amountDisplay = document.getElementById('amountDisplay');
+    const paymentType = document.getElementById('payment_type').value;
+    
+    let colorClass = 'text-primary';
+    if (paymentType === 'received') {
+        colorClass = 'text-success';
+    } else if (paymentType === 'paid') {
+        colorClass = 'text-danger';
+    }
+    
+    amountDisplay.innerHTML = `<span class="fs-4 fw-bold ${colorClass}">${amount.toLocaleString('ar-SA', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })} ر.س</span>`;
+}
+
+function updateMethodDisplay() {
+    const method = document.getElementById('payment_method').value;
+    const methodDisplay = document.getElementById('methodDisplay');
+    
+    const methodNames = {
+        'cash': 'نقدي',
+        'bank_transfer': 'تحويل بنكي',
+        'check': 'شيك',
+        'card': 'بطاقة'
+    };
+    
+    methodDisplay.textContent = methodNames[method] || 'غير محدد';
+}
+
+function fillInvoiceAmount() {
+    const paymentType = document.getElementById('payment_type').value;
+    let selectedInvoice = null;
+    
+    if (paymentType === 'received') {
+        selectedInvoice = document.getElementById('invoice_id');
+    } else if (paymentType === 'paid') {
+        selectedInvoice = document.getElementById('purchase_invoice_id');
+    }
+    
+    if (selectedInvoice && selectedInvoice.value) {
+        const selectedOption = selectedInvoice.options[selectedInvoice.selectedIndex];
+        const amount = selectedOption.getAttribute('data-amount');
+        if (amount) {
+            document.getElementById('amount').value = amount;
+            updateAmountDisplay();
+        }
+    }
+}
+
+function calculateChange() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const paymentType = document.getElementById('payment_type').value;
+    
+    if (paymentType === 'received') {
+        const invoiceSelect = document.getElementById('invoice_id');
+        if (invoiceSelect.value) {
+            const selectedOption = invoiceSelect.options[invoiceSelect.selectedIndex];
+            const invoiceAmount = parseFloat(selectedOption.getAttribute('data-amount')) || 0;
+            const change = amount - invoiceAmount;
+            
+            if (change > 0) {
+                alert(`المبلغ الزائد: ${change.toFixed(2)} ر.س`);
+            } else if (change < 0) {
+                alert(`المبلغ الناقص: ${Math.abs(change).toFixed(2)} ر.س`);
+            } else {
+                alert('المبلغ مطابق تماماً للفاتورة');
+            }
+        }
+    }
+}
+
+function resetForm() {
+    if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ ستفقد جميع البيانات المدخلة.')) {
+        document.getElementById('paymentForm').reset();
+        updatePaymentType();
+        updateAmountDisplay();
+        updateMethodDisplay();
+    }
+}
+
+// إضافة مستمعي الأحداث
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('amount').addEventListener('input', updateAmountDisplay);
+    document.getElementById('payment_method').addEventListener('change', updateMethodDisplay);
+    document.getElementById('invoice_id').addEventListener('change', fillInvoiceAmount);
+    document.getElementById('purchase_invoice_id').addEventListener('change', fillInvoiceAmount);
+    
+    // تفعيل النماذج المتقدمة
+    if (typeof initAdvancedForms === 'function') {
+        initAdvancedForms('paymentForm');
+    }
+    
+    // تحديث العرض الأولي
+    updatePaymentType();
+    updateAmountDisplay();
+    updateMethodDisplay();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1063 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الرواتب - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة الرواتب والمستحقات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-money-check-alt text-primary"></i> إدارة الرواتب والمستحقات</h2>
+                    <p class="text-muted">إدارة وحساب رواتب الموظفين والمستحقات المالية</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/generate_payroll" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i> إنشاء رواتب
+                        </a>
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel"></i> تصدير الرواتب</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-envelope"></i> إرسال كشوف الرواتب</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> تقرير الرواتب</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cogs"></i> إعدادات الرواتب</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإحصائيات الرئيسية -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-number">{{ total_employees or 0 }}</div>
+                    <div class="stats-label">عدد الموظفين</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-user-check"></i> نشط
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_payroll or 0) }}</div>
+                    <div class="stats-label">إجمالي الرواتب (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-chart-line"></i> إجمالي
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(avg_salary or 0) }}</div>
+                    <div class="stats-label">متوسط الراتب (ر.س)</div>
+                    <div class="stats-change neutral">
+                        <i class="fas fa-balance-scale"></i> متوسط
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(current_month_payroll or 0) }}</div>
+                    <div class="stats-label">إجمالي البدلات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-check"></i> {{ current_month_count or 0 }} موظف
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسم البياني الشهري -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> الرواتب الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="payrollChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-trophy"></i> أعلى الرواتب</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>الموظف</th>
+                                <th>الراتب</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for salary in top_salaries %}
+                            <tr>
+                                <td><strong>{{ salary[0] }}</strong></td>
+                                <td>{{ "{:,.0f}".format(salary[1]) }} ر.س</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">لا توجد بيانات</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>ساعات إضافية</h6>
+                            <h3>
+                                {% set total_overtime = 0 %}
+                                {% if payroll_records %}
+                                    {% for record in payroll_records %}
+                                        {% set total_overtime = total_overtime + record.overtime_pay %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ "{:,.0f}".format(total_overtime) }} ر.س
+                            </h3>
+                            <small>إجمالي المدفوع</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-plus-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>متوسط الراتب</h6>
+                            <h3>
+                                {% if payroll_records %}
+                                    {% set avg_salary = (total_salaries + pending_salaries) / payroll_records|length if payroll_records|length > 0 else 0 %}
+                                    {{ "{:,.0f}".format(avg_salary) }} ر.س
+                                {% else %}
+                                    0 ر.س
+                                {% endif %}
+                            </h3>
+                            <small>للموظف</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-bar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> تطور الرواتب الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salaryChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-pie-chart"></i> توزيع مكونات الراتب</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salaryComponentsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- فلاتر البحث -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث عن موظف..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="monthFilter">
+                                <option value="">جميع الشهور</option>
+                                <option value="1">يناير</option>
+                                <option value="2">فبراير</option>
+                                <option value="3">مارس</option>
+                                <option value="4">أبريل</option>
+                                <option value="5">مايو</option>
+                                <option value="6">يونيو</option>
+                                <option value="7">يوليو</option>
+                                <option value="8">أغسطس</option>
+                                <option value="9">سبتمبر</option>
+                                <option value="10">أكتوبر</option>
+                                <option value="11">نوفمبر</option>
+                                <option value="12">ديسمبر</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="yearFilter">
+                                <option value="">جميع السنوات</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="pending">معلق</option>
+                                <option value="paid">مدفوع</option>
+                                <option value="cancelled">ملغي</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="departmentFilter">
+                                <option value="">جميع الأقسام</option>
+                                <option value="hr">إدارة الموارد البشرية</option>
+                                <option value="finance">إدارة المالية</option>
+                                <option value="it">إدارة تقنية المعلومات</option>
+                                <option value="sales">إدارة المبيعات</option>
+                                <option value="marketing">إدارة التسويق</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <input type="date" class="form-control" id="dateFilter" title="تصفية حسب التاريخ">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-secondary" onclick="applyFilters()">
+                                    <i class="fas fa-filter"></i> تصفية
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="exportPayroll()">
+                                    <i class="fas fa-download"></i> تصدير كشف الرواتب
+                                </button>
+                                <button class="btn btn-outline-success" onclick="clearFilters()">
+                                    <i class="fas fa-eraser"></i> مسح المرشحات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نماذج إدارة الرواتب -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus"></i> إضافة راتب جديد</h5>
+                </div>
+                <div class="card-body">
+                    <form id="addPayrollForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="employeeSelect" class="form-label">اختيار الموظف</label>
+                                <select class="form-select" id="employeeSelect" name="employee_id" required>
+                                    <option value="">اختر موظف...</option>
+                                    <option value="1">أحمد محمد علي</option>
+                                    <option value="2">فاطمة أحمد السعد</option>
+                                    <option value="3">محمد عبدالله الخالد</option>
+                                    <option value="4">نورا سعد المطيري</option>
+                                    <option value="5">خالد عبدالعزيز النصار</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="payrollMonth" class="form-label">الشهر</label>
+                                <select class="form-select" id="payrollMonth" name="month" required>
+                                    <option value="">اختر الشهر</option>
+                                    <option value="1">يناير</option>
+                                    <option value="2">فبراير</option>
+                                    <option value="3">مارس</option>
+                                    <option value="4">أبريل</option>
+                                    <option value="5">مايو</option>
+                                    <option value="6">يونيو</option>
+                                    <option value="7">يوليو</option>
+                                    <option value="8">أغسطس</option>
+                                    <option value="9">سبتمبر</option>
+                                    <option value="10">أكتوبر</option>
+                                    <option value="11">نوفمبر</option>
+                                    <option value="12">ديسمبر</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="payrollYear" class="form-label">السنة</label>
+                                <select class="form-select" id="payrollYear" name="year" required>
+                                    <option value="">اختر السنة</option>
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="basicSalary" class="form-label">الراتب الأساسي (ر.س)</label>
+                                <input type="number" class="form-control" id="basicSalary" name="basic_salary"
+                                       placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="allowances" class="form-label">البدلات (ر.س)</label>
+                                <input type="number" class="form-control" id="allowances" name="allowances"
+                                       placeholder="0.00" step="0.01" min="0" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="overtimePay" class="form-label">الساعات الإضافية (ر.س)</label>
+                                <input type="number" class="form-control" id="overtimePay" name="overtime_pay"
+                                       placeholder="0.00" step="0.01" min="0" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="deductions" class="form-label">الخصومات (ر.س)</label>
+                                <input type="number" class="form-control" id="deductions" name="deductions"
+                                       placeholder="0.00" step="0.01" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">صافي الراتب</label>
+                                <div class="form-control bg-light" id="netSalary">0.00 ر.س</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn btn-warning w-100" onclick="calculateSalary()">
+                                    <i class="fas fa-calculator"></i> حساب الراتب
+                                </button>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-success w-100" id="addSalaryBtn" onclick="addSalary()">
+                                    <i class="fas fa-plus"></i> إضافة راتب
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-file-alt"></i> إنشاء كشف راتب</h5>
+                </div>
+                <div class="card-body">
+                    <form id="payslipForm">
+                        <div class="mb-3">
+                            <label for="payslipEmployee" class="form-label">اختيار الموظف</label>
+                            <select class="form-select" id="payslipEmployee" name="employee_id" required>
+                                <option value="">اختر موظف...</option>
+                                <option value="1">أحمد محمد علي</option>
+                                <option value="2">فاطمة أحمد السعد</option>
+                                <option value="3">محمد عبدالله الخالد</option>
+                                <option value="4">نورا سعد المطيري</option>
+                                <option value="5">خالد عبدالعزيز النصار</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="payslipMonth" class="form-label">الشهر</label>
+                                <select class="form-select" id="payslipMonth" name="month" required>
+                                    <option value="">اختر الشهر</option>
+                                    <option value="1">يناير</option>
+                                    <option value="2">فبراير</option>
+                                    <option value="3">مارس</option>
+                                    <option value="4">أبريل</option>
+                                    <option value="5">مايو</option>
+                                    <option value="6">يونيو</option>
+                                    <option value="7">يوليو</option>
+                                    <option value="8">أغسطس</option>
+                                    <option value="9">سبتمبر</option>
+                                    <option value="10">أكتوبر</option>
+                                    <option value="11">نوفمبر</option>
+                                    <option value="12">ديسمبر</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="payslipYear" class="form-label">السنة</label>
+                                <select class="form-select" id="payslipYear" name="year" required>
+                                    <option value="">اختر السنة</option>
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="payslipFromDate" class="form-label">من تاريخ</label>
+                                <input type="date" class="form-control" id="payslipFromDate" name="from_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="payslipToDate" class="form-label">إلى تاريخ</label>
+                                <input type="date" class="form-control" id="payslipToDate" name="to_date" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-primary w-100" onclick="generatePayslip()">
+                                    <i class="fas fa-file-alt"></i> إنشاء كشف راتب
+                                </button>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-outline-primary w-100" onclick="exportPayslip()">
+                                    <i class="fas fa-download"></i> تصدير كشف الرواتب
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الرواتب -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> سجل الرواتب</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportPayroll()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="payrollTable" data-print-title="تقرير الرواتب">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="payrollTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>اسم الموظف</th>
+                                    <th>الشهر/السنة</th>
+                                    <th>الراتب الأساسي</th>
+                                    <th>البدلات</th>
+                                    <th>الساعات الإضافية</th>
+                                    <th>الخصومات</th>
+                                    <th>صافي الراتب</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if payroll_records %}
+                                    {% for record in payroll_records %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ record.employee.name }}</strong>
+                                                    <br><small class="text-muted">{{ record.employee.employee_id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">{{ record.month }}/{{ record.year }}</span>
+                                            <br><small class="text-muted">
+                                                {% set months = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'] %}
+                                                {{ months[record.month] }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-primary">{{ "{:,.0f}".format(record.basic_salary) }} ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">{{ "{:,.0f}".format(record.allowances) }} ر.س</span>
+                                        </td>
+                                        <td>
+                                            {% if record.overtime_pay > 0 %}
+                                                <span class="text-warning">{{ "{:,.0f}".format(record.overtime_pay) }} ر.س</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="text-danger">{{ "{:,.0f}".format(record.deductions + record.tax + record.insurance) }} ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success fs-5">{{ "{:,.0f}".format(record.net_salary) }} ر.س</span>
+                                        </td>
+                                        <td>
+                                            {% if record.status == 'paid' %}
+                                                <span class="badge bg-success">مدفوع</span>
+                                                {% if record.payment_date %}
+                                                    <br><small class="text-muted">{{ record.payment_date.strftime('%Y-%m-%d') }}</small>
+                                                {% endif %}
+                                            {% elif record.status == 'pending' %}
+                                                <span class="badge bg-warning">معلق</span>
+                                            {% elif record.status == 'cancelled' %}
+                                                <span class="badge bg-danger">ملغي</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ record.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" title="عرض كشف الراتب" onclick="viewPayslip({{ loop.index }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-success" title="تأكيد الدفع" onclick="confirmPayment({{ loop.index }})" {% if record.status == 'paid' %}disabled{% endif %}>
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-info" title="طباعة كشف الراتب" onclick="printPayslip({{ loop.index }})">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-warning" title="تعديل" onclick="editPayroll({{ loop.index }})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="حذف" onclick="deletePayroll({{ loop.index }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- بيانات تجريبية للاختبار -->
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>أحمد محمد علي</strong>
+                                                    <br><small class="text-muted">EMP001</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">12/2024</span>
+                                            <br><small class="text-muted">ديسمبر</small>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-primary">8,000 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">1,200 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-warning">500 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-danger">800 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success fs-5">8,900 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">مدفوع</span>
+                                            <br><small class="text-muted">2024-12-01</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" title="عرض كشف الراتب" onclick="viewPayslip(2)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-success" title="تأكيد الدفع" onclick="confirmPayment(2)" disabled>
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-info" title="طباعة كشف الراتب" onclick="printPayslip(2)">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-warning" title="تعديل" onclick="editPayroll(2)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="حذف" onclick="deletePayroll(2)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>فاطمة أحمد السعد</strong>
+                                                    <br><small class="text-muted">EMP002</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">12/2024</span>
+                                            <br><small class="text-muted">ديسمبر</small>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-primary">7,500 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">1,000 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">-</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-danger">750 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success fs-5">7,750 ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning">معلق</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" title="عرض كشف الراتب" onclick="viewPayslip(3)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-success" title="تأكيد الدفع" onclick="confirmPayment(3)">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-info" title="طباعة كشف الراتب" onclick="printPayslip(3)">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-warning" title="تعديل" onclick="editPayroll(3)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="حذف" onclick="deletePayroll(3)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if not payroll_records %}
+                    <div class="text-center py-3 border-top">
+                        <p class="text-muted mb-2">البيانات أعلاه تجريبية للعرض</p>
+                        <a href="/generate_payroll" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i> إنشاء راتب جديد
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إضافة Chart.js للرسوم البيانية -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// رسم بياني لتطور الرواتب
+const ctx1 = document.getElementById('salaryChart').getContext('2d');
+const salaryChart = new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        datasets: [{
+            label: 'إجمالي الرواتب',
+            data: [65000, 68000, 72000, 70000, 75000, 78000],
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString() + ' ر.س';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// رسم بياني لمكونات الراتب
+const ctx2 = document.getElementById('salaryComponentsChart').getContext('2d');
+const componentsChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: ['الراتب الأساسي', 'البدلات', 'الساعات الإضافية', 'الخصومات'],
+        datasets: [{
+            data: [70, 15, 10, 5],
+            backgroundColor: [
+                '#007bff',
+                '#28a745',
+                '#ffc107',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// وظائف البحث والتصفية
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#payrollTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const employeeName = row.cells[0].textContent.toLowerCase();
+        
+        if (employeeName.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب الشهر
+document.getElementById('monthFilter').addEventListener('change', function() {
+    const filterMonth = this.value;
+    const tableRows = document.querySelectorAll('#payrollTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const monthYear = row.cells[1].textContent.trim().split('/')[0];
+        
+        if (filterMonth === '' || monthYear === filterMonth) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب الحالة
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const tableRows = document.querySelectorAll('#payrollTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const status = row.cells[7].textContent.trim();
+        
+        if (filterValue === '') {
+            row.style.display = '';
+        } else if (filterValue === 'paid' && status.includes('مدفوع')) {
+            row.style.display = '';
+        } else if (filterValue === 'pending' && status.includes('معلق')) {
+            row.style.display = '';
+        } else if (filterValue === 'cancelled' && status.includes('ملغي')) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظائف حساب الراتب
+function calculateSalary() {
+    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+    const allowances = parseFloat(document.getElementById('allowances').value) || 0;
+    const overtimePay = parseFloat(document.getElementById('overtimePay').value) || 0;
+    const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+
+    const grossSalary = basicSalary + allowances + overtimePay;
+    const netSalary = grossSalary - deductions;
+
+    document.getElementById('netSalary').textContent = netSalary.toFixed(2) + ' ر.س';
+}
+
+// وظائف إنشاء كشف الراتب
+function generatePayslip() {
+    const employee = document.getElementById('payslipEmployee').value;
+    const month = document.getElementById('payslipMonth').value;
+    const year = document.getElementById('payslipYear').value;
+
+    if (!employee || !month || !year) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    alert('تم إنشاء كشف الراتب بنجاح!');
+}
+
+function exportPayslip() {
+    const employee = document.getElementById('payslipEmployee').value;
+    const month = document.getElementById('payslipMonth').value;
+    const year = document.getElementById('payslipYear').value;
+
+    if (!employee || !month || !year) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    // محاكاة تصدير كشف الرواتب
+    const csvContent = '\uFEFF' +
+        'كشف الرواتب\n' +
+        'الموظف,الشهر,السنة,الراتب الأساسي,البدلات,الخصومات,صافي الراتب\n' +
+        '"موظف مختار","' + month + '","' + year + '","5000","500","200","5300"';
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'payslip_' + employee + '_' + month + '_' + year + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظيفة التصدير
+function exportPayroll() {
+    const table = document.getElementById('payrollTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'payroll_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظائف المرشحات الإضافية
+function applyFilters() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const monthFilter = document.getElementById('monthFilter').value;
+    const yearFilter = document.getElementById('yearFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const departmentFilter = document.getElementById('departmentFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
+
+    const tableRows = document.querySelectorAll('#payrollTable tbody tr');
+
+    tableRows.forEach(row => {
+        let showRow = true;
+
+        // تصفية النص
+        if (searchTerm && !row.cells[0].textContent.toLowerCase().includes(searchTerm)) {
+            showRow = false;
+        }
+
+        // تصفية الشهر
+        if (monthFilter && !row.cells[1].textContent.includes(monthFilter + '/')) {
+            showRow = false;
+        }
+
+        // تصفية السنة
+        if (yearFilter && !row.cells[1].textContent.includes('/' + yearFilter)) {
+            showRow = false;
+        }
+
+        // تصفية الحالة
+        if (statusFilter) {
+            const status = row.cells[7].textContent.trim();
+            if (statusFilter === 'paid' && !status.includes('مدفوع')) showRow = false;
+            if (statusFilter === 'pending' && !status.includes('معلق')) showRow = false;
+            if (statusFilter === 'cancelled' && !status.includes('ملغي')) showRow = false;
+        }
+
+        row.style.display = showRow ? '' : 'none';
+    });
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('monthFilter').value = '';
+    document.getElementById('yearFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('departmentFilter').value = '';
+    document.getElementById('dateFilter').value = '';
+
+    // إظهار جميع الصفوف
+    const tableRows = document.querySelectorAll('#payrollTable tbody tr');
+    tableRows.forEach(row => {
+        row.style.display = '';
+    });
+}
+
+// تحديث الحسابات عند تغيير القيم
+document.addEventListener('DOMContentLoaded', function() {
+    const salaryInputs = ['basicSalary', 'allowances', 'overtimePay', 'deductions'];
+    salaryInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', calculateSalary);
+        }
+    });
+
+    // إضافة مستمعات للمرشحات
+    document.getElementById('departmentFilter').addEventListener('change', applyFilters);
+    document.getElementById('dateFilter').addEventListener('change', applyFilters);
+});
+
+// رسم بياني للرواتب الشهرية
+document.addEventListener('DOMContentLoaded', function() {
+    const payrollCtx = document.getElementById('payrollChart').getContext('2d');
+    const payrollChart = new Chart(payrollCtx, {
+        type: 'bar',
+        data: {
+            labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                     'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+            datasets: [{
+                label: 'إجمالي الرواتب (ر.س)',
+                data: [{% for stat in monthly_stats %}{{ stat.total }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 1
+            }, {
+                label: 'عدد الموظفين',
+                data: [{% for stat in monthly_stats %}{{ stat.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                borderColor: 'rgb(255, 99, 132)',
+                borderWidth: 1,
+                yAxisID: 'y1',
+                type: 'line'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'الرواتب الشهرية'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            }
+        }
+    });
+});
+
+// وظائف الأزرار
+function addSalary() {
+    // إضافة راتب جديد
+    console.log('إضافة راتب جديد');
+    alert('تم إضافة الراتب بنجاح!');
+}
+
+function viewPayslip(id) {
+    // عرض كشف الراتب
+    console.log('عرض كشف الراتب:', id);
+    alert('عرض كشف الراتب رقم: ' + id);
+}
+
+function confirmPayment(id) {
+    // تأكيد الدفع
+    console.log('تأكيد الدفع:', id);
+    if (confirm('هل أنت متأكد من تأكيد الدفع؟')) {
+        alert('تم تأكيد الدفع بنجاح!');
+    }
+}
+
+function printPayslip(id) {
+    // طباعة كشف الراتب
+    console.log('طباعة كشف الراتب:', id);
+    window.print();
+}
+
+function editPayroll(id) {
+    // تعديل الراتب
+    console.log('تعديل الراتب:', id);
+    alert('فتح نموذج تعديل الراتب رقم: ' + id);
+}
+
+function deletePayroll(id) {
+    // حذف الراتب
+    console.log('حذف الراتب:', id);
+    if (confirm('هل أنت متأكد من حذف هذا الراتب؟')) {
+        alert('تم حذف الراتب بنجاح!');
+    }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}

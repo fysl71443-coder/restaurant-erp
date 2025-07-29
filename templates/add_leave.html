@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}طلب إجازة جديد - نظام المحاسبة{% endblock %}
+{% block page_title %}تقديم طلب إجازة جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-calendar-plus text-info"></i> تقديم طلب إجازة جديد</h2>
+                    <p class="text-muted">تقديم طلب إجازة للموظفين</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/leaves" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="leaveForm">
+        <div class="row">
+            <!-- بيانات الإجازة -->
+            <div class="col-lg-8">
+                <!-- معلومات الموظف -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-info text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-user"></i> معلومات الموظف</h5>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light undo-btn" disabled>
+                                    <i class="fas fa-undo"></i> تراجع
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light save-btn">
+                                    <i class="fas fa-save"></i> حفظ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="employee_id" class="form-label">
+                                    <i class="fas fa-user text-info"></i> الموظف *
+                                </label>
+                                <select class="form-select" id="employee_id" name="employee_id" required onchange="loadEmployeeInfo()">
+                                    <option value="">اختر الموظف</option>
+                                    {% if employees %}
+                                        {% for employee in employees %}
+                                        <option value="{{ employee.id }}"
+                                                data-department="{{ employee.department }}"
+                                                data-position="{{ employee.position }}"
+                                                data-hire-date="{{ employee.hire_date }}">
+                                            {{ employee.name }} - {{ employee.employee_id }}
+                                        </option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="" disabled>لا توجد موظفين نشطين</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="employeeInfo" style="display: none;">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-info-circle"></i> معلومات الموظف:</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p class="mb-1"><strong>القسم:</strong> <span id="empDepartment">-</span></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p class="mb-1"><strong>المنصب:</strong> <span id="empPosition">-</span></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p class="mb-0"><strong>تاريخ التوظيف:</strong> <span id="empHireDate">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تفاصيل الإجازة -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> تفاصيل الإجازة</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="leave_type" class="form-label">
+                                    <i class="fas fa-tags text-primary"></i> نوع الإجازة *
+                                </label>
+                                <select class="form-select" id="leave_type" name="leave_type" required onchange="updateLeaveInfo()">
+                                    <option value="">اختر نوع الإجازة</option>
+                                    <option value="annual">إجازة سنوية</option>
+                                    <option value="sick">إجازة مرضية</option>
+                                    <option value="emergency">إجازة طارئة</option>
+                                    <option value="maternity">إجازة أمومة</option>
+                                    <option value="paternity">إجازة أبوة</option>
+                                    <option value="unpaid">إجازة بدون راتب</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3" id="leaveTypeInfo" style="display: none;">
+                                <div class="alert alert-warning">
+                                    <small id="leaveTypeDescription">معلومات نوع الإجازة</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date" class="form-label">
+                                    <i class="fas fa-calendar-day text-primary"></i> تاريخ البداية *
+                                </label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       required onchange="calculateDays()">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label">
+                                    <i class="fas fa-calendar-check text-primary"></i> تاريخ النهاية *
+                                </label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       required onchange="calculateDays()">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="alert alert-info" id="daysInfo" style="display: none;">
+                                    <h6><i class="fas fa-calculator"></i> حساب الأيام:</h6>
+                                    <p class="mb-0">عدد أيام الإجازة: <span id="totalDays" class="fw-bold">0</span> يوم</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سبب الإجازة -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-comment-alt"></i> سبب الإجازة</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="reason" class="form-label">
+                                    <i class="fas fa-edit text-secondary"></i> تفاصيل السبب *
+                                </label>
+                                <textarea class="form-control" id="reason" name="reason" rows="4" 
+                                          placeholder="اكتب سبب طلب الإجازة بالتفصيل..." required></textarea>
+                                <small class="form-text text-muted">يرجى كتابة سبب واضح ومفصل لطلب الإجازة</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الشريط الجانبي -->
+            <div class="col-lg-4">
+                <!-- ملخص الطلب -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> ملخص الطلب</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">الموظف:</small>
+                            <p class="mb-1" id="summaryEmployee">غير محدد</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">نوع الإجازة:</small>
+                            <p class="mb-1" id="summaryLeaveType">غير محدد</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">فترة الإجازة:</small>
+                            <p class="mb-1" id="summaryPeriod">غير محدد</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">عدد الأيام:</small>
+                            <p class="mb-1" id="summaryDays" class="fw-bold text-primary">0 يوم</p>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted">الحالة:</small>
+                            <p class="mb-0"><span class="badge bg-warning">معلق</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- معلومات الإجازات -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> معلومات مهمة</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-primary">أنواع الإجازات:</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-circle text-primary"></i> <strong>سنوية:</strong> 21 يوم في السنة</li>
+                                <li><i class="fas fa-circle text-warning"></i> <strong>مرضية:</strong> بتقرير طبي</li>
+                                <li><i class="fas fa-circle text-danger"></i> <strong>طارئة:</strong> ظروف استثنائية</li>
+                                <li><i class="fas fa-circle text-info"></i> <strong>أمومة:</strong> 10 أسابيع</li>
+                            </ul>
+                        </div>
+                        <div class="mb-0">
+                            <h6 class="text-warning">ملاحظات:</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-exclamation-triangle text-warning"></i> يجب تقديم الطلب قبل 3 أيام</li>
+                                <li><i class="fas fa-clock text-info"></i> سيتم الرد خلال 24 ساعة</li>
+                                <li><i class="fas fa-file-medical text-success"></i> الإجازة المرضية تحتاج تقرير طبي</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-tools"></i> إجراءات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i> تقديم الطلب
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="previewRequest()">
+                                <i class="fas fa-eye"></i> معاينة الطلب
+                            </button>
+                            <a href="/leaves" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- تضمين ملف النماذج المتقدمة -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+
+<script>
+function loadEmployeeInfo() {
+    const employeeSelect = document.getElementById('employee_id');
+    const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
+    
+    if (selectedOption.value) {
+        const department = selectedOption.getAttribute('data-department');
+        const position = selectedOption.getAttribute('data-position');
+        const hireDate = selectedOption.getAttribute('data-hire-date');
+        
+        // عرض معلومات الموظف
+        document.getElementById('empDepartment').textContent = department || 'غير محدد';
+        document.getElementById('empPosition').textContent = position || 'غير محدد';
+        document.getElementById('empHireDate').textContent = hireDate || 'غير محدد';
+        document.getElementById('employeeInfo').style.display = 'block';
+        
+        // تحديث الملخص
+        document.getElementById('summaryEmployee').textContent = selectedOption.textContent;
+    } else {
+        document.getElementById('employeeInfo').style.display = 'none';
+        document.getElementById('summaryEmployee').textContent = 'غير محدد';
+    }
+}
+
+function updateLeaveInfo() {
+    const leaveType = document.getElementById('leave_type').value;
+    const leaveTypeInfo = document.getElementById('leaveTypeInfo');
+    const leaveTypeDescription = document.getElementById('leaveTypeDescription');
+    
+    const descriptions = {
+        'annual': 'إجازة سنوية مدفوعة الأجر - الحد الأقصى 21 يوم في السنة',
+        'sick': 'إجازة مرضية - تحتاج تقرير طبي معتمد',
+        'emergency': 'إجازة طارئة - للظروف الاستثنائية العاجلة',
+        'maternity': 'إجازة أمومة - 10 أسابيع مدفوعة الأجر',
+        'paternity': 'إجازة أبوة - 3 أيام مدفوعة الأجر',
+        'unpaid': 'إجازة بدون راتب - غير مدفوعة الأجر'
+    };
+    
+    const typeNames = {
+        'annual': 'إجازة سنوية',
+        'sick': 'إجازة مرضية',
+        'emergency': 'إجازة طارئة',
+        'maternity': 'إجازة أمومة',
+        'paternity': 'إجازة أبوة',
+        'unpaid': 'إجازة بدون راتب'
+    };
+    
+    if (leaveType && descriptions[leaveType]) {
+        leaveTypeDescription.textContent = descriptions[leaveType];
+        leaveTypeInfo.style.display = 'block';
+        document.getElementById('summaryLeaveType').textContent = typeNames[leaveType];
+    } else {
+        leaveTypeInfo.style.display = 'none';
+        document.getElementById('summaryLeaveType').textContent = 'غير محدد';
+    }
+}
+
+function calculateDays() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (end >= start) {
+            const timeDiff = end.getTime() - start.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+            
+            document.getElementById('totalDays').textContent = daysDiff;
+            document.getElementById('summaryDays').textContent = daysDiff + ' يوم';
+            document.getElementById('summaryPeriod').textContent = `من ${startDate} إلى ${endDate}`;
+            document.getElementById('daysInfo').style.display = 'block';
+        } else {
+            alert('تاريخ النهاية يجب أن يكون بعد تاريخ البداية');
+            document.getElementById('end_date').value = '';
+        }
+    } else {
+        document.getElementById('daysInfo').style.display = 'none';
+        document.getElementById('summaryDays').textContent = '0 يوم';
+        document.getElementById('summaryPeriod').textContent = 'غير محدد';
+    }
+}
+
+function resetForm() {
+    if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ ستفقد جميع البيانات المدخلة.')) {
+        document.getElementById('leaveForm').reset();
+        document.getElementById('employeeInfo').style.display = 'none';
+        document.getElementById('leaveTypeInfo').style.display = 'none';
+        document.getElementById('daysInfo').style.display = 'none';
+        
+        // إعادة تعيين الملخص
+        document.getElementById('summaryEmployee').textContent = 'غير محدد';
+        document.getElementById('summaryLeaveType').textContent = 'غير محدد';
+        document.getElementById('summaryPeriod').textContent = 'غير محدد';
+        document.getElementById('summaryDays').textContent = '0 يوم';
+    }
+}
+
+function previewRequest() {
+    const employee = document.getElementById('summaryEmployee').textContent;
+    const leaveType = document.getElementById('summaryLeaveType').textContent;
+    const period = document.getElementById('summaryPeriod').textContent;
+    const days = document.getElementById('summaryDays').textContent;
+    const reason = document.getElementById('reason').value;
+    
+    if (employee === 'غير محدد' || leaveType === 'غير محدد') {
+        alert('يرجى إكمال البيانات الأساسية أولاً');
+        return;
+    }
+    
+    const preview = `
+معاينة طلب الإجازة:
+
+الموظف: ${employee}
+نوع الإجازة: ${leaveType}
+فترة الإجازة: ${period}
+عدد الأيام: ${days}
+السبب: ${reason || 'غير محدد'}
+
+هل تريد تقديم هذا الطلب؟
+    `;
+    
+    if (confirm(preview)) {
+        document.getElementById('leaveForm').submit();
+    }
+}
+
+// تفعيل النماذج المتقدمة
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initAdvancedForms === 'function') {
+        initAdvancedForms('leaveForm');
+    }
+    
+    // تعيين التاريخ الافتراضي (غداً)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('start_date').min = tomorrow.toISOString().split('T')[0];
+    
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    document.getElementById('end_date').min = tomorrow.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

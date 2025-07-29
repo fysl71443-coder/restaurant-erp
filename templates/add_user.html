@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة مستخدم جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-user-plus text-primary"></i>
+                إضافة مستخدم جديد
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('home') }}">الرئيسية</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('settings') }}">الإعدادات</a></li>
+                    <li class="breadcrumb-item active">إضافة مستخدم</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{{ url_for('settings') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> العودة للإعدادات
+            </a>
+        </div>
+    </div>
+
+    <!-- Add User Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-plus"></i>
+                        بيانات المستخدم الجديد
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' if category == 'info' else 'check-circle' }}"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="addUserForm">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label required">
+                                        <i class="fas fa-user"></i> اسم المستخدم
+                                    </label>
+                                    <input type="text" class="form-control" id="username" name="username" required
+                                           placeholder="أدخل اسم المستخدم" autocomplete="username">
+                                    <div class="form-text">يجب أن يكون فريداً ولا يحتوي على مسافات</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label required">
+                                        <i class="fas fa-envelope"></i> البريد الإلكتروني
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email" required
+                                           placeholder="أدخل البريد الإلكتروني" autocomplete="email">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="full_name" class="form-label required">
+                                        <i class="fas fa-id-card"></i> الاسم الكامل
+                                    </label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" required
+                                           placeholder="أدخل الاسم الكامل" autocomplete="name">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label required">
+                                        <i class="fas fa-lock"></i> كلمة المرور
+                                    </label>
+                                    <input type="password" class="form-control" id="password" name="password" required
+                                           placeholder="أدخل كلمة المرور" autocomplete="new-password" minlength="8">
+                                    <div class="form-text">يجب أن تكون 8 أحرف على الأقل</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="role" class="form-label required">
+                                        <i class="fas fa-user-tag"></i> الدور
+                                    </label>
+                                    <select class="form-select" id="role" name="role" required>
+                                        <option value="">اختر الدور</option>
+                                        <option value="admin">مدير النظام</option>
+                                        <option value="manager">مدير</option>
+                                        <option value="accountant">محاسب</option>
+                                        <option value="user">مستخدم عادي</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="department" class="form-label">
+                                        <i class="fas fa-building"></i> القسم
+                                    </label>
+                                    <input type="text" class="form-control" id="department" name="department"
+                                           placeholder="أدخل القسم (اختياري)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">
+                                        <i class="fas fa-phone"></i> رقم الهاتف
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                           placeholder="أدخل رقم الهاتف (اختياري)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Role Description -->
+                        <div class="alert alert-info" id="roleDescription" style="display: none;">
+                            <h6><i class="fas fa-info-circle"></i> وصف الدور:</h6>
+                            <p id="roleDescriptionText"></p>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                <i class="fas fa-times"></i> إلغاء
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> حفظ المستخدم
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role');
+    const roleDescription = document.getElementById('roleDescription');
+    const roleDescriptionText = document.getElementById('roleDescriptionText');
+    
+    const roleDescriptions = {
+        'admin': 'مدير النظام: صلاحيات كاملة لإدارة النظام والمستخدمين والإعدادات.',
+        'manager': 'مدير: صلاحيات إدارة الموظفين والرواتب والتقارير.',
+        'accountant': 'محاسب: صلاحيات إدارة الفواتير والعملاء والمنتجات والتقارير المالية.',
+        'user': 'مستخدم عادي: صلاحيات أساسية لعرض البيانات والتقارير.'
+    };
+    
+    roleSelect.addEventListener('change', function() {
+        const selectedRole = this.value;
+        if (selectedRole && roleDescriptions[selectedRole]) {
+            roleDescriptionText.textContent = roleDescriptions[selectedRole];
+            roleDescription.style.display = 'block';
+        } else {
+            roleDescription.style.display = 'none';
+        }
+    });
+    
+    // Form validation
+    const form = document.getElementById('addUserForm');
+    form.addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value;
+        
+        // Check password length
+        if (password.length < 8) {
+            e.preventDefault();
+            alert('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+            return;
+        }
+        
+        // Check username format
+        if (username.includes(' ')) {
+            e.preventDefault();
+            alert('اسم المستخدم لا يجب أن يحتوي على مسافات');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    });
+    
+    // Real-time username validation
+    const usernameInput = document.getElementById('username');
+    usernameInput.addEventListener('input', function() {
+        const value = this.value;
+        if (value.includes(' ')) {
+            this.setCustomValidity('اسم المستخدم لا يجب أن يحتوي على مسافات');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+
+<style>
+.required::after {
+    content: " *";
+    color: #e74c3c;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "←";
+}
+</style>
+{% endblock %}

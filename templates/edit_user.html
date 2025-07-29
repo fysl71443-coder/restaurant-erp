@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل المستخدم - {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-user-edit text-primary"></i>
+                تعديل المستخدم: {{ user.full_name }}
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('home') }}">الرئيسية</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('settings') }}">الإعدادات</a></li>
+                    <li class="breadcrumb-item active">تعديل مستخدم</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{{ url_for('settings') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> العودة للإعدادات
+            </a>
+        </div>
+    </div>
+
+    <!-- Edit User Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        تعديل بيانات المستخدم
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' if category == 'info' else 'check-circle' }}"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="editUserForm">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">
+                                        <i class="fas fa-user"></i> اسم المستخدم
+                                    </label>
+                                    <input type="text" class="form-control" id="username" name="username" 
+                                           value="{{ user.username }}" readonly>
+                                    <div class="form-text">لا يمكن تغيير اسم المستخدم</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label required">
+                                        <i class="fas fa-envelope"></i> البريد الإلكتروني
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ user.email }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="full_name" class="form-label required">
+                                        <i class="fas fa-id-card"></i> الاسم الكامل
+                                    </label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" 
+                                           value="{{ user.full_name }}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">
+                                        <i class="fas fa-lock"></i> كلمة المرور الجديدة
+                                    </label>
+                                    <input type="password" class="form-control" id="password" name="password"
+                                           placeholder="اتركه فارغاً إذا لم ترد تغييرها" minlength="8">
+                                    <div class="form-text">اتركه فارغاً للاحتفاظ بكلمة المرور الحالية</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="role" class="form-label required">
+                                        <i class="fas fa-user-tag"></i> الدور
+                                    </label>
+                                    <select class="form-select" id="role" name="role" required>
+                                        <option value="admin" {{ 'selected' if user.role == 'admin' }}>مدير النظام</option>
+                                        <option value="manager" {{ 'selected' if user.role == 'manager' }}>مدير</option>
+                                        <option value="accountant" {{ 'selected' if user.role == 'accountant' }}>محاسب</option>
+                                        <option value="user" {{ 'selected' if user.role == 'user' }}>مستخدم عادي</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="department" class="form-label">
+                                        <i class="fas fa-building"></i> القسم
+                                    </label>
+                                    <input type="text" class="form-control" id="department" name="department"
+                                           value="{{ user.department or '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">
+                                        <i class="fas fa-phone"></i> رقم الهاتف
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                           value="{{ user.phone or '' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                               {{ 'checked' if user.is_active }}>
+                                        <label class="form-check-label" for="is_active">
+                                            <i class="fas fa-toggle-on"></i> المستخدم مفعل
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                <i class="fas fa-times"></i> إلغاء
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Permissions -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-key"></i>
+                        الصلاحيات
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="permissionsForm">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_view_reports" name="can_view_reports"
+                                       {{ 'checked' if user.can_view_reports }}>
+                                <label class="form-check-label" for="can_view_reports">
+                                    <i class="fas fa-chart-bar"></i> عرض التقارير
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_invoices" name="can_manage_invoices"
+                                       {{ 'checked' if user.can_manage_invoices }}>
+                                <label class="form-check-label" for="can_manage_invoices">
+                                    <i class="fas fa-file-invoice"></i> إدارة الفواتير
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_customers" name="can_manage_customers"
+                                       {{ 'checked' if user.can_manage_customers }}>
+                                <label class="form-check-label" for="can_manage_customers">
+                                    <i class="fas fa-users"></i> إدارة العملاء
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_products" name="can_manage_products"
+                                       {{ 'checked' if user.can_manage_products }}>
+                                <label class="form-check-label" for="can_manage_products">
+                                    <i class="fas fa-box"></i> إدارة المنتجات
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_employees" name="can_manage_employees"
+                                       {{ 'checked' if user.can_manage_employees }}>
+                                <label class="form-check-label" for="can_manage_employees">
+                                    <i class="fas fa-user-tie"></i> إدارة الموظفين
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_payroll" name="can_manage_payroll"
+                                       {{ 'checked' if user.can_manage_payroll }}>
+                                <label class="form-check-label" for="can_manage_payroll">
+                                    <i class="fas fa-money-bill-wave"></i> إدارة الرواتب
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_settings" name="can_manage_settings"
+                                       {{ 'checked' if user.can_manage_settings }}>
+                                <label class="form-check-label" for="can_manage_settings">
+                                    <i class="fas fa-cog"></i> إدارة الإعدادات
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="can_manage_users" name="can_manage_users"
+                                       {{ 'checked' if user.can_manage_users }}>
+                                <label class="form-check-label" for="can_manage_users">
+                                    <i class="fas fa-users-cog"></i> إدارة المستخدمين
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-info btn-sm w-100">
+                            <i class="fas fa-save"></i> حفظ الصلاحيات
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        معلومات إضافية
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>تاريخ الإنشاء:</strong><br>
+                    {{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at }}</p>
+                    
+                    <p><strong>آخر تسجيل دخول:</strong><br>
+                    {{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'لم يسجل دخول بعد' }}</p>
+                    
+                    <p><strong>الحالة:</strong><br>
+                    <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                        {{ 'مفعل' if user.is_active else 'غير مفعل' }}
+                    </span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle both forms
+    const editForm = document.getElementById('editUserForm');
+    const permissionsForm = document.getElementById('permissionsForm');
+    
+    // Merge permissions form data into edit form
+    editForm.addEventListener('submit', function(e) {
+        // Copy permission checkboxes to main form
+        const permissionInputs = permissionsForm.querySelectorAll('input[type="checkbox"]');
+        permissionInputs.forEach(input => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = input.name;
+            hiddenInput.value = input.checked ? 'on' : '';
+            editForm.appendChild(hiddenInput);
+        });
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    });
+    
+    // Handle permissions form separately
+    permissionsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Copy permission data to main form and submit
+        const permissionInputs = this.querySelectorAll('input[type="checkbox"]');
+        permissionInputs.forEach(input => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = input.name;
+            hiddenInput.value = input.checked ? 'on' : '';
+            editForm.appendChild(hiddenInput);
+        });
+        
+        editForm.submit();
+    });
+});
+</script>
+
+<style>
+.required::after {
+    content: " *";
+    color: #e74c3c;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "←";
+}
+
+.form-check-label {
+    font-weight: 500;
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+</style>
+{% endblock %}

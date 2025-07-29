@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة الدفعة #{{ payment.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 20px;
+                font-size: 12pt;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .print-header {
+                border-bottom: 2px solid #000;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+            
+            .print-footer {
+                border-top: 1px solid #ccc;
+                margin-top: 30px;
+                padding-top: 10px;
+                font-size: 10pt;
+                color: #666;
+            }
+            
+            .payment-amount {
+                font-size: 18pt;
+                font-weight: bold;
+                color: #000 !important;
+            }
+            
+            .badge {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background-color: transparent !important;
+            }
+        }
+        
+        @media screen {
+            body {
+                background-color: #f8f9fa;
+                padding: 20px;
+            }
+            
+            .print-container {
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                max-width: 800px;
+                margin: 0 auto;
+            }
+        }
+        
+        .company-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .company-name {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .company-subtitle {
+            font-size: 14pt;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .payment-title {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        
+        .info-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .info-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #2c3e50;
+            width: 30%;
+        }
+        
+        .info-value {
+            color: #34495e;
+        }
+        
+        .amount-section {
+            background: #f8f9fa;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <!-- Print Controls -->
+        <div class="no-print text-center mb-4">
+            <button onclick="window.print()" class="btn btn-primary me-2">
+                <i class="fas fa-print me-1"></i>
+                طباعة
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i>
+                إغلاق
+            </button>
+        </div>
+
+        <!-- Company Header -->
+        <div class="company-header print-header">
+            <div class="company-name">نظام المحاسبة العربي</div>
+            <div class="company-subtitle">إيصال دفع</div>
+            <div style="font-size: 12pt; color: #7f8c8d;">
+                التاريخ: {{ datetime.now().strftime('%Y-%m-%d') }} | الوقت: {{ datetime.now().strftime('%H:%M') }}
+            </div>
+        </div>
+
+        <!-- Payment Title -->
+        <div class="payment-title">
+            <i class="fas fa-receipt me-2"></i>
+            إيصال دفع رقم #{{ payment.id }}
+        </div>
+
+        <!-- Payment Information -->
+        <table class="info-table">
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-hashtag me-1"></i>
+                    رقم الإيصال:
+                </td>
+                <td class="info-value">#{{ payment.id }}</td>
+            </tr>
+            
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    تاريخ الدفع:
+                </td>
+                <td class="info-value">{{ payment.date.strftime('%Y-%m-%d') if payment.date else 'غير محدد' }}</td>
+            </tr>
+            
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-tag me-1"></i>
+                    نوع الدفع:
+                </td>
+                <td class="info-value">
+                    {% if payment.payment_type == 'received' %}
+                        <span class="badge bg-success">مقبوضات</span>
+                    {% else %}
+                        <span class="badge bg-danger">مدفوعات</span>
+                    {% endif %}
+                </td>
+            </tr>
+            
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-credit-card me-1"></i>
+                    طريقة الدفع:
+                </td>
+                <td class="info-value">
+                    {% if payment.payment_method == 'cash' %}
+                        <span class="badge bg-success">نقدي</span>
+                    {% elif payment.payment_method == 'bank_transfer' %}
+                        <span class="badge bg-primary">تحويل بنكي</span>
+                    {% elif payment.payment_method == 'check' %}
+                        <span class="badge bg-warning">شيك</span>
+                    {% elif payment.payment_method == 'card' %}
+                        <span class="badge bg-info">بطاقة</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ payment.payment_method }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            
+            {% if payment.reference_number %}
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-barcode me-1"></i>
+                    رقم المرجع:
+                </td>
+                <td class="info-value">{{ payment.reference_number }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if payment.customer_name %}
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-user me-1"></i>
+                    العميل:
+                </td>
+                <td class="info-value">{{ payment.customer_name }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if payment.supplier_name %}
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-truck me-1"></i>
+                    المورد:
+                </td>
+                <td class="info-value">{{ payment.supplier_name }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if payment.invoice_id %}
+            <tr>
+                <td class="info-label">
+                    <i class="fas fa-file-invoice me-1"></i>
+                    رقم الفاتورة:
+                </td>
+                <td class="info-value">#{{ payment.invoice_id }}</td>
+            </tr>
+            {% endif %}
+        </table>
+
+        <!-- Amount Section -->
+        <div class="amount-section">
+            <div style="font-size: 16pt; margin-bottom: 10px; color: #2c3e50;">
+                <strong>المبلغ المدفوع</strong>
+            </div>
+            <div class="payment-amount">
+                <i class="fas fa-money-bill-wave me-2"></i>
+                {{ "{:,.2f}".format(payment.amount) }} ريال سعودي
+            </div>
+            <div style="font-size: 12pt; margin-top: 10px; color: #7f8c8d;">
+                ({{ payment.amount|int }} ريال و {{ ((payment.amount - payment.amount|int) * 100)|int }} هللة)
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        {% if payment.notes %}
+        <div style="margin: 20px 0;">
+            <div class="info-label" style="margin-bottom: 10px;">
+                <i class="fas fa-sticky-note me-1"></i>
+                ملاحظات:
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-right: 4px solid #3498db;">
+                {{ payment.notes }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">توقيع المستلم</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">توقيع المحاسب</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="print-footer text-center">
+            <div>تم إنشاء هذا الإيصال بواسطة نظام المحاسبة العربي</div>
+            <div>تاريخ الطباعة: {{ datetime.now().strftime('%Y-%m-%d %H:%M:%S') }}</div>
+        </div>
+    </div>
+
+    <script>
+        // Auto print when page loads (optional)
+        // window.onload = function() { window.print(); }
+        
+        // Print function
+        function printReceipt() {
+            window.print();
+        }
+        
+        // Close function
+        function closeWindow() {
+            window.close();
+        }
+    </script>
+</body>
+</html>

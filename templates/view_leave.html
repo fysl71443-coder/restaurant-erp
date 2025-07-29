@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}عرض الإجازة - {{ leave.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-calendar-times text-info"></i>
+                        تفاصيل الإجازة
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/leaves">الإجازات</a></li>
+                            <li class="breadcrumb-item active">عرض الإجازة</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/edit_leave/{{ leave.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> تعديل
+                    </a>
+                    <a href="/leaves" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للإجازات
+                    </a>
+                </div>
+            </div>
+
+            <!-- Employee Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user"></i>
+                        معلومات الموظف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1">{{ leave.employee.name }}</h4>
+                                    <p class="text-muted mb-1">رقم الموظف: {{ leave.employee.employee_id }}</p>
+                                    <p class="text-muted mb-0">{{ leave.employee.position or 'غير محدد' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">القسم</small>
+                                    <p class="fw-bold">{{ leave.employee.department or 'غير محدد' }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">تاريخ التوظيف</small>
+                                    <p class="fw-bold">{{ leave.employee.hire_date.strftime('%Y-%m-%d') if leave.employee.hire_date else 'غير محدد' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Details -->
+            <div class="card shadow-sm mb-4" id="leave-details">
+                <div class="card-header bg-info text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-0">
+                                <i class="fas fa-calendar-alt"></i>
+                                تفاصيل الإجازة
+                            </h4>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge fs-6 
+                                {% if leave.status == 'approved' %}bg-success
+                                {% elif leave.status == 'pending' %}bg-warning text-dark
+                                {% elif leave.status == 'rejected' %}bg-danger
+                                {% elif leave.status == 'cancelled' %}bg-secondary
+                                {% else %}bg-primary{% endif %}">
+                                {% if leave.status == 'approved' %}موافق عليها
+                                {% elif leave.status == 'pending' %}قيد المراجعة
+                                {% elif leave.status == 'rejected' %}مرفوضة
+                                {% elif leave.status == 'cancelled' %}ملغية
+                                {% else %}{{ leave.status }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Leave Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">معلومات الإجازة</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">نوع الإجازة</label>
+                                <p class="fw-bold fs-5">
+                                    {% if leave.leave_type == 'annual' %}
+                                        <i class="fas fa-calendar text-success me-2"></i>
+                                        إجازة سنوية
+                                    {% elif leave.leave_type == 'sick' %}
+                                        <i class="fas fa-user-injured text-danger me-2"></i>
+                                        إجازة مرضية
+                                    {% elif leave.leave_type == 'emergency' %}
+                                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                        إجازة طارئة
+                                    {% elif leave.leave_type == 'maternity' %}
+                                        <i class="fas fa-baby text-pink me-2"></i>
+                                        إجازة أمومة
+                                    {% elif leave.leave_type == 'paternity' %}
+                                        <i class="fas fa-male text-blue me-2"></i>
+                                        إجازة أبوة
+                                    {% elif leave.leave_type == 'unpaid' %}
+                                        <i class="fas fa-money-bill-slash text-secondary me-2"></i>
+                                        إجازة بدون راتب
+                                    {% else %}
+                                        <i class="fas fa-calendar-alt text-info me-2"></i>
+                                        {{ leave.leave_type }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ البداية</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-play text-success me-2"></i>
+                                    {{ leave.start_date.strftime('%A, %d %B %Y') }}
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ النهاية</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-stop text-danger me-2"></i>
+                                    {{ leave.end_date.strftime('%A, %d %B %Y') }}
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">عدد الأيام</label>
+                                <p class="fw-bold fs-4 text-info">
+                                    <i class="fas fa-calendar-day me-2"></i>
+                                    {{ leave.days }} يوم
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Status and Approval -->
+                        <div class="col-md-6">
+                            <h6 class="text-success border-bottom pb-2 mb-3">حالة الموافقة</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ التقديم</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-calendar-plus text-info me-2"></i>
+                                    {{ leave.created_at.strftime('%A, %d %B %Y') }}
+                                </p>
+                            </div>
+                            
+                            {% if leave.approved_by %}
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تمت الموافقة بواسطة</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-user-check text-success me-2"></i>
+                                    {{ leave.approved_by }}
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if leave.approved_at %}
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ الموافقة</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    {{ leave.approved_at.strftime('%A, %d %B %Y') }}
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">الحالة الحالية</label>
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center py-3">
+                                        {% if leave.status == 'approved' %}
+                                            <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                                            <h5 class="text-success mb-0">موافق عليها</h5>
+                                        {% elif leave.status == 'pending' %}
+                                            <i class="fas fa-clock fa-3x text-warning mb-2"></i>
+                                            <h5 class="text-warning mb-0">قيد المراجعة</h5>
+                                        {% elif leave.status == 'rejected' %}
+                                            <i class="fas fa-times-circle fa-3x text-danger mb-2"></i>
+                                            <h5 class="text-danger mb-0">مرفوضة</h5>
+                                        {% elif leave.status == 'cancelled' %}
+                                            <i class="fas fa-ban fa-3x text-secondary mb-2"></i>
+                                            <h5 class="text-secondary mb-0">ملغية</h5>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Duration Analysis -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-warning border-bottom pb-2 mb-3">تحليل مدة الإجازة</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calendar-week fa-2x text-primary mb-2"></i>
+                                    <h6 class="text-primary">عدد الأسابيع</h6>
+                                    <h4 class="text-primary">{{ "%.1f"|format(leave.days / 7) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-business-time fa-2x text-success mb-2"></i>
+                                    <h6 class="text-success">أيام العمل</h6>
+                                    <h4 class="text-success">{{ "%.0f"|format(leave.days * 5/7) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-percentage fa-2x text-info mb-2"></i>
+                                    <h6 class="text-info">من الشهر</h6>
+                                    <h4 class="text-info">{{ "%.1f"|format(leave.days / 30 * 100) }}%</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                                    <h6 class="text-warning">التصنيف</h6>
+                                    <h6>
+                                        {% if leave.days <= 3 %}
+                                            <span class="badge bg-success">قصيرة</span>
+                                        {% elif leave.days <= 7 %}
+                                            <span class="badge bg-warning">متوسطة</span>
+                                        {% elif leave.days <= 14 %}
+                                            <span class="badge bg-info">طويلة</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">ممتدة</span>
+                                        {% endif %}
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason -->
+                    {% if leave.reason %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">سبب الإجازة</h6>
+                            <div class="alert alert-light">
+                                <i class="fas fa-comment-alt text-info me-2"></i>
+                                {{ leave.reason }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Notes -->
+                    {% if leave.notes %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">ملاحظات إضافية</h6>
+                            <div class="alert alert-light">
+                                <i class="fas fa-sticky-note text-warning me-2"></i>
+                                {{ leave.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        <a href="/edit_leave/{{ leave.id }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل الإجازة
+                        </a>
+                        <button class="btn btn-info" data-print="page" data-print-title="تفاصيل الإجازة - {{ leave.employee.name }}">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        {% if leave.status == 'pending' %}
+                        <button class="btn btn-success" onclick="approveLeave({{ leave.id }})">
+                            <i class="fas fa-check"></i> موافقة
+                        </button>
+                        <button class="btn btn-danger" onclick="rejectLeave({{ leave.id }})">
+                            <i class="fas fa-times"></i> رفض
+                        </button>
+                        {% endif %}
+                        {% if leave.status in ['pending', 'approved'] %}
+                        <button class="btn btn-secondary" onclick="cancelLeave({{ leave.id }})">
+                            <i class="fas fa-ban"></i> إلغاء
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-danger" onclick="confirmDelete({{ leave.id }}, '{{ leave.employee.name }}', '{{ leave.start_date.strftime('%Y-%m-%d') }}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                        <a href="/leaves" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> عرض جميع الإجازات
+                        </a>
+                        <a href="/view_employee/{{ leave.employee.id }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user"></i> ملف الموظف
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظيفة الحذف السريع
+function confirmDelete(leaveId, employeeName, startDate) {
+    // الحذف السريع بدون تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف إجازة الموظف "${employeeName}"...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_leave/${leaveId}`;
+    }, 500);
+}
+
+// وظيفة الموافقة على الإجازة
+function approveLeave(leaveId) {
+    if (confirm('هل تريد الموافقة على هذه الإجازة؟')) {
+        window.location.href = `/approve_leave/${leaveId}`;
+    }
+}
+
+// وظيفة رفض الإجازة
+function rejectLeave(leaveId) {
+    const reason = prompt('يرجى إدخال سبب الرفض (اختياري):');
+    if (reason !== null) {
+        window.location.href = `/reject_leave/${leaveId}?reason=${encodeURIComponent(reason)}`;
+    }
+}
+
+// وظيفة إلغاء الإجازة
+function cancelLeave(leaveId) {
+    if (confirm('هل تريد إلغاء هذه الإجازة؟')) {
+        window.location.href = `/cancel_leave/${leaveId}`;
+    }
+}
+</script>
+{% endblock %}

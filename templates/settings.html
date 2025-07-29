@@ -1,0 +1,481 @@
+{% extends "base.html" %}
+
+{% block title %}إعدادات النظام{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-cog text-primary"></i>
+                إعدادات النظام
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('home') }}">الرئيسية</a></li>
+                    <li class="breadcrumb-item active">الإعدادات</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' if category == 'info' else 'check-circle' }}"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Settings Tabs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                                <i class="fas fa-users"></i> إدارة المستخدمين
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
+                                <i class="fas fa-cogs"></i> إعدادات النظام
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="appearance-tab" data-bs-toggle="tab" data-bs-target="#appearance" type="button" role="tab">
+                                <i class="fas fa-palette"></i> المظهر
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                                <i class="fas fa-shield-alt"></i> الأمان
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="printing-tab" data-bs-toggle="tab" data-bs-target="#printing" type="button" role="tab">
+                                <i class="fas fa-print"></i> الطباعة
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="settingsTabContent">
+                        <!-- Users Management Tab -->
+                        <div class="tab-pane fade show active" id="users" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5><i class="fas fa-users"></i> إدارة المستخدمين</h5>
+                                <a href="{{ url_for('add_user') }}" class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i> إضافة مستخدم جديد
+                                </a>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>الاسم الكامل</th>
+                                            <th>اسم المستخدم</th>
+                                            <th>البريد الإلكتروني</th>
+                                            <th>الدور</th>
+                                            <th>القسم</th>
+                                            <th>الحالة</th>
+                                            <th>آخر دخول</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if users %}
+                                            {% for user in users %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                            {{ user.full_name[0] }}
+                                                        </div>
+                                                        {{ user.full_name }}
+                                                    </div>
+                                                </td>
+                                                <td>{{ user.username }}</td>
+                                                <td>{{ user.email }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'warning' if user.role == 'manager' else 'info' if user.role == 'accountant' else 'secondary' }}">
+                                                        {{ {'admin': 'مدير النظام', 'manager': 'مدير', 'accountant': 'محاسب', 'user': 'مستخدم'}[user.role] }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ user.department or '-' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                                                        {{ 'مفعل' if user.is_active else 'غير مفعل' }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if user.last_login %}
+                                                        {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                                                    {% else %}
+                                                        <span class="text-muted">لم يسجل دخول</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        {% if user.id != current_user.id %}
+                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                onclick="confirmDelete('{{ user.username }}', {{ user.id }})">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="8" class="text-center text-muted">
+                                                    <i class="fas fa-users fa-3x mb-3"></i>
+                                                    <p>لا توجد مستخدمين مسجلين</p>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- System Settings Tab -->
+                        <div class="tab-pane fade" id="system" role="tabpanel">
+                            <h5><i class="fas fa-cogs"></i> إعدادات النظام العامة</h5>
+                            <form method="POST" action="{{ url_for('update_settings') }}">
+                                {% if settings_by_category.get('general') %}
+                                    {% for setting in settings_by_category['general'] %}
+                                    <div class="mb-3">
+                                        <label for="setting_{{ setting.setting_key }}" class="form-label">
+                                            {{ setting.description or setting.setting_key }}
+                                        </label>
+                                        {% if setting.setting_type == 'boolean' %}
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox"
+                                                       id="setting_{{ setting.setting_key }}"
+                                                       name="setting_{{ setting.setting_key }}"
+                                                       value="true"
+                                                       {{ 'checked' if setting.get_value() }}>
+                                                <input type="hidden" name="setting_{{ setting.setting_key }}_exists" value="1">
+                                            </div>
+                                        {% elif setting.setting_type == 'integer' %}
+                                            <input type="number" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% else %}
+                                            <input type="text" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">لا توجد إعدادات عامة</p>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary" id="saveGeneralBtn">
+                                    <i class="fas fa-save"></i> حفظ الإعدادات
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Appearance Settings Tab -->
+                        <div class="tab-pane fade" id="appearance" role="tabpanel">
+                            <h5><i class="fas fa-palette"></i> إعدادات المظهر</h5>
+                            <form method="POST" action="{{ url_for('update_settings') }}">
+                                {% if settings_by_category.get('appearance') %}
+                                    {% for setting in settings_by_category['appearance'] %}
+                                    <div class="mb-3">
+                                        <label for="setting_{{ setting.setting_key }}" class="form-label">
+                                            {{ setting.description or setting.setting_key }}
+                                        </label>
+                                        {% if setting.setting_key == 'theme' %}
+                                            <select class="form-select" id="setting_{{ setting.setting_key }}" name="setting_{{ setting.setting_key }}">
+                                                <option value="light" {{ 'selected' if setting.get_value() == 'light' }}>فاتح</option>
+                                                <option value="dark" {{ 'selected' if setting.get_value() == 'dark' }}>داكن</option>
+                                            </select>
+                                        {% elif setting.setting_key == 'language' %}
+                                            <select class="form-select" id="setting_{{ setting.setting_key }}" name="setting_{{ setting.setting_key }}">
+                                                <option value="ar" {{ 'selected' if setting.get_value() == 'ar' }}>العربية</option>
+                                                <option value="en" {{ 'selected' if setting.get_value() == 'en' }}>English</option>
+                                            </select>
+                                        {% elif setting.setting_type == 'integer' %}
+                                            <input type="number" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% else %}
+                                            <input type="text" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">لا توجد إعدادات مظهر</p>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary" id="saveAppearanceBtn">
+                                    <i class="fas fa-save"></i> حفظ الإعدادات
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings Tab -->
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <h5><i class="fas fa-shield-alt"></i> إعدادات الأمان</h5>
+                            <form method="POST" action="{{ url_for('update_settings') }}">
+                                {% if settings_by_category.get('security') %}
+                                    {% for setting in settings_by_category['security'] %}
+                                    <div class="mb-3">
+                                        <label for="setting_{{ setting.setting_key }}" class="form-label">
+                                            {{ setting.description or setting.setting_key }}
+                                        </label>
+                                        {% if setting.setting_type == 'boolean' %}
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox"
+                                                       id="setting_{{ setting.setting_key }}"
+                                                       name="setting_{{ setting.setting_key }}"
+                                                       value="true"
+                                                       {{ 'checked' if setting.get_value() }}>
+                                                <input type="hidden" name="setting_{{ setting.setting_key }}_exists" value="1">
+                                            </div>
+                                        {% elif setting.setting_type == 'integer' %}
+                                            <input type="number" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% else %}
+                                            <input type="text" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">لا توجد إعدادات أمان</p>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary" id="saveSecurityBtn">
+                                    <i class="fas fa-save"></i> حفظ الإعدادات
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Printing Settings Tab -->
+                        <div class="tab-pane fade" id="printing" role="tabpanel">
+                            <h5><i class="fas fa-print"></i> إعدادات الطباعة</h5>
+                            <form method="POST" action="{{ url_for('update_settings') }}">
+                                {% if settings_by_category.get('printing') %}
+                                    {% for setting in settings_by_category['printing'] %}
+                                    <div class="mb-3">
+                                        <label for="setting_{{ setting.setting_key }}" class="form-label">
+                                            {{ setting.description or setting.setting_key }}
+                                        </label>
+                                        {% if setting.setting_type == 'boolean' %}
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox"
+                                                       id="setting_{{ setting.setting_key }}"
+                                                       name="setting_{{ setting.setting_key }}"
+                                                       value="true"
+                                                       {{ 'checked' if setting.get_value() }}>
+                                                <input type="hidden" name="setting_{{ setting.setting_key }}_exists" value="1">
+                                            </div>
+                                        {% elif setting.setting_key == 'paper_size' %}
+                                            <select class="form-select" id="setting_{{ setting.setting_key }}" name="setting_{{ setting.setting_key }}">
+                                                <option value="A4" {{ 'selected' if setting.get_value() == 'A4' }}>A4</option>
+                                                <option value="A3" {{ 'selected' if setting.get_value() == 'A3' }}>A3</option>
+                                                <option value="Letter" {{ 'selected' if setting.get_value() == 'Letter' }}>Letter</option>
+                                            </select>
+                                        {% elif setting.setting_type == 'integer' %}
+                                            <input type="number" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% else %}
+                                            <input type="text" class="form-control"
+                                                   id="setting_{{ setting.setting_key }}"
+                                                   name="setting_{{ setting.setting_key }}"
+                                                   value="{{ setting.get_value() }}">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">لا توجد إعدادات طباعة</p>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary" id="savePrintBtn">
+                                    <i class="fas fa-save"></i> حفظ الإعدادات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف المستخدم <strong id="deleteUsername"></strong>؟</p>
+                <p class="text-danger">هذا الإجراء لا يمكن التراجع عنه.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form method="POST" id="deleteForm" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(username, userId) {
+    document.getElementById('deleteUsername').textContent = username;
+    document.getElementById('deleteForm').action = `/delete_user/${userId}`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Auto-save settings on change
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        // You can implement auto-save here if needed
+    });
+});
+</script>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link {
+    border-radius: 8px 8px 0 0;
+    margin-left: 2px;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-group .btn {
+    border-radius: 6px;
+    margin-left: 2px;
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "←";
+}
+</style>
+
+<script>
+// إضافة loading indicator
+function showLoading(buttonId) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    }
+}
+
+// إزالة loading indicator
+function hideLoading(buttonId, originalText) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
+}
+
+// معالجة سريعة لإرسال النماذج
+document.addEventListener('DOMContentLoaded', function() {
+    // معالجة جميع النماذج في الصفحة بسرعة فائقة
+    const forms = document.querySelectorAll('form[method="POST"]');
+
+    forms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton) {
+                const originalText = submitButton.innerHTML;
+
+                // معالجة فورية للزر
+                submitButton.innerHTML = '<i class="fas fa-check"></i> تم الحفظ';
+                submitButton.disabled = true;
+
+                // إعادة تفعيل الزر بعد ثانيتين فقط
+                setTimeout(function() {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                }, 2000);
+            }
+        });
+    });
+});
+
+// وظيفة تأكيد الحذف
+function confirmDelete(username, userId) {
+    document.getElementById('deleteUsername').textContent = username;
+    document.getElementById('deleteForm').action = '/delete_user/' + userId;
+
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// منع إظهار نافذة "مغادرة الصفحة" غير المرغوب فيها
+window.addEventListener('beforeunload', function(e) {
+    // لا تظهر النافذة إلا إذا كان هناك تغييرات غير محفوظة
+    const forms = document.querySelectorAll('form');
+    let hasUnsavedChanges = false;
+
+    forms.forEach(function(form) {
+        const formData = new FormData(form);
+        // يمكن إضافة منطق للتحقق من التغييرات هنا إذا لزم الأمر
+    });
+
+    // لا تظهر النافذة بشكل افتراضي
+    delete e['returnValue'];
+});
+</script>
+{% endblock %}

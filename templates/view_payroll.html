@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}عرض الراتب - {{ payroll.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-money-check-alt text-success"></i>
+                        كشف راتب
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/payroll">الرواتب</a></li>
+                            <li class="breadcrumb-item active">عرض الراتب</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/edit_payroll/{{ payroll.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> تعديل
+                    </a>
+                    <a href="/payroll" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للرواتب
+                    </a>
+                </div>
+            </div>
+
+            <!-- Employee Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user"></i>
+                        معلومات الموظف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-1">{{ payroll.employee.name }}</h3>
+                                    <p class="text-muted mb-1">رقم الموظف: {{ payroll.employee.employee_id }}</p>
+                                    <p class="text-muted mb-0">{{ payroll.employee.position or 'غير محدد' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">القسم</small>
+                                    <p class="fw-bold">{{ payroll.employee.department or 'غير محدد' }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">تاريخ التوظيف</small>
+                                    <p class="fw-bold">{{ payroll.employee.hire_date.strftime('%Y-%m-%d') if payroll.employee.hire_date else 'غير محدد' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payroll Details -->
+            <div class="card shadow-sm mb-4" id="payroll-details">
+                <div class="card-header bg-success text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-0">
+                                <i class="fas fa-calendar-alt"></i>
+                                كشف راتب {{ payroll.month }}/{{ payroll.year }}
+                            </h4>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge fs-6 
+                                {% if payroll.status == 'paid' %}bg-success
+                                {% elif payroll.status == 'pending' %}bg-warning text-dark
+                                {% elif payroll.status == 'cancelled' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {% if payroll.status == 'paid' %}مدفوع
+                                {% elif payroll.status == 'pending' %}معلق
+                                {% elif payroll.status == 'cancelled' %}ملغي
+                                {% else %}{{ payroll.status }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Basic Salary Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">الراتب الأساسي والبدلات</h6>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">الراتب الأساسي:</span>
+                                    <span class="fw-bold fs-5 text-success">{{ "{:,.2f}".format(payroll.basic_salary) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">بدل السكن:</span>
+                                    <span class="fw-bold text-info">{{ "{:,.2f}".format(payroll.housing_allowance or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">بدل المواصلات:</span>
+                                    <span class="fw-bold text-info">{{ "{:,.2f}".format(payroll.transport_allowance or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">بدلات أخرى:</span>
+                                    <span class="fw-bold text-info">{{ "{:,.2f}".format(payroll.other_allowances or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-success">إجمالي البدلات:</span>
+                                    <span class="fw-bold fs-5 text-success">
+                                        {{ "{:,.2f}".format((payroll.housing_allowance or 0) + (payroll.transport_allowance or 0) + (payroll.other_allowances or 0)) }} ر.س
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Overtime and Deductions -->
+                        <div class="col-md-6">
+                            <h6 class="text-warning border-bottom pb-2 mb-3">الساعات الإضافية والخصومات</h6>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">الساعات الإضافية:</span>
+                                    <span class="fw-bold text-success">{{ "{:,.1f}".format(payroll.overtime_hours or 0) }} ساعة</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">مبلغ الساعات الإضافية:</span>
+                                    <span class="fw-bold text-success">{{ "{:,.2f}".format(payroll.overtime_amount or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">مكافآت:</span>
+                                    <span class="fw-bold text-success">{{ "{:,.2f}".format(payroll.bonus or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted text-danger">خصم التأمينات:</span>
+                                    <span class="fw-bold text-danger">-{{ "{:,.2f}".format(payroll.social_insurance or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted text-danger">ضريبة الدخل:</span>
+                                    <span class="fw-bold text-danger">-{{ "{:,.2f}".format(payroll.income_tax or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted text-danger">خصومات أخرى:</span>
+                                    <span class="fw-bold text-danger">-{{ "{:,.2f}".format(payroll.other_deductions or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Summary -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-success">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0 text-success">
+                                        <i class="fas fa-calculator"></i>
+                                        الملخص المالي
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h6 class="text-success">إجمالي الاستحقاقات</h6>
+                                                <h3 class="text-success">
+                                                    {{ "{:,.2f}".format(payroll.basic_salary + (payroll.housing_allowance or 0) + (payroll.transport_allowance or 0) + (payroll.other_allowances or 0) + (payroll.overtime_amount or 0) + (payroll.bonus or 0)) }} ر.س
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h6 class="text-danger">إجمالي الخصومات</h6>
+                                                <h3 class="text-danger">
+                                                    {{ "{:,.2f}".format((payroll.social_insurance or 0) + (payroll.income_tax or 0) + (payroll.other_deductions or 0)) }} ر.س
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h6 class="text-primary">صافي الراتب</h6>
+                                                <h2 class="text-primary fw-bold">
+                                                    {{ "{:,.2f}".format(payroll.net_salary) }} ر.س
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2 mb-3">معلومات الدفع</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ الدفع</label>
+                                <p class="fw-bold">
+                                    {% if payroll.payment_date %}
+                                        <i class="fas fa-calendar-check text-success me-2"></i>
+                                        {{ payroll.payment_date.strftime('%A, %d %B %Y') }}
+                                    {% else %}
+                                        <span class="text-muted">لم يتم الدفع بعد</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">طريقة الدفع</label>
+                                <p class="fw-bold">
+                                    {% if payroll.payment_method %}
+                                        {% if payroll.payment_method == 'bank_transfer' %}
+                                            <i class="fas fa-university text-primary me-2"></i>
+                                            تحويل بنكي
+                                        {% elif payroll.payment_method == 'cash' %}
+                                            <i class="fas fa-money-bill text-success me-2"></i>
+                                            نقداً
+                                        {% elif payroll.payment_method == 'check' %}
+                                            <i class="fas fa-money-check text-info me-2"></i>
+                                            شيك
+                                        {% else %}
+                                            {{ payroll.payment_method }}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">غير محدد</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    {% if payroll.notes %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">الملاحظات</h6>
+                            <div class="alert alert-light">
+                                <i class="fas fa-sticky-note text-warning me-2"></i>
+                                {{ payroll.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        <a href="/edit_payroll/{{ payroll.id }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل الراتب
+                        </a>
+                        <button class="btn btn-info" data-print="page" data-print-title="كشف راتب - {{ payroll.employee.name }}">
+                            <i class="fas fa-print"></i> طباعة كشف الراتب
+                        </button>
+                        {% if payroll.status == 'pending' %}
+                        <button class="btn btn-success" onclick="markAsPaid({{ payroll.id }})">
+                            <i class="fas fa-check"></i> تأكيد الدفع
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-danger" onclick="confirmDelete({{ payroll.id }}, '{{ payroll.employee.name }}', '{{ payroll.month }}/{{ payroll.year }}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                        <a href="/payroll" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> عرض جميع الرواتب
+                        </a>
+                        <a href="/view_employee/{{ payroll.employee.id }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user"></i> ملف الموظف
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظيفة الحذف السريع
+function confirmDelete(payrollId, employeeName, period) {
+    // الحذف السريع بدون تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف راتب الموظف "${employeeName}"...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_payroll/${payrollId}`;
+    }, 500);
+}
+
+// وظيفة تأكيد الدفع
+function markAsPaid(payrollId) {
+    if (confirm('هل تريد تأكيد دفع هذا الراتب؟')) {
+        window.location.href = `/mark_payroll_paid/${payrollId}`;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الراتب - {{ payroll.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل الراتب
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/payroll">الرواتب</a></li>
+                            <li class="breadcrumb-item"><a href="/view_payroll/{{ payroll.id }}">عرض الراتب</a></li>
+                            <li class="breadcrumb-item active">تعديل</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_payroll/{{ payroll.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض الراتب
+                    </a>
+                    <a href="/payroll" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> قائمة الرواتب
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" id="editPayrollForm" class="needs-validation" novalidate>
+                <!-- Employee Information -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user"></i>
+                            معلومات الموظف
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="employee_id" class="form-label">
+                                    <i class="fas fa-user text-primary"></i>
+                                    الموظف <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="employee_id" name="employee_id" required>
+                                    <option value="">اختر الموظف</option>
+                                    {% for employee in employees %}
+                                    <option value="{{ employee.id }}" 
+                                            data-salary="{{ employee.salary }}"
+                                            {% if employee.id == payroll.employee_id %}selected{% endif %}>
+                                        {{ employee.name }} - {{ employee.position }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الموظف
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="month" class="form-label">
+                                    <i class="fas fa-calendar text-info"></i>
+                                    الشهر <span class="text-danger">*</span>
+                                </label>
+                                <input type="month" class="form-control" id="month" name="month" 
+                                       value="{{ payroll.month.strftime('%Y-%m') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الشهر
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Details -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-money-bill-wave"></i>
+                            تفاصيل الراتب
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Basic Salary -->
+                            <div class="col-md-6 mb-3">
+                                <label for="basic_salary" class="form-label">
+                                    <i class="fas fa-dollar-sign text-success"></i>
+                                    الراتب الأساسي <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="basic_salary" name="basic_salary" 
+                                           value="{{ payroll.basic_salary }}" min="0" step="0.01" required>
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال الراتب الأساسي
+                                </div>
+                            </div>
+
+                            <!-- Working Days -->
+                            <div class="col-md-6 mb-3">
+                                <label for="working_days" class="form-label">
+                                    <i class="fas fa-calendar-day text-info"></i>
+                                    أيام العمل <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="working_days" name="working_days" 
+                                       value="{{ payroll.working_days }}" min="0" max="31" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال أيام العمل
+                                </div>
+                            </div>
+
+                            <!-- Overtime Hours -->
+                            <div class="col-md-6 mb-3">
+                                <label for="overtime_hours" class="form-label">
+                                    <i class="fas fa-clock text-warning"></i>
+                                    ساعات إضافية
+                                </label>
+                                <input type="number" class="form-control" id="overtime_hours" name="overtime_hours" 
+                                       value="{{ payroll.overtime_hours or 0 }}" min="0" step="0.5">
+                            </div>
+
+                            <!-- Overtime Rate -->
+                            <div class="col-md-6 mb-3">
+                                <label for="overtime_rate" class="form-label">
+                                    <i class="fas fa-percentage text-warning"></i>
+                                    معدل الساعة الإضافية
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="overtime_rate" name="overtime_rate" 
+                                           value="{{ payroll.overtime_rate or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال/ساعة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allowances -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-plus-circle"></i>
+                            البدلات والمكافآت
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Housing Allowance -->
+                            <div class="col-md-6 mb-3">
+                                <label for="housing_allowance" class="form-label">
+                                    <i class="fas fa-home text-primary"></i>
+                                    بدل سكن
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="housing_allowance" name="housing_allowance" 
+                                           value="{{ payroll.housing_allowance or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Transportation Allowance -->
+                            <div class="col-md-6 mb-3">
+                                <label for="transportation_allowance" class="form-label">
+                                    <i class="fas fa-car text-info"></i>
+                                    بدل مواصلات
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="transportation_allowance" name="transportation_allowance" 
+                                           value="{{ payroll.transportation_allowance or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Food Allowance -->
+                            <div class="col-md-6 mb-3">
+                                <label for="food_allowance" class="form-label">
+                                    <i class="fas fa-utensils text-warning"></i>
+                                    بدل طعام
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="food_allowance" name="food_allowance" 
+                                           value="{{ payroll.food_allowance or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Other Allowances -->
+                            <div class="col-md-6 mb-3">
+                                <label for="other_allowances" class="form-label">
+                                    <i class="fas fa-gift text-success"></i>
+                                    بدلات أخرى
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="other_allowances" name="other_allowances" 
+                                           value="{{ payroll.other_allowances or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Bonus -->
+                            <div class="col-md-6 mb-3">
+                                <label for="bonus" class="form-label">
+                                    <i class="fas fa-star text-warning"></i>
+                                    مكافأة
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="bonus" name="bonus" 
+                                           value="{{ payroll.bonus or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Commission -->
+                            <div class="col-md-6 mb-3">
+                                <label for="commission" class="form-label">
+                                    <i class="fas fa-percentage text-info"></i>
+                                    عمولة
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="commission" name="commission" 
+                                           value="{{ payroll.commission or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deductions -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-minus-circle"></i>
+                            الخصومات
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Social Security -->
+                            <div class="col-md-6 mb-3">
+                                <label for="social_security" class="form-label">
+                                    <i class="fas fa-shield-alt text-primary"></i>
+                                    التأمينات الاجتماعية
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="social_security" name="social_security" 
+                                           value="{{ payroll.social_security or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Income Tax -->
+                            <div class="col-md-6 mb-3">
+                                <label for="income_tax" class="form-label">
+                                    <i class="fas fa-receipt text-warning"></i>
+                                    ضريبة الدخل
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="income_tax" name="income_tax" 
+                                           value="{{ payroll.income_tax or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Loan Deduction -->
+                            <div class="col-md-6 mb-3">
+                                <label for="loan_deduction" class="form-label">
+                                    <i class="fas fa-hand-holding-usd text-danger"></i>
+                                    خصم قرض
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="loan_deduction" name="loan_deduction" 
+                                           value="{{ payroll.loan_deduction or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Absence Deduction -->
+                            <div class="col-md-6 mb-3">
+                                <label for="absence_deduction" class="form-label">
+                                    <i class="fas fa-user-times text-secondary"></i>
+                                    خصم غياب
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="absence_deduction" name="absence_deduction" 
+                                           value="{{ payroll.absence_deduction or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Other Deductions -->
+                            <div class="col-md-6 mb-3">
+                                <label for="other_deductions" class="form-label">
+                                    <i class="fas fa-minus text-danger"></i>
+                                    خصومات أخرى
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="other_deductions" name="other_deductions" 
+                                           value="{{ payroll.other_deductions or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+
+                            <!-- Late Penalty -->
+                            <div class="col-md-6 mb-3">
+                                <label for="late_penalty" class="form-label">
+                                    <i class="fas fa-clock text-warning"></i>
+                                    غرامة تأخير
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="late_penalty" name="late_penalty" 
+                                           value="{{ payroll.late_penalty or 0 }}" min="0" step="0.01">
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Summary -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-calculator"></i>
+                            ملخص الراتب
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-plus fa-2x mb-2"></i>
+                                        <h6>إجمالي المستحقات</h6>
+                                        <h4 id="totalEarnings">{{ "%.2f"|format(payroll.total_earnings or 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-danger text-white">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-minus fa-2x mb-2"></i>
+                                        <h6>إجمالي الخصومات</h6>
+                                        <h4 id="totalDeductions">{{ "%.2f"|format(payroll.total_deductions or 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-clock fa-2x mb-2"></i>
+                                        <h6>الساعات الإضافية</h6>
+                                        <h4 id="overtimeAmount">{{ "%.2f"|format(payroll.overtime_amount or 0) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                                        <h6>صافي الراتب</h6>
+                                        <h4 id="netSalary">{{ "%.2f"|format(payroll.net_salary) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            معلومات إضافية
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Payment Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_date" class="form-label">
+                                    <i class="fas fa-calendar-check text-success"></i>
+                                    تاريخ الدفع
+                                </label>
+                                <input type="date" class="form-control" id="payment_date" name="payment_date" 
+                                       value="{{ payroll.payment_date.strftime('%Y-%m-%d') if payroll.payment_date else '' }}">
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    الحالة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">اختر الحالة</option>
+                                    <option value="draft" {% if payroll.status == 'draft' %}selected{% endif %}>مسودة</option>
+                                    <option value="approved" {% if payroll.status == 'approved' %}selected{% endif %}>موافق عليه</option>
+                                    <option value="paid" {% if payroll.status == 'paid' %}selected{% endif %}>مدفوع</option>
+                                    <option value="cancelled" {% if payroll.status == 'cancelled' %}selected{% endif %}>ملغي</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الحالة
+                                </div>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="col-12 mb-3">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-secondary"></i>
+                                    ملاحظات
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="أدخل أي ملاحظات حول الراتب...">{{ payroll.notes or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <a href="/view_payroll/{{ payroll.id }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> عرض الراتب
+                            </a>
+                            <a href="/payroll" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب المجاميع تلقائياً
+function calculateTotals() {
+    // حساب الراتب الأساسي والساعات الإضافية
+    const basicSalary = parseFloat(document.getElementById('basic_salary').value) || 0;
+    const overtimeHours = parseFloat(document.getElementById('overtime_hours').value) || 0;
+    const overtimeRate = parseFloat(document.getElementById('overtime_rate').value) || 0;
+    const overtimeAmount = overtimeHours * overtimeRate;
+    
+    // حساب البدلات
+    const housingAllowance = parseFloat(document.getElementById('housing_allowance').value) || 0;
+    const transportationAllowance = parseFloat(document.getElementById('transportation_allowance').value) || 0;
+    const foodAllowance = parseFloat(document.getElementById('food_allowance').value) || 0;
+    const otherAllowances = parseFloat(document.getElementById('other_allowances').value) || 0;
+    const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+    const commission = parseFloat(document.getElementById('commission').value) || 0;
+    
+    // حساب الخصومات
+    const socialSecurity = parseFloat(document.getElementById('social_security').value) || 0;
+    const incomeTax = parseFloat(document.getElementById('income_tax').value) || 0;
+    const loanDeduction = parseFloat(document.getElementById('loan_deduction').value) || 0;
+    const absenceDeduction = parseFloat(document.getElementById('absence_deduction').value) || 0;
+    const otherDeductions = parseFloat(document.getElementById('other_deductions').value) || 0;
+    const latePenalty = parseFloat(document.getElementById('late_penalty').value) || 0;
+    
+    // إجمالي المستحقات
+    const totalEarnings = basicSalary + overtimeAmount + housingAllowance + transportationAllowance + 
+                         foodAllowance + otherAllowances + bonus + commission;
+    
+    // إجمالي الخصومات
+    const totalDeductions = socialSecurity + incomeTax + loanDeduction + absenceDeduction + 
+                           otherDeductions + latePenalty;
+    
+    // صافي الراتب
+    const netSalary = totalEarnings - totalDeductions;
+    
+    // تحديث العرض
+    document.getElementById('totalEarnings').textContent = totalEarnings.toFixed(2);
+    document.getElementById('totalDeductions').textContent = totalDeductions.toFixed(2);
+    document.getElementById('overtimeAmount').textContent = overtimeAmount.toFixed(2);
+    document.getElementById('netSalary').textContent = netSalary.toFixed(2);
+}
+
+// تحديث الراتب الأساسي عند اختيار الموظف
+function updateBasicSalary() {
+    const employeeSelect = document.getElementById('employee_id');
+    const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
+    if (selectedOption.dataset.salary) {
+        document.getElementById('basic_salary').value = selectedOption.dataset.salary;
+        calculateTotals();
+    }
+}
+
+// إعادة تعيين النموذج
+function resetForm() {
+    if (confirm('هل تريد إعادة تعيين جميع البيانات؟')) {
+        document.getElementById('editPayrollForm').reset();
+        calculateTotals();
+    }
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // إضافة event listeners لجميع الحقول المالية
+    const financialFields = [
+        'basic_salary', 'overtime_hours', 'overtime_rate',
+        'housing_allowance', 'transportation_allowance', 'food_allowance', 
+        'other_allowances', 'bonus', 'commission',
+        'social_security', 'income_tax', 'loan_deduction', 
+        'absence_deduction', 'other_deductions', 'late_penalty'
+    ];
+    
+    financialFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', calculateTotals);
+        }
+    });
+    
+    // إضافة event listener لاختيار الموظف
+    document.getElementById('employee_id').addEventListener('change', updateBasicSalary);
+    
+    // حساب المجاميع الأولية
+    calculateTotals();
+    
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editPayrollForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

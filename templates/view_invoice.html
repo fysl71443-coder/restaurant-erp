@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}عرض الفاتورة - #INV-{{ invoice.id }}{% endblock %}
+{% block page_title %}عرض تفاصيل الفاتورة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-file-invoice text-primary"></i> عرض تفاصيل الفاتورة</h2>
+                    <p class="text-muted">فاتورة رقم:
+                        {% if invoice.invoice_number %}
+                            {{ invoice.invoice_number }}
+                        {% else %}
+                            #INV-{{ invoice.id }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="{{ url_for('edit_invoice', invoice_id=invoice.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="printInvoice()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <a href="{{ url_for('invoices') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- تفاصيل الفاتورة -->
+        <div class="col-lg-8">
+            <!-- رأس الفاتورة -->
+            <div class="card shadow mb-4" id="invoiceContent">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">فاتورة رقم:
+                                {% if invoice.invoice_number %}
+                                    {{ invoice.invoice_number }}
+                                {% else %}
+                                    #INV-{{ invoice.id }}
+                                {% endif %}
+                            </h4>
+                            <small>تاريخ الإصدار: {{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</small>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0">شركة المحاسبة المتقدمة</h5>
+                            <small>نظام إدارة الفواتير</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- معلومات العميل -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">معلومات العميل:</h6>
+                            <div class="border p-3 rounded">
+                                <h5 class="mb-2">{{ invoice.customer_name }}</h5>
+                                <p class="mb-1"><i class="fas fa-user text-muted"></i> العميل</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">معلومات الفاتورة:</h6>
+                            <div class="border p-3 rounded">
+                                <p class="mb-1"><strong>رقم الفاتورة:</strong> #INV-{{ invoice.id }}</p>
+                                <p class="mb-1"><strong>تاريخ الإصدار:</strong> {{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</p>
+                                <p class="mb-1"><strong>الحالة:</strong> 
+                                    {% set status_class = 'success' if loop.index % 3 == 0 else ('warning' if loop.index % 2 == 0 else 'danger') %}
+                                    {% set status_text = 'مدفوعة' if status_class == 'success' else ('معلقة' if status_class == 'warning' else 'متأخرة') %}
+                                    <span class="badge bg-{{ status_class }}">{{ status_text }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تفاصيل المبلغ -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="text-primary">تفاصيل المبلغ:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>الوصف</th>
+                                            <th>الكمية</th>
+                                            <th>السعر</th>
+                                            <th>المجموع</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>خدمات متنوعة</td>
+                                            <td>1</td>
+                                            <td>{{ "{:,.2f}".format(invoice.total_amount / 1.15) }} ر.س</td>
+                                            <td>{{ "{:,.2f}".format(invoice.total_amount / 1.15) }} ر.س</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="3" class="text-end">المجموع الفرعي:</th>
+                                            <th>{{ "{:,.2f}".format(invoice.total_amount / 1.15) }} ر.س</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="3" class="text-end">ضريبة القيمة المضافة (15%):</th>
+                                            <th>{{ "{:,.2f}".format(invoice.total_amount - (invoice.total_amount / 1.15)) }} ر.س</th>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <th colspan="3" class="text-end">المجموع الإجمالي:</th>
+                                            <th>{{ "{:,.2f}".format(invoice.total_amount) }} ر.س</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ملاحظات -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-primary">ملاحظات:</h6>
+                            <div class="border p-3 rounded bg-light">
+                                <p class="mb-0">شكراً لتعاملكم معنا. يرجى سداد المبلغ في الموعد المحدد.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الشريط الجانبي -->
+        <div class="col-lg-4">
+            <!-- ملخص الفاتورة -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> ملخص الفاتورة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-12 mb-3">
+                            <h3 class="text-success">{{ "{:,.2f}".format(invoice.total_amount) }} ر.س</h3>
+                            <small class="text-muted">المبلغ الإجمالي</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>المبلغ الفرعي:</span>
+                            <span>{{ "{:,.2f}".format(invoice.total_amount / 1.15) }} ر.س</span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>الضريبة (15%):</span>
+                            <span>{{ "{:,.2f}".format(invoice.total_amount - (invoice.total_amount / 1.15)) }} ر.س</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>الإجمالي:</span>
+                            <span class="text-success">{{ "{:,.2f}".format(invoice.total_amount) }} ر.س</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- معلومات إضافية -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> معلومات إضافية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">تاريخ الإنشاء:</label>
+                        <p class="form-control-plaintext">{{ invoice.date.strftime('%Y-%m-%d %H:%M') if invoice.date else 'غير محدد' }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">طريقة الدفع:</label>
+                        <p class="form-control-plaintext">تحويل بنكي</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">تاريخ الاستحقاق:</label>
+                        <p class="form-control-plaintext">{{ (invoice.date + timedelta(days=30)).strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إجراءات سريعة -->
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-tools"></i> إجراءات سريعة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('edit_invoice', invoice_id=invoice.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل الفاتورة
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="printInvoice()">
+                            <i class="fas fa-print"></i> طباعة الفاتورة
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="exportInvoice()">
+                            <i class="fas fa-download"></i> تصدير PDF
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="sendInvoice()">
+                            <i class="fas fa-envelope"></i> إرسال بالبريد
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete({{ invoice.id }})">
+                            <i class="fas fa-trash"></i> حذف الفاتورة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذه الفاتورة؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(invoiceId) {
+    const deleteForm = document.getElementById('deleteForm');
+    deleteForm.action = `/delete_invoice/${invoiceId}`;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+function printInvoice() {
+    const printContent = document.getElementById('invoiceContent').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>فاتورة #INV-{{ invoice.id }}</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; }
+                @media print { .btn { display: none; } }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                ${printContent}
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function exportInvoice() {
+    alert('سيتم تطوير وظيفة تصدير PDF قريباً');
+}
+
+function sendInvoice() {
+    alert('سيتم تطوير وظيفة الإرسال بالبريد الإلكتروني قريباً');
+}
+</script>
+
+<style>
+@media print {
+    .btn, .modal, .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}

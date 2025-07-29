@@ -1,0 +1,12 @@
+{
+  "test_date": "2025-07-29T00:28:30.920960",
+  "test_type": "simple_main_screen_test",
+  "results": {
+    "total_tests": 5,
+    "passed_tests": 5,
+    "failed_tests": 0,
+    "errors": []
+  },
+  "success_rate": 100.0,
+  "status": "ممتازة"
+}

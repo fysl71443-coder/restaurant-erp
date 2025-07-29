@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}الفواتير - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة الفواتير{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-file-invoice text-primary"></i> إدارة الفواتير</h2>
+                    <p class="text-muted">إدارة وتتبع جميع الفواتير</p>
+                </div>
+                <div>
+                    <a href="/add_invoice" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات الفواتير -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي الفواتير</h6>
+                            <h3>{{ invoices|length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-invoice fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي المبلغ</h6>
+                            <h3>
+                                {% set total = 0 %}
+                                {% for invoice in invoices %}
+                                    {% set total = total + invoice.total_amount %}
+                                {% endfor %}
+                                {{ "{:,.2f}".format(total) }} ر.س
+                            </h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>فواتير معلقة</h6>
+                            <h3>5</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>فواتير هذا الشهر</h6>
+                            <h3>{{ invoices|length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط البحث والفلاتر -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث في الفواتير..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="paid">مدفوعة</option>
+                                <option value="pending">معلقة</option>
+                                <option value="overdue">متأخرة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateFrom" placeholder="من تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateTo" placeholder="إلى تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الفواتير -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> قائمة الفواتير</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportInvoices()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="invoicesTable" data-print-title="تقرير الفواتير">
+                                <i class="fas fa-print"></i> طباعة الجدول
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-print="page" data-print-title="قائمة الفواتير">
+                                <i class="fas fa-file-pdf"></i> طباعة الصفحة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="invoicesTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم الفاتورة</th>
+                                    <th>اسم العميل</th>
+                                    <th>المبلغ الإجمالي</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary fs-6">#INV-{{ invoice.id }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            <strong>{{ invoice.customer_name }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">{{ "{:,.2f}".format(invoice.total_amount) }} ر.س</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% set status_class = 'success' if loop.index % 3 == 0 else ('warning' if loop.index % 2 == 0 else 'danger') %}
+                                        {% set status_text = 'مدفوعة' if status_class == 'success' else ('معلقة' if status_class == 'warning' else 'متأخرة') %}
+                                        <span class="badge bg-{{ status_class }}">{{ status_text }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" title="طباعة الفاتورة"
+                                                    data-print="invoice" data-invoice-id="{{ invoice.id }}">
+                                                <i class="fas fa-print"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد فواتير</h4>
+                        <p class="text-muted">ابدأ بإنشاء فاتورة جديدة لعملائك</p>
+                        <a href="/add_invoice" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إنشاء أول فاتورة
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#invoicesTable tbody tr');
+
+    tableRows.forEach(row => {
+        const invoiceId = row.cells[0].textContent.toLowerCase();
+        const customerName = row.cells[1].textContent.toLowerCase();
+        const amount = row.cells[2].textContent.toLowerCase();
+
+        if (invoiceId.includes(searchTerm) ||
+            customerName.includes(searchTerm) ||
+            amount.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportInvoices() {
+    const table = document.getElementById('invoicesTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'invoices_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %}

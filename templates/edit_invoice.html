@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الفاتورة - {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل الفاتورة
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/invoices">الفواتير</a></li>
+                            <li class="breadcrumb-item"><a href="/view_invoice/{{ invoice.id }}">عرض الفاتورة</a></li>
+                            <li class="breadcrumb-item active">تعديل</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_invoice/{{ invoice.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض الفاتورة
+                    </a>
+                    <a href="/invoices" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> قائمة الفواتير
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" id="editInvoiceForm" class="needs-validation" novalidate>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-file-invoice"></i>
+                            بيانات الفاتورة - {{ invoice.invoice_number }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Invoice Number -->
+                            <div class="col-md-6 mb-3">
+                                <label for="invoice_number" class="form-label">
+                                    <i class="fas fa-hashtag text-primary"></i>
+                                    رقم الفاتورة <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="invoice_number" name="invoice_number" 
+                                       value="{{ invoice.invoice_number }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال رقم الفاتورة
+                                </div>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar text-info"></i>
+                                    تاريخ الفاتورة <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       value="{{ invoice.date.strftime('%Y-%m-%d') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال تاريخ الفاتورة
+                                </div>
+                            </div>
+
+                            <!-- Customer -->
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_id" class="form-label">
+                                    <i class="fas fa-user text-success"></i>
+                                    العميل <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="customer_id" name="customer_id" required>
+                                    <option value="">اختر العميل</option>
+                                    {% for customer in customers %}
+                                    <option value="{{ customer.id }}" 
+                                            {% if customer.id == invoice.customer_id %}selected{% endif %}>
+                                        {{ customer.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار العميل
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">
+                                    <i class="fas fa-credit-card text-warning"></i>
+                                    طريقة الدفع <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">اختر طريقة الدفع</option>
+                                    <option value="cash" {% if invoice.payment_method == 'cash' %}selected{% endif %}>نقداً</option>
+                                    <option value="credit" {% if invoice.payment_method == 'credit' %}selected{% endif %}>بطاقة ائتمان</option>
+                                    <option value="bank_transfer" {% if invoice.payment_method == 'bank_transfer' %}selected{% endif %}>تحويل بنكي</option>
+                                    <option value="check" {% if invoice.payment_method == 'check' %}selected{% endif %}>شيك</option>
+                                    <option value="installment" {% if invoice.payment_method == 'installment' %}selected{% endif %}>تقسيط</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار طريقة الدفع
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Items -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-info text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i>
+                                أصناف الفاتورة
+                            </h5>
+                            <button type="button" class="btn btn-light btn-sm" onclick="addInvoiceItem()">
+                                <i class="fas fa-plus"></i> إضافة صنف
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="invoiceItemsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="30%">الصنف</th>
+                                        <th width="15%">الكمية</th>
+                                        <th width="15%">السعر</th>
+                                        <th width="15%">المبلغ</th>
+                                        <th width="15%">الضريبة (%)</th>
+                                        <th width="10%">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceItemsBody">
+                                    {% for item in invoice.items %}
+                                    <tr class="invoice-item-row">
+                                        <td>
+                                            <select class="form-select product-select" name="product_id[]" required>
+                                                <option value="">اختر الصنف</option>
+                                                {% for product in products %}
+                                                <option value="{{ product.id }}" data-price="{{ product.selling_price }}"
+                                                        {% if product.id == item.product_id %}selected{% endif %}>
+                                                    {{ product.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control quantity-input" name="quantity[]" 
+                                                   value="{{ item.quantity }}" min="1" step="0.01" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control price-input" name="price[]" 
+                                                   value="{{ item.price }}" min="0" step="0.01" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control amount-input" name="amount[]" 
+                                                   value="{{ item.amount }}" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control tax-input" name="tax_rate[]" 
+                                                   value="{{ item.tax_rate or 0 }}" min="0" max="100" step="0.01">
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeInvoiceItem(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Totals -->
+                        <div class="row mt-4">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>المجموع الفرعي:</span>
+                                            <span id="subtotal">{{ "%.2f"|format(invoice.subtotal or 0) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>إجمالي الضريبة:</span>
+                                            <span id="totalTax">{{ "%.2f"|format(invoice.tax or 0) }}</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between fw-bold fs-5">
+                                            <span>المجموع الكلي:</span>
+                                            <span id="grandTotal">{{ "%.2f"|format(invoice.total) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sticky-note"></i>
+                            ملاحظات إضافية
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="أدخل أي ملاحظات إضافية...">{{ invoice.notes or '' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <a href="/view_invoice/{{ invoice.id }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> عرض الفاتورة
+                            </a>
+                            <a href="/invoices" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب المبلغ تلقائياً
+function calculateAmount(row) {
+    const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
+    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+    const amount = quantity * price;
+    row.querySelector('.amount-input').value = amount.toFixed(2);
+    calculateTotals();
+}
+
+// حساب المجاميع
+function calculateTotals() {
+    let subtotal = 0;
+    let totalTax = 0;
+    
+    document.querySelectorAll('.invoice-item-row').forEach(row => {
+        const amount = parseFloat(row.querySelector('.amount-input').value) || 0;
+        const taxRate = parseFloat(row.querySelector('.tax-input').value) || 0;
+        const tax = amount * (taxRate / 100);
+        
+        subtotal += amount;
+        totalTax += tax;
+    });
+    
+    const grandTotal = subtotal + totalTax;
+    
+    document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('totalTax').textContent = totalTax.toFixed(2);
+    document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
+}
+
+// إضافة صنف جديد
+function addInvoiceItem() {
+    const tbody = document.getElementById('invoiceItemsBody');
+    const newRow = tbody.insertRow();
+    newRow.className = 'invoice-item-row';
+    
+    newRow.innerHTML = `
+        <td>
+            <select class="form-select product-select" name="product_id[]" required>
+                <option value="">اختر الصنف</option>
+                {% for product in products %}
+                <option value="{{ product.id }}" data-price="{{ product.selling_price }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td><input type="number" class="form-control quantity-input" name="quantity[]" min="1" step="0.01" required></td>
+        <td><input type="number" class="form-control price-input" name="price[]" min="0" step="0.01" required></td>
+        <td><input type="number" class="form-control amount-input" name="amount[]" readonly></td>
+        <td><input type="number" class="form-control tax-input" name="tax_rate[]" min="0" max="100" step="0.01" value="0"></td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeInvoiceItem(this)"><i class="fas fa-trash"></i></button></td>
+    `;
+    
+    // إضافة event listeners للصف الجديد
+    addRowEventListeners(newRow);
+}
+
+// حذف صنف
+function removeInvoiceItem(button) {
+    if (document.querySelectorAll('.invoice-item-row').length > 1) {
+        button.closest('tr').remove();
+        calculateTotals();
+    } else {
+        alert('يجب أن تحتوي الفاتورة على صنف واحد على الأقل');
+    }
+}
+
+// إضافة event listeners للصف
+function addRowEventListeners(row) {
+    const productSelect = row.querySelector('.product-select');
+    const quantityInput = row.querySelector('.quantity-input');
+    const priceInput = row.querySelector('.price-input');
+    const taxInput = row.querySelector('.tax-input');
+    
+    productSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.dataset.price) {
+            priceInput.value = selectedOption.dataset.price;
+            calculateAmount(row);
+        }
+    });
+    
+    quantityInput.addEventListener('input', () => calculateAmount(row));
+    priceInput.addEventListener('input', () => calculateAmount(row));
+    taxInput.addEventListener('input', () => calculateTotals());
+}
+
+// إعادة تعيين النموذج
+function resetForm() {
+    if (confirm('هل تريد إعادة تعيين جميع البيانات؟')) {
+        document.getElementById('editInvoiceForm').reset();
+        calculateTotals();
+    }
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // إضافة event listeners لجميع الصفوف الموجودة
+    document.querySelectorAll('.invoice-item-row').forEach(addRowEventListeners);
+    
+    // حساب المجاميع الأولية
+    calculateTotals();
+    
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editInvoiceForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الإجازة - {{ leave.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل الإجازة
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/leaves">الإجازات</a></li>
+                            <li class="breadcrumb-item"><a href="/view_leave/{{ leave.id }}">عرض الإجازة</a></li>
+                            <li class="breadcrumb-item active">تعديل</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_leave/{{ leave.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض الإجازة
+                    </a>
+                    <a href="/leaves" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> قائمة الإجازات
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" id="editLeaveForm" class="needs-validation" novalidate>
+                <!-- Employee Information -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user"></i>
+                            معلومات الموظف
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="employee_id" class="form-label">
+                                    <i class="fas fa-user text-primary"></i>
+                                    الموظف <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="employee_id" name="employee_id" required>
+                                    <option value="">اختر الموظف</option>
+                                    {% for employee in employees %}
+                                    <option value="{{ employee.id }}" 
+                                            {% if employee.id == leave.employee_id %}selected{% endif %}>
+                                        {{ employee.name }} - {{ employee.position }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الموظف
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="leave_type" class="form-label">
+                                    <i class="fas fa-tags text-info"></i>
+                                    نوع الإجازة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="leave_type" name="leave_type" required>
+                                    <option value="">اختر نوع الإجازة</option>
+                                    <option value="annual" {% if leave.leave_type == 'annual' %}selected{% endif %}>إجازة سنوية</option>
+                                    <option value="sick" {% if leave.leave_type == 'sick' %}selected{% endif %}>إجازة مرضية</option>
+                                    <option value="emergency" {% if leave.leave_type == 'emergency' %}selected{% endif %}>إجازة طارئة</option>
+                                    <option value="maternity" {% if leave.leave_type == 'maternity' %}selected{% endif %}>إجازة أمومة</option>
+                                    <option value="paternity" {% if leave.leave_type == 'paternity' %}selected{% endif %}>إجازة أبوة</option>
+                                    <option value="unpaid" {% if leave.leave_type == 'unpaid' %}selected{% endif %}>إجازة بدون راتب</option>
+                                    <option value="study" {% if leave.leave_type == 'study' %}selected{% endif %}>إجازة دراسية</option>
+                                    <option value="hajj" {% if leave.leave_type == 'hajj' %}selected{% endif %}>إجازة حج</option>
+                                    <option value="other" {% if leave.leave_type == 'other' %}selected{% endif %}>أخرى</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار نوع الإجازة
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Details -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-calendar-alt"></i>
+                            تفاصيل الإجازة
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Start Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date" class="form-label">
+                                    <i class="fas fa-calendar-plus text-success"></i>
+                                    تاريخ البداية <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ leave.start_date.strftime('%Y-%m-%d') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال تاريخ البداية
+                                </div>
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label">
+                                    <i class="fas fa-calendar-minus text-danger"></i>
+                                    تاريخ النهاية <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ leave.end_date.strftime('%Y-%m-%d') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال تاريخ النهاية
+                                </div>
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="col-md-6 mb-3">
+                                <label for="duration" class="form-label">
+                                    <i class="fas fa-clock text-info"></i>
+                                    المدة (بالأيام) <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="duration" name="duration" 
+                                       value="{{ leave.duration }}" min="1" required readonly>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال المدة
+                                </div>
+                                <small class="form-text text-muted">سيتم حساب المدة تلقائياً</small>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle text-warning"></i>
+                                    الحالة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">اختر الحالة</option>
+                                    <option value="pending" {% if leave.status == 'pending' %}selected{% endif %}>قيد المراجعة</option>
+                                    <option value="approved" {% if leave.status == 'approved' %}selected{% endif %}>موافق عليها</option>
+                                    <option value="rejected" {% if leave.status == 'rejected' %}selected{% endif %}>مرفوضة</option>
+                                    <option value="cancelled" {% if leave.status == 'cancelled' %}selected{% endif %}>ملغية</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الحالة
+                                </div>
+                            </div>
+
+                            <!-- Is Paid -->
+                            <div class="col-md-6 mb-3">
+                                <label for="is_paid" class="form-label">
+                                    <i class="fas fa-money-bill-wave text-success"></i>
+                                    مدفوعة الأجر
+                                </label>
+                                <select class="form-select" id="is_paid" name="is_paid">
+                                    <option value="1" {% if leave.is_paid %}selected{% endif %}>نعم</option>
+                                    <option value="0" {% if not leave.is_paid %}selected{% endif %}>لا</option>
+                                </select>
+                            </div>
+
+                            <!-- Applied Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="applied_date" class="form-label">
+                                    <i class="fas fa-calendar-check text-info"></i>
+                                    تاريخ التقديم
+                                </label>
+                                <input type="date" class="form-control" id="applied_date" name="applied_date" 
+                                       value="{{ leave.applied_date.strftime('%Y-%m-%d') if leave.applied_date else '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Analysis -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chart-bar"></i>
+                            تحليل الإجازة
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-calendar-day fa-2x text-primary mb-2"></i>
+                                        <h6 class="text-primary">المدة</h6>
+                                        <h4 class="text-primary" id="durationDisplay">{{ leave.duration }}</h4>
+                                        <small class="text-muted">يوم</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-tags fa-2x text-success mb-2"></i>
+                                        <h6 class="text-success">النوع</h6>
+                                        <h6 class="text-success" id="typeDisplay">
+                                            {% if leave.leave_type == 'annual' %}إجازة سنوية
+                                            {% elif leave.leave_type == 'sick' %}إجازة مرضية
+                                            {% elif leave.leave_type == 'emergency' %}إجازة طارئة
+                                            {% elif leave.leave_type == 'maternity' %}إجازة أمومة
+                                            {% elif leave.leave_type == 'paternity' %}إجازة أبوة
+                                            {% elif leave.leave_type == 'unpaid' %}إجازة بدون راتب
+                                            {% elif leave.leave_type == 'study' %}إجازة دراسية
+                                            {% elif leave.leave_type == 'hajj' %}إجازة حج
+                                            {% else %}{{ leave.leave_type }}{% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-money-bill-wave fa-2x text-warning mb-2"></i>
+                                        <h6 class="text-warning">الأجر</h6>
+                                        <h6 class="text-warning" id="paidDisplay">
+                                            {% if leave.is_paid %}
+                                                <span class="badge bg-success">مدفوعة</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">غير مدفوعة</span>
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-info-circle fa-2x text-secondary mb-2"></i>
+                                        <h6 class="text-secondary">الحالة</h6>
+                                        <h6 id="statusDisplay">
+                                            {% if leave.status == 'pending' %}
+                                                <span class="badge bg-warning">قيد المراجعة</span>
+                                            {% elif leave.status == 'approved' %}
+                                                <span class="badge bg-success">موافق عليها</span>
+                                            {% elif leave.status == 'rejected' %}
+                                                <span class="badge bg-danger">مرفوضة</span>
+                                            {% elif leave.status == 'cancelled' %}
+                                                <span class="badge bg-secondary">ملغية</span>
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Information -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-check"></i>
+                            معلومات الموافقة
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Approved By -->
+                            <div class="col-md-6 mb-3">
+                                <label for="approved_by" class="form-label">
+                                    <i class="fas fa-user-tie text-primary"></i>
+                                    تمت الموافقة من قبل
+                                </label>
+                                <input type="text" class="form-control" id="approved_by" name="approved_by" 
+                                       value="{{ leave.approved_by or '' }}" 
+                                       placeholder="اسم المدير أو المسؤول">
+                            </div>
+
+                            <!-- Approved Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="approved_date" class="form-label">
+                                    <i class="fas fa-calendar-check text-success"></i>
+                                    تاريخ الموافقة
+                                </label>
+                                <input type="date" class="form-control" id="approved_date" name="approved_date" 
+                                       value="{{ leave.approved_date.strftime('%Y-%m-%d') if leave.approved_date else '' }}">
+                            </div>
+
+                            <!-- Rejection Reason -->
+                            <div class="col-12 mb-3" id="rejectionReasonDiv" style="display: none;">
+                                <label for="rejection_reason" class="form-label">
+                                    <i class="fas fa-times-circle text-danger"></i>
+                                    سبب الرفض
+                                </label>
+                                <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="2" 
+                                          placeholder="أدخل سبب رفض الإجازة...">{{ leave.rejection_reason or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            معلومات إضافية
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Reason -->
+                            <div class="col-12 mb-3">
+                                <label for="reason" class="form-label">
+                                    <i class="fas fa-comment text-info"></i>
+                                    سبب الإجازة <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" id="reason" name="reason" rows="3" required 
+                                          placeholder="أدخل سبب طلب الإجازة...">{{ leave.reason }}</textarea>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال سبب الإجازة
+                                </div>
+                            </div>
+
+                            <!-- Contact During Leave -->
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_during_leave" class="form-label">
+                                    <i class="fas fa-phone text-success"></i>
+                                    رقم الاتصال أثناء الإجازة
+                                </label>
+                                <input type="tel" class="form-control" id="contact_during_leave" name="contact_during_leave" 
+                                       value="{{ leave.contact_during_leave or '' }}" 
+                                       placeholder="رقم الهاتف للتواصل">
+                            </div>
+
+                            <!-- Emergency Contact -->
+                            <div class="col-md-6 mb-3">
+                                <label for="emergency_contact" class="form-label">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    جهة الاتصال في حالة الطوارئ
+                                </label>
+                                <input type="text" class="form-control" id="emergency_contact" name="emergency_contact" 
+                                       value="{{ leave.emergency_contact or '' }}" 
+                                       placeholder="اسم ورقم جهة الاتصال">
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="col-12 mb-3">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-secondary"></i>
+                                    ملاحظات
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="أدخل أي ملاحظات إضافية...">{{ leave.notes or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <a href="/view_leave/{{ leave.id }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> عرض الإجازة
+                            </a>
+                            <a href="/leaves" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب مدة الإجازة تلقائياً
+function calculateDuration() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (end >= start) {
+            const timeDiff = end.getTime() - start.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+            
+            document.getElementById('duration').value = daysDiff;
+            document.getElementById('durationDisplay').textContent = daysDiff;
+        } else {
+            document.getElementById('duration').value = '';
+            document.getElementById('durationDisplay').textContent = '0';
+            alert('تاريخ النهاية يجب أن يكون بعد تاريخ البداية');
+        }
+    }
+}
+
+// تحديث العرض عند تغيير البيانات
+function updateDisplays() {
+    const leaveType = document.getElementById('leave_type').value;
+    const status = document.getElementById('status').value;
+    const isPaid = document.getElementById('is_paid').value;
+    
+    // تحديث عرض نوع الإجازة
+    const typeNames = {
+        'annual': 'إجازة سنوية',
+        'sick': 'إجازة مرضية',
+        'emergency': 'إجازة طارئة',
+        'maternity': 'إجازة أمومة',
+        'paternity': 'إجازة أبوة',
+        'unpaid': 'إجازة بدون راتب',
+        'study': 'إجازة دراسية',
+        'hajj': 'إجازة حج',
+        'other': 'أخرى'
+    };
+    document.getElementById('typeDisplay').textContent = typeNames[leaveType] || leaveType;
+    
+    // تحديث عرض الحالة
+    const statusBadges = {
+        'pending': '<span class="badge bg-warning">قيد المراجعة</span>',
+        'approved': '<span class="badge bg-success">موافق عليها</span>',
+        'rejected': '<span class="badge bg-danger">مرفوضة</span>',
+        'cancelled': '<span class="badge bg-secondary">ملغية</span>'
+    };
+    document.getElementById('statusDisplay').innerHTML = statusBadges[status] || status;
+    
+    // تحديث عرض الأجر
+    const paidBadge = isPaid === '1' ? 
+        '<span class="badge bg-success">مدفوعة</span>' : 
+        '<span class="badge bg-danger">غير مدفوعة</span>';
+    document.getElementById('paidDisplay').innerHTML = paidBadge;
+    
+    // إظهار/إخفاء حقل سبب الرفض
+    const rejectionDiv = document.getElementById('rejectionReasonDiv');
+    if (status === 'rejected') {
+        rejectionDiv.style.display = 'block';
+    } else {
+        rejectionDiv.style.display = 'none';
+    }
+}
+
+// إعادة تعيين النموذج
+function resetForm() {
+    if (confirm('هل تريد إعادة تعيين جميع البيانات؟')) {
+        document.getElementById('editLeaveForm').reset();
+        updateDisplays();
+        calculateDuration();
+    }
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // إضافة event listeners
+    document.getElementById('start_date').addEventListener('change', calculateDuration);
+    document.getElementById('end_date').addEventListener('change', calculateDuration);
+    document.getElementById('leave_type').addEventListener('change', updateDisplays);
+    document.getElementById('status').addEventListener('change', updateDisplays);
+    document.getElementById('is_paid').addEventListener('change', updateDisplays);
+    
+    // تحديث أولي
+    updateDisplays();
+    calculateDuration();
+    
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editLeaveForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

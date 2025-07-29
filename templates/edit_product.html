@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل المنتج - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل المنتج
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/inventory">المخزون</a></li>
+                            <li class="breadcrumb-item"><a href="/view_product/{{ product.id }}">عرض المنتج</a></li>
+                            <li class="breadcrumb-item active">تعديل المنتج</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_product/{{ product.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض
+                    </a>
+                    <a href="/inventory" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للمخزون
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i>
+                        تعديل بيانات المنتج
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="editProductForm">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">المعلومات الأساسية</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">اسم المنتج <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ product.name }}" required>
+                                    <div class="invalid-feedback">يرجى إدخال اسم المنتج</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="code" class="form-label">كود المنتج</label>
+                                    <input type="text" class="form-control" id="code" name="code" 
+                                           value="{{ product.code or '' }}">
+                                    <small class="form-text text-muted">كود فريد للمنتج (اختياري)</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">الفئة</label>
+                                    <input type="text" class="form-control" id="category" name="category" 
+                                           value="{{ product.category or '' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">الوصف</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3">{{ product.description or '' }}</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Financial Information -->
+                            <div class="col-md-6">
+                                <h6 class="text-success border-bottom pb-2 mb-3">المعلومات المالية</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="purchase_price" class="form-label">سعر الشراء <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="purchase_price" name="purchase_price" 
+                                               step="0.01" min="0" value="{{ product.purchase_price or 0 }}" required>
+                                        <span class="input-group-text">ر.س</span>
+                                    </div>
+                                    <div class="invalid-feedback">يرجى إدخال سعر الشراء</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="selling_price" class="form-label">سعر البيع <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="selling_price" name="selling_price" 
+                                               step="0.01" min="0" value="{{ product.selling_price or 0 }}" required>
+                                        <span class="input-group-text">ر.س</span>
+                                    </div>
+                                    <div class="invalid-feedback">يرجى إدخال سعر البيع</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">هامش الربح</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="profit_margin" readonly>
+                                        <span class="input-group-text">ر.س</span>
+                                    </div>
+                                    <small class="form-text text-muted">يتم حسابه تلقائياً</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stock Information -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="text-info border-bottom pb-2 mb-3">معلومات المخزون</h6>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="quantity" class="form-label">الكمية الحالية <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="quantity" name="quantity" 
+                                               min="0" value="{{ product.quantity or 0 }}" required>
+                                        <span class="input-group-text">وحدة</span>
+                                    </div>
+                                    <div class="invalid-feedback">يرجى إدخال الكمية</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="min_quantity" class="form-label">الحد الأدنى للمخزون</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="min_quantity" name="min_quantity" 
+                                               min="0" value="{{ product.min_quantity or 0 }}">
+                                        <span class="input-group-text">وحدة</span>
+                                    </div>
+                                    <small class="form-text text-muted">تنبيه عند الوصول لهذا الحد</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stock Status Display -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-info" id="stockStatus">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span id="stockStatusText">حالة المخزون: متوفر</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> حفظ التعديلات
+                                    </button>
+                                    <button type="reset" class="btn btn-warning">
+                                        <i class="fas fa-undo"></i> إعادة تعيين
+                                    </button>
+                                    <a href="/view_product/{{ product.id }}" class="btn btn-info">
+                                        <i class="fas fa-eye"></i> عرض المنتج
+                                    </a>
+                                    <a href="/inventory" class="btn btn-secondary">
+                                        <i class="fas fa-list"></i> عرض جميع المنتجات
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const purchasePriceInput = document.getElementById('purchase_price');
+    const sellingPriceInput = document.getElementById('selling_price');
+    const profitMarginInput = document.getElementById('profit_margin');
+    const quantityInput = document.getElementById('quantity');
+    const minQuantityInput = document.getElementById('min_quantity');
+    const stockStatusDiv = document.getElementById('stockStatus');
+    const stockStatusText = document.getElementById('stockStatusText');
+
+    // حساب هامش الربح
+    function calculateProfitMargin() {
+        const purchasePrice = parseFloat(purchasePriceInput.value) || 0;
+        const sellingPrice = parseFloat(sellingPriceInput.value) || 0;
+        const profitMargin = sellingPrice - purchasePrice;
+        
+        profitMarginInput.value = profitMargin.toFixed(2);
+        
+        // تغيير لون الحقل حسب الربح
+        if (profitMargin > 0) {
+            profitMarginInput.className = 'form-control text-success fw-bold';
+        } else if (profitMargin < 0) {
+            profitMarginInput.className = 'form-control text-danger fw-bold';
+        } else {
+            profitMarginInput.className = 'form-control text-muted';
+        }
+    }
+
+    // تحديث حالة المخزون
+    function updateStockStatus() {
+        const quantity = parseInt(quantityInput.value) || 0;
+        const minQuantity = parseInt(minQuantityInput.value) || 0;
+        
+        if (quantity <= minQuantity && minQuantity > 0) {
+            stockStatusDiv.className = 'alert alert-danger';
+            stockStatusText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تحذير: نفاد المخزون';
+        } else if (quantity <= minQuantity * 2 && minQuantity > 0) {
+            stockStatusDiv.className = 'alert alert-warning';
+            stockStatusText.innerHTML = '<i class="fas fa-exclamation-circle"></i> تنبيه: مخزون منخفض';
+        } else {
+            stockStatusDiv.className = 'alert alert-success';
+            stockStatusText.innerHTML = '<i class="fas fa-check-circle"></i> حالة المخزون: متوفر';
+        }
+    }
+
+    // ربط الأحداث
+    purchasePriceInput.addEventListener('input', calculateProfitMargin);
+    sellingPriceInput.addEventListener('input', calculateProfitMargin);
+    quantityInput.addEventListener('input', updateStockStatus);
+    minQuantityInput.addEventListener('input', updateStockStatus);
+
+    // حساب القيم الأولية
+    calculateProfitMargin();
+    updateStockStatus();
+
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editProductForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // تأكيد إعادة التعيين
+    const resetButton = form.querySelector('button[type="reset"]');
+    resetButton.addEventListener('click', function(event) {
+        if (!confirm('هل أنت متأكد من إعادة تعيين جميع الحقول؟')) {
+            event.preventDefault();
+        } else {
+            setTimeout(() => {
+                calculateProfitMargin();
+                updateStockStatus();
+            }, 100);
+        }
+    });
+});
+</script>
+{% endblock %}

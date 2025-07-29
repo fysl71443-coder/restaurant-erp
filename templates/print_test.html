@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}اختبار الطباعة - نظام المحاسبة{% endblock %}
+{% block page_title %}اختبار وظائف الطباعة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-print text-primary"></i> اختبار وظائف الطباعة</h2>
+                    <p class="text-muted">اختبر جميع وظائف الطباعة والتصدير في النظام</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" data-print="page" data-print-title="صفحة اختبار الطباعة">
+                        <i class="fas fa-print"></i> طباعة هذه الصفحة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- اختبارات الطباعة -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-table"></i> اختبار طباعة الجداول</h5>
+                </div>
+                <div class="card-body">
+                    <p>اختبر طباعة الجداول من الشاشات المختلفة:</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-print="customers" data-print-title="تقرير العملاء">
+                            <i class="fas fa-users"></i> طباعة جدول العملاء
+                        </button>
+                        <button class="btn btn-outline-success" data-print="invoices" data-print-title="تقرير الفواتير">
+                            <i class="fas fa-file-invoice"></i> طباعة جدول الفواتير
+                        </button>
+                        <button class="btn btn-outline-info" data-print="products" data-print-title="تقرير المخزون">
+                            <i class="fas fa-boxes"></i> طباعة جدول المنتجات
+                        </button>
+                        <button class="btn btn-outline-warning" data-print="expenses" data-print-title="تقرير المصروفات">
+                            <i class="fas fa-money-bill-wave"></i> طباعة جدول المصروفات
+                        </button>
+                        <button class="btn btn-outline-secondary" data-print="suppliers" data-print-title="تقرير الموردين">
+                            <i class="fas fa-industry"></i> طباعة جدول الموردين
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-invoice"></i> اختبار طباعة الفواتير</h5>
+                </div>
+                <div class="card-body">
+                    <p>اختبر طباعة الفواتير الفردية:</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-print="invoice" data-invoice-id="1">
+                            <i class="fas fa-print"></i> طباعة فاتورة رقم 1
+                        </button>
+                        <button class="btn btn-outline-primary" data-print="invoice" data-invoice-id="2">
+                            <i class="fas fa-print"></i> طباعة فاتورة رقم 2
+                        </button>
+                        <button class="btn btn-outline-primary" data-print="invoice" data-invoice-id="3">
+                            <i class="fas fa-print"></i> طباعة فاتورة رقم 3
+                        </button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6><i class="fas fa-download"></i> اختبار التصدير</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-info" onclick="testExportCSV()">
+                            <i class="fas fa-file-csv"></i> تصدير بيانات تجريبية CSV
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="exportDashboard()">
+                            <i class="fas fa-chart-bar"></i> تصدير ملخص لوحة التحكم
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول تجريبي للاختبار -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-table"></i> جدول تجريبي للاختبار</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="testExportTable()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="testTable" data-print-title="جدول تجريبي">
+                                <i class="fas fa-print"></i> طباعة الجدول
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="testTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>الرقم</th>
+                                    <th>الاسم</th>
+                                    <th>النوع</th>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-primary">#001</span></td>
+                                    <td>عنصر تجريبي 1</td>
+                                    <td><span class="badge bg-info">نوع أ</span></td>
+                                    <td>2024-01-15</td>
+                                    <td class="number">1,250.00 ر.س</td>
+                                    <td><span class="badge bg-success">نشط</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">#002</span></td>
+                                    <td>عنصر تجريبي 2</td>
+                                    <td><span class="badge bg-warning">نوع ب</span></td>
+                                    <td>2024-01-14</td>
+                                    <td class="number">2,750.50 ر.س</td>
+                                    <td><span class="badge bg-warning">معلق</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">#003</span></td>
+                                    <td>عنصر تجريبي 3</td>
+                                    <td><span class="badge bg-success">نوع ج</span></td>
+                                    <td>2024-01-13</td>
+                                    <td class="number">3,500.75 ر.س</td>
+                                    <td><span class="badge bg-danger">متوقف</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">#004</span></td>
+                                    <td>عنصر تجريبي 4</td>
+                                    <td><span class="badge bg-secondary">نوع د</span></td>
+                                    <td>2024-01-12</td>
+                                    <td class="number">950.25 ر.س</td>
+                                    <td><span class="badge bg-info">قيد المراجعة</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">#005</span></td>
+                                    <td>عنصر تجريبي 5</td>
+                                    <td><span class="badge bg-primary">نوع هـ</span></td>
+                                    <td>2024-01-11</td>
+                                    <td class="number">4,200.00 ر.س</td>
+                                    <td><span class="badge bg-success">مكتمل</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات تجريبية -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي العناصر</h6>
+                            <h3>5</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-list fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>المبلغ الإجمالي</h6>
+                            <h3>12,650.50 ر.س</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>عناصر نشطة</h6>
+                            <h3>3</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>متوسط المبلغ</h6>
+                            <h3>2,530.10 ر.س</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calculator fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تعليمات الاختبار -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> تعليمات الاختبار</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-print"></i> اختبار الطباعة:</h6>
+                            <ul>
+                                <li>انقر على أي زر طباعة لاختبار الوظيفة</li>
+                                <li>تحقق من ظهور نافذة الطباعة</li>
+                                <li>تأكد من تنسيق المحتوى للطباعة</li>
+                                <li>اختبر طباعة الجداول والصفحات الكاملة</li>
+                                <li>تحقق من رأس وتذييل الطباعة</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-download"></i> اختبار التصدير:</h6>
+                            <ul>
+                                <li>انقر على أزرار التصدير لاختبار تحميل الملفات</li>
+                                <li>تحقق من تنسيق ملفات CSV</li>
+                                <li>تأكد من دعم اللغة العربية في الملفات</li>
+                                <li>اختبر تصدير البيانات المختلفة</li>
+                                <li>تحقق من أسماء الملفات والتواريخ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظائف اختبار إضافية
+function testExportCSV() {
+    const testData = [
+        ['الرقم', 'الاسم', 'النوع', 'التاريخ', 'المبلغ', 'الحالة'],
+        ['#001', 'عنصر تجريبي 1', 'نوع أ', '2024-01-15', '1,250.00 ر.س', 'نشط'],
+        ['#002', 'عنصر تجريبي 2', 'نوع ب', '2024-01-14', '2,750.50 ر.س', 'معلق'],
+        ['#003', 'عنصر تجريبي 3', 'نوع ج', '2024-01-13', '3,500.75 ر.س', 'متوقف']
+    ];
+    
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    testData.forEach(row => {
+        csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'test_data_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function testExportTable() {
+    const table = document.getElementById('testTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach(cell => {
+            rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'test_table_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظيفة تصدير لوحة التحكم (مكررة للاختبار)
+function exportDashboard() {
+    const dashboardData = {
+        'تاريخ التقرير': new Date().toLocaleDateString('ar-SA'),
+        'إجمالي العناصر': '5',
+        'المبلغ الإجمالي': '12,650.50 ر.س',
+        'عناصر نشطة': '3',
+        'متوسط المبلغ': '2,530.10 ر.س'
+    };
+    
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    csvContent += 'البيان,القيمة\n';
+    
+    Object.entries(dashboardData).forEach(([key, value]) => {
+        csvContent += `"${key}","${value}"\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'dashboard_test_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %}

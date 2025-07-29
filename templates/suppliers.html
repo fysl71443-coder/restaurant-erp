@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}الموردين - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة الموردين{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-industry text-primary"></i> إدارة الموردين</h2>
+                    <p class="text-muted">إدارة وتتبع معلومات الموردين والشركاء</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_supplier" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة مورد جديد
+                        </a>
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> تصدير الموردين</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-upload"></i> استيراد موردين</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i> تقرير الموردين</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات الموردين -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي الموردين</h6>
+                            <h3>{{ suppliers|length if suppliers else 0 }}</h3>
+                            <small>مورد مسجل</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-industry fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>موردين نشطين</h6>
+                            <h3>{{ suppliers|length if suppliers else 0 }}</h3>
+                            <small>يتم التعامل معهم</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-handshake fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>موردين جدد</h6>
+                            <h3>3</h3>
+                            <small>هذا الشهر</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-plus fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>مدفوعات معلقة</h6>
+                            <h3>15,000 ر.س</h3>
+                            <small>للموردين</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط البحث والفلاتر -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث عن مورد..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="active">نشط</option>
+                                <option value="inactive">غير نشط</option>
+                                <option value="pending">معلق</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">جميع الفئات</option>
+                                <option value="materials">مواد خام</option>
+                                <option value="services">خدمات</option>
+                                <option value="equipment">معدات</option>
+                                <option value="technology">تقنية</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="locationFilter">
+                                <option value="">جميع المواقع</option>
+                                <option value="local">محلي</option>
+                                <option value="regional">إقليمي</option>
+                                <option value="international">دولي</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الموردين -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> قائمة الموردين</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportSuppliers()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="suppliersTable" data-print-title="تقرير الموردين">
+                                <i class="fas fa-print"></i> طباعة الجدول
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-print="page" data-print-title="إدارة الموردين">
+                                <i class="fas fa-file-pdf"></i> طباعة الصفحة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if suppliers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="suppliersTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم المورد</th>
+                                    <th>اسم المورد</th>
+                                    <th>معلومات الاتصال</th>
+                                    <th>نوع النشاط</th>
+                                    <th>آخر تعامل</th>
+                                    <th>الحالة</th>
+                                    <th>التقييم</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for supplier in suppliers %}
+                                <tr>
+                                    <td><span class="badge bg-primary">#S{{ supplier.id }}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-industry text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ supplier.name }}</strong>
+                                                <br><small class="text-muted">مورد عام</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if supplier.contact_info %}
+                                            <div>
+                                                <i class="fas fa-phone text-muted me-1"></i>
+                                                <span>{{ supplier.contact_info }}</span>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% set activities = ['مواد خام', 'خدمات', 'معدات', 'تقنية', 'استشارات'] %}
+                                        {% set colors = ['primary', 'success', 'warning', 'info', 'secondary'] %}
+                                        {% set activity_index = loop.index0 % 5 %}
+                                        <span class="badge bg-{{ colors[activity_index] }}">{{ activities[activity_index] }}</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            منذ أسبوعين
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% set statuses = [('نشط', 'success'), ('غير نشط', 'secondary'), ('معلق', 'warning')] %}
+                                        {% set status = statuses[loop.index0 % 3] %}
+                                        <span class="badge bg-{{ status[1] }}">{{ status[0] }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% set rating = (loop.index0 % 5) + 1 %}
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <small class="ms-1 text-muted">({{ rating }}/5)</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/view_supplier/{{ supplier.id }}" class="btn btn-sm btn-outline-primary" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/add_purchase_invoice?supplier_id={{ supplier.id }}" class="btn btn-sm btn-outline-success" title="طلب شراء">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </a>
+                                            <a href="/edit_supplier/{{ supplier.id }}" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="حذف"
+                                                    onclick="confirmDeleteSupplier({{ supplier.id }}, '{{ supplier.name }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-industry fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد موردين مسجلين</h4>
+                        <p class="text-muted">ابدأ بإضافة مورد جديد لإدارة شبكة الموردين</p>
+                        <a href="/add_supplier" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة أول مورد
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات إضافية -->
+    {% if suppliers %}
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> أفضل الموردين</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for supplier in suppliers[:5] %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                    <i class="fas fa-industry text-muted"></i>
+                                </div>
+                                {{ supplier.name }}
+                            </div>
+                            <span class="badge bg-success rounded-pill">{{ (loop.index * 15) + 85 }}%</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> آخر المعاملات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for supplier in suppliers[:5] %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ supplier.name }}</strong>
+                                    <br><small class="text-muted">طلب شراء #{{ 1000 + loop.index }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold">{{ (loop.index * 2500) + 5000 }} ر.س</span>
+                                    <br><small class="text-muted">منذ {{ loop.index }} أيام</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#suppliersTable tbody tr');
+
+    tableRows.forEach(row => {
+        const supplierId = row.cells[0].textContent.toLowerCase();
+        const supplierName = row.cells[1].textContent.toLowerCase();
+        const contactInfo = row.cells[2].textContent.toLowerCase();
+
+        if (supplierId.includes(searchTerm) ||
+            supplierName.includes(searchTerm) ||
+            contactInfo.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب الحالة
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const tableRows = document.querySelectorAll('#suppliersTable tbody tr');
+
+    tableRows.forEach(row => {
+        const status = row.cells[5].textContent.trim();
+
+        if (filterValue === '') {
+            row.style.display = '';
+        } else if (filterValue === 'active' && status === 'نشط') {
+            row.style.display = '';
+        } else if (filterValue === 'inactive' && status === 'غير نشط') {
+            row.style.display = '';
+        } else if (filterValue === 'pending' && status === 'معلق') {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportSuppliers() {
+    const table = document.getElementById('suppliersTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'suppliers_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظيفة الحذف السريع للمورد
+function confirmDeleteSupplier(supplierId, supplierName) {
+    // الحذف السريع بدون تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف المورد "${supplierName}"...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_supplier/${supplierId}`;
+    }, 500);
+}
+</script>
+{% endblock %}

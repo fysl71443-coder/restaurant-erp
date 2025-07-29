@@ -1,0 +1,17 @@
+{
+  "test_date": "2025-07-29T00:26:56.487296",
+  "test_type": "main_screen_test",
+  "results": {
+    "total_tests": 8,
+    "passed_tests": 7,
+    "failed_tests": 1,
+    "errors": [
+      "عنصر مفقود: شريط التنقل",
+      "عنصر مفقود: الحاوية الرئيسية",
+      "عنصر مفقود: التذييل",
+      "خطأ HTTP 500 في /dashboard"
+    ]
+  },
+  "success_rate": 87.5,
+  "status": "good"
+}

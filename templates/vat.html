@@ -1,0 +1,579 @@
+{% extends "base.html" %}
+
+{% block title %}ضريبة القيمة المضافة - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة ضريبة القيمة المضافة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-percentage text-warning"></i> إدارة ضريبة القيمة المضافة</h2>
+                    <p class="text-muted">حساب وإدارة ضريبة القيمة المضافة والتقارير الضريبية</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <button class="btn btn-warning" onclick="generateVATReport()">
+                            <i class="fas fa-file-alt"></i> تقرير ضريبي
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="exportVATData()">
+                            <i class="fas fa-download"></i> تصدير التقرير
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="printVATReport()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="saveVATSettings()">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ملخص ضريبة القيمة المضافة -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(sales_vat or 0) }}</div>
+                    <div class="stats-label">إجمالي الضريبة المستحقة (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-info-circle"></i> مستحقة للحكومة
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(purchases_vat or 0) }}</div>
+                    <div class="stats-label">إجمالي الضريبة المدفوعة (ر.س)</div>
+                    <div class="stats-change negative">
+                        <i class="fas fa-info-circle"></i> قابلة للاسترداد
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(net_vat or 0) }}</div>
+                    <div class="stats-label">صافي الضريبة (ر.س)</div>
+                    <div class="stats-change {% if (net_vat or 0) >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-{% if (net_vat or 0) >= 0 %}plus{% else %}minus{% endif %}-circle"></i>
+                        {% if (net_vat or 0) >= 0 %}مستحقة{% else %}مستردة{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:.0f}".format((vat_rate or 0) * 100) }}%</div>
+                    <div class="stats-label">معدل الضريبة</div>
+                    <div class="stats-change neutral">
+                        <i class="fas fa-info-circle"></i> المعدل الرسمي
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- حاسبة ضريبة القيمة المضافة -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calculator"></i> حاسبة ضريبة القيمة المضافة</h5>
+                </div>
+                <div class="card-body">
+                    <form id="vatCalculatorForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="baseAmount" class="form-label">المبلغ الأساسي (ر.س)</label>
+                                <input type="number" class="form-control" id="baseAmount" name="base_amount"
+                                       placeholder="أدخل المبلغ" step="0.01" min="0" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="vatRateCalc" class="form-label">معدل الضريبة (%)</label>
+                                <input type="number" class="form-control" id="vatRateCalc" name="vat_rate"
+                                       value="15" step="0.01" min="0" max="100" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">مبلغ الضريبة</label>
+                                <div class="form-control bg-light" id="vatAmount">0.00 ر.س</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">المبلغ الإجمالي</label>
+                                <div class="form-control bg-light" id="totalAmount">0.00 ر.س</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn btn-warning w-100" onclick="calculateVAT()">
+                                    <i class="fas fa-calculator"></i> حساب الضريبة
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog"></i> إعدادات ضريبة القيمة المضافة</h5>
+                </div>
+                <div class="card-body">
+                    <form id="vatSettingsForm">
+                        <div class="mb-3">
+                            <label for="defaultVatRate" class="form-label">معدل الضريبة الافتراضي (%)</label>
+                            <input type="number" class="form-control" id="defaultVatRate" name="default_vat_rate"
+                                   value="15" step="0.01" min="0" max="100" required>
+                            <div class="form-text">المعدل الرسمي في المملكة العربية السعودية هو 15%</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vatNumber" class="form-label">الرقم الضريبي للمنشأة</label>
+                            <input type="text" class="form-control" id="vatNumber" name="vat_number"
+                                   placeholder="أدخل الرقم الضريبي" maxlength="15">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="autoCalculateVat" name="auto_calculate" checked>
+                                <label class="form-check-label" for="autoCalculateVat">
+                                    حساب الضريبة تلقائياً في الفواتير
+                                </label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="saveVATSettings()">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> ضريبة القيمة المضافة الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="vatChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> توزيع الضريبة</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="vatDistributionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسم البياني الشهري -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> ضريبة القيمة المضافة الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="vatChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول البيانات الشهرية -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-table"></i> تفاصيل ضريبة القيمة المضافة الشهرية</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" onclick="refreshVATData()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" onclick="exportMonthlyVAT()">
+                            <i class="fas fa-file-excel"></i> تصدير
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>الشهر</th>
+                                <th>المبيعات (ر.س)</th>
+                                <th>ضريبة المبيعات (ر.س)</th>
+                                <th>المشتريات (ر.س)</th>
+                                <th>ضريبة المشتريات (ر.س)</th>
+                                <th>صافي الضريبة (ر.س)</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in monthly_vat_data %}
+                            <tr>
+                                <td><strong>{{ data.month }}</strong></td>
+                                <td>{{ "{:,.0f}".format(data.sales) }}</td>
+                                <td class="text-success">{{ "{:,.0f}".format(data.sales_vat) }}</td>
+                                <td>{{ "{:,.0f}".format(data.purchases) }}</td>
+                                <td class="text-danger">{{ "{:,.0f}".format(data.purchases_vat) }}</td>
+                                <td class="{% if data.net_vat >= 0 %}text-warning{% else %}text-info{% endif %}">
+                                    {{ "{:,.0f}".format(data.net_vat) }}
+                                </td>
+                                <td>
+                                    {% if data.net_vat >= 0 %}
+                                        <span class="status-indicator status-pending">
+                                            <i class="fas fa-clock"></i> مستحقة
+                                        </span>
+                                    {% else %}
+                                        <span class="status-indicator status-completed">
+                                            <i class="fas fa-check"></i> مستردة
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>لا توجد بيانات ضريبية</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول تقارير الفواتير الضريبية -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-file-invoice"></i> تقرير الفواتير الضريبية</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" onclick="refreshInvoiceVAT()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" onclick="exportInvoiceVAT()">
+                            <i class="fas fa-file-excel"></i> تصدير
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>التاريخ</th>
+                                <th>العميل/المورد</th>
+                                <th>المبلغ الأساسي (ر.س)</th>
+                                <th>مبلغ الضريبة (ر.س)</th>
+                                <th>الإجمالي (ر.س)</th>
+                                <th>النوع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>INV-001</strong></td>
+                                <td>2024-12-01</td>
+                                <td>شركة الأمل التجارية</td>
+                                <td>10,000.00</td>
+                                <td>1,500.00</td>
+                                <td>11,500.00</td>
+                                <td><span class="badge bg-success">مبيعات</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>INV-002</strong></td>
+                                <td>2024-12-02</td>
+                                <td>مؤسسة النور للتجارة</td>
+                                <td>8,500.00</td>
+                                <td>1,275.00</td>
+                                <td>9,775.00</td>
+                                <td><span class="badge bg-success">مبيعات</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>PUR-001</strong></td>
+                                <td>2024-12-03</td>
+                                <td>شركة المواد الأولية</td>
+                                <td>5,000.00</td>
+                                <td>750.00</td>
+                                <td>5,750.00</td>
+                                <td><span class="badge bg-danger">مشتريات</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>INV-003</strong></td>
+                                <td>2024-12-04</td>
+                                <td>شركة التقنية المتقدمة</td>
+                                <td>12,000.00</td>
+                                <td>1,800.00</td>
+                                <td>13,800.00</td>
+                                <td><span class="badge bg-success">مبيعات</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>PUR-002</strong></td>
+                                <td>2024-12-05</td>
+                                <td>مؤسسة الخدمات اللوجستية</td>
+                                <td>3,200.00</td>
+                                <td>480.00</td>
+                                <td>3,680.00</td>
+                                <td><span class="badge bg-danger">مشتريات</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- معلومات إضافية -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-info-circle"></i> معلومات الضريبة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <h5 class="text-success">{{ invoices_count or 0 }}</h5>
+                            <small class="text-muted">فواتير المبيعات</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-danger">{{ purchase_invoices_count or 0 }}</h5>
+                            <small class="text-muted">فواتير المشتريات</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-lightbulb"></i>
+                        يتم حساب ضريبة القيمة المضافة بمعدل {{ "{:.0f}".format((vat_rate or 0) * 100) }}%
+                        على جميع المبيعات والمشتريات
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-calculator"></i> حاسبة الضريبة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="amount">المبلغ (بدون ضريبة)</label>
+                        <input type="number" class="form-control" id="amount" placeholder="أدخل المبلغ">
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>الضريبة</label>
+                            <div class="form-control-plaintext" id="vatAmount">0.00 ر.س</div>
+                        </div>
+                        <div class="col-6">
+                            <label>المجموع</label>
+                            <div class="form-control-plaintext" id="totalAmount">0.00 ر.س</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// رسم بياني لضريبة القيمة المضافة الشهرية
+const vatCtx = document.getElementById('vatChart').getContext('2d');
+const vatChart = new Chart(vatCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for data in monthly_vat_data %}'{{ data.month }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'ضريبة المبيعات',
+            data: [{% for data in monthly_vat_data %}{{ data.sales_vat }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: 'rgba(75, 192, 192, 0.8)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+        }, {
+            label: 'ضريبة المشتريات',
+            data: [{% for data in monthly_vat_data %}{{ data.purchases_vat }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1
+        }, {
+            label: 'صافي الضريبة',
+            data: [{% for data in monthly_vat_data %}{{ data.net_vat }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: 'rgba(255, 206, 86, 0.8)',
+            borderColor: 'rgb(255, 206, 86)',
+            borderWidth: 1,
+            type: 'line'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'ضريبة القيمة المضافة الشهرية'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// حاسبة الضريبة
+document.getElementById('amount').addEventListener('input', function() {
+    const amount = parseFloat(this.value) || 0;
+    const vatRate = {{ vat_rate or 0 }};
+    const vatAmount = amount * vatRate;
+    const totalAmount = amount + vatAmount;
+
+    document.getElementById('vatAmount').textContent = vatAmount.toFixed(2) + ' ر.س';
+    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2) + ' ر.س';
+});
+
+// رسم بياني لتوزيع الضريبة
+const vatDistributionCtx = document.getElementById('vatDistributionChart').getContext('2d');
+const vatDistributionChart = new Chart(vatDistributionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['ضريبة المبيعات', 'ضريبة المشتريات', 'صافي الضريبة'],
+        datasets: [{
+            data: [{{ sales_vat or 15000 }}, {{ purchases_vat or 8000 }}, {{ net_vat or 7000 }}],
+            backgroundColor: [
+                'rgba(40, 167, 69, 0.8)',
+                'rgba(220, 53, 69, 0.8)',
+                'rgba(255, 193, 7, 0.8)'
+            ],
+            borderColor: [
+                'rgb(40, 167, 69)',
+                'rgb(220, 53, 69)',
+                'rgb(255, 193, 7)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            },
+            title: {
+                display: true,
+                text: 'توزيع ضريبة القيمة المضافة'
+            }
+        }
+    }
+});
+
+function calculateVAT() {
+    const baseAmount = parseFloat(document.getElementById('baseAmount').value) || 0;
+    const vatRate = parseFloat(document.getElementById('vatRateCalc').value) || 15;
+
+    const vatAmount = baseAmount * (vatRate / 100);
+    const totalAmount = baseAmount + vatAmount;
+
+    document.getElementById('vatAmount').textContent = vatAmount.toFixed(2) + ' ر.س';
+    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2) + ' ر.س';
+}
+
+function saveVATSettings() {
+    const defaultRate = document.getElementById('defaultVatRate').value;
+    const vatNumber = document.getElementById('vatNumber').value;
+    const autoCalculate = document.getElementById('autoCalculateVat').checked;
+
+    // حفظ الإعدادات (يمكن إرسالها للخادم)
+    alert('تم حفظ إعدادات ضريبة القيمة المضافة بنجاح!');
+}
+
+function generateVATReport() {
+    window.open('/vat_report', '_blank');
+}
+
+function exportVATData() {
+    // تصدير بيانات ضريبة القيمة المضافة
+    const tables = document.querySelectorAll('table');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    tables.forEach((table, index) => {
+        if (index > 0) csvContent += '\n\n';
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('th, td');
+            const rowData = [];
+            cells.forEach(cell => {
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            });
+            csvContent += rowData.join(',') + '\n';
+        });
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'vat_report.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function printVATReport() {
+    window.print();
+}
+
+function refreshVATData() {
+    location.reload();
+}
+
+function exportMonthlyVAT() {
+    exportVATData();
+}
+
+function refreshInvoiceVAT() {
+    location.reload();
+}
+
+function exportInvoiceVAT() {
+    exportVATData();
+}
+
+// تحديث الحسابات عند تغيير القيم
+document.getElementById('baseAmount').addEventListener('input', calculateVAT);
+document.getElementById('vatRateCalc').addEventListener('input', calculateVAT);
+</script>
+{% endblock %}

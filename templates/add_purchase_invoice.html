@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة فاتورة مشتريات - نظام المحاسبة{% endblock %}
+{% block page_title %}إضافة فاتورة مشتريات جديدة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-file-invoice text-danger"></i> إضافة فاتورة مشتريات جديدة</h2>
+                    <p class="text-muted">إنشاء فاتورة مشتريات جديدة من الموردين</p>
+                </div>
+                <div>
+                    <a href="/purchase_invoices" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للقائمة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج إضافة فاتورة المشتريات -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus-circle"></i> بيانات فاتورة المشتريات</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="purchaseInvoiceForm">
+                        <!-- معلومات المورد والتاريخ -->
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <label for="supplier_name" class="form-label">
+                                    <i class="fas fa-truck text-danger"></i> اسم المورد *
+                                </label>
+                                <input type="text" class="form-control" id="supplier_name" name="supplier_name"
+                                       placeholder="أدخل اسم المورد" required>
+                                <div class="form-text">اسم المورد أو الشركة الموردة</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar text-danger"></i> تاريخ الفاتورة
+                                </label>
+                                <input type="date" class="form-control" id="date" name="date"
+                                       value="2024-12-15" required>
+                                <div class="form-text">تاريخ إصدار الفاتورة</div>
+                            </div>
+                        </div>
+
+                        <!-- معلومات المنتج -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="product" class="form-label">
+                                    <i class="fas fa-box text-danger"></i> المنتج/الخدمة
+                                </label>
+                                <input type="text" class="form-control" id="product" name="product"
+                                       placeholder="أدخل اسم المنتج أو الخدمة" required>
+                                <div class="form-text">وصف المنتج أو الخدمة المشتراة</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="quantity" class="form-label">
+                                    <i class="fas fa-sort-numeric-up text-danger"></i> الكمية
+                                </label>
+                                <input type="number" class="form-control" id="quantity" name="quantity"
+                                       min="1" value="1" required onchange="calculateTotal()">
+                                <div class="form-text">عدد الوحدات</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="unit_price" class="form-label">
+                                    <i class="fas fa-tag text-danger"></i> سعر الوحدة
+                                </label>
+                                <input type="number" class="form-control" id="unit_price" name="unit_price"
+                                       step="0.01" min="0" placeholder="0.00" required onchange="calculateTotal()">
+                                <div class="form-text">سعر الوحدة الواحدة</div>
+                            </div>
+                        </div>
+
+                        <!-- المبالغ المالية -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="subtotal" class="form-label">
+                                    <i class="fas fa-calculator text-danger"></i> المجموع الفرعي *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="subtotal" name="subtotal"
+                                           step="0.01" min="0" placeholder="0.00" required onchange="calculateTotal()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="tax_amount" class="form-label">
+                                    <i class="fas fa-percent text-danger"></i> مبلغ الضريبة
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="tax_amount" name="tax_amount"
+                                           step="0.01" min="0" placeholder="0.00" value="0" onchange="calculateTotal()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <div class="form-text">ضريبة القيمة المضافة (15%)</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="discount" class="form-label">
+                                    <i class="fas fa-tag text-danger"></i> الخصم
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="discount" name="discount"
+                                           step="0.01" min="0" placeholder="0.00" value="0" onchange="calculateTotal()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="total_amount" class="form-label">
+                                    <i class="fas fa-money-bill-wave text-danger"></i> الإجمالي النهائي
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control bg-light" id="total_amount" name="total_amount"
+                                           step="0.01" readonly placeholder="0.00">
+                                    <span class="input-group-text bg-danger text-white">ر.س</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الملاحظات -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-danger"></i> ملاحظات إضافية
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3"
+                                          placeholder="أدخل أي ملاحظات إضافية حول الفاتورة..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- أزرار التحكم -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="button" class="btn btn-outline-danger" onclick="calculateVAT()">
+                                            <i class="fas fa-calculator"></i> حساب الضريبة (15%)
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <a href="/purchase_invoices" class="btn btn-secondary me-2">
+                                            <i class="fas fa-times"></i> إلغاء
+                                        </a>
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-save"></i> حفظ الفاتورة
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- معاينة الفاتورة -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-eye text-danger"></i> معاينة الفاتورة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>المورد:</strong> <span id="preview_supplier">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>المجموع الفرعي:</strong> <span id="preview_subtotal">0.00</span> ر.س</p>
+                            <p><strong>الضريبة:</strong> <span id="preview_tax">0.00</span> ر.س</p>
+                            <p><strong>الخصم:</strong> <span id="preview_discount">0.00</span> ر.س</p>
+                            <hr>
+                            <p class="h5 text-danger"><strong>الإجمالي:</strong> <span id="preview_total">0.00</span> ر.س</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب الإجمالي تلقائياً
+function calculateTotal() {
+    const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+    const tax = parseFloat(document.getElementById('tax_amount').value) || 0;
+    const discount = parseFloat(document.getElementById('discount').value) || 0;
+
+    const total = subtotal + tax - discount;
+    document.getElementById('total_amount').value = total.toFixed(2);
+
+    // تحديث المعاينة
+    updatePreview();
+}
+
+// حساب ضريبة القيمة المضافة (15%)
+function calculateVAT() {
+    const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+    const vat = subtotal * 0.15;
+    document.getElementById('tax_amount').value = vat.toFixed(2);
+    calculateTotal();
+}
+
+// تحديث معاينة الفاتورة
+function updatePreview() {
+    document.getElementById('preview_supplier').textContent = document.getElementById('supplier_name').value || '-';
+    document.getElementById('preview_subtotal').textContent = (parseFloat(document.getElementById('subtotal').value) || 0).toFixed(2);
+    document.getElementById('preview_tax').textContent = (parseFloat(document.getElementById('tax_amount').value) || 0).toFixed(2);
+    document.getElementById('preview_discount').textContent = (parseFloat(document.getElementById('discount').value) || 0).toFixed(2);
+    document.getElementById('preview_total').textContent = (parseFloat(document.getElementById('total_amount').value) || 0).toFixed(2);
+}
+
+// إضافة مستمعات الأحداث
+document.addEventListener('DOMContentLoaded', function() {
+    // تحديث المعاينة عند تغيير أي حقل
+    document.getElementById('supplier_name').addEventListener('input', updatePreview);
+    document.getElementById('subtotal').addEventListener('input', calculateTotal);
+    document.getElementById('tax_amount').addEventListener('input', calculateTotal);
+    document.getElementById('discount').addEventListener('input', calculateTotal);
+
+    updatePreview();
+});
+
+// التحقق من صحة النموذج قبل الإرسال
+document.getElementById('purchaseInvoiceForm').addEventListener('submit', function(e) {
+    const supplierName = document.getElementById('supplier_name').value.trim();
+    const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+
+    if (!supplierName) {
+        alert('يرجى إدخال اسم المورد');
+        e.preventDefault();
+        return false;
+    }
+
+    if (subtotal <= 0) {
+        alert('يرجى إدخال مبلغ صحيح للمجموع الفرعي');
+        e.preventDefault();
+        return false;
+    }
+
+    return true;
+});
+
+// دالة حساب الإجمالي
+function calculateTotal() {
+    const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+    const unitPrice = parseFloat(document.getElementById('unit_price').value) || 0;
+    const subtotal = quantity * unitPrice;
+
+    // تحديث المجموع الفرعي
+    document.getElementById('subtotal').value = subtotal.toFixed(2);
+
+    // حساب الضريبة (15%)
+    const vatRate = 0.15;
+    const vatAmount = subtotal * vatRate;
+    document.getElementById('vat_amount').value = vatAmount.toFixed(2);
+
+    // حساب الإجمالي
+    const total = subtotal + vatAmount;
+    document.getElementById('total_amount').value = total.toFixed(2);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}المشتريات - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة المشتريات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-shopping-cart text-success"></i> إدارة المشتريات</h2>
+                    <p class="text-muted">تتبع وإدارة جميع عمليات الشراء والموردين</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_purchase_invoice" class="btn btn-success">
+                            <i class="fas fa-plus"></i> إضافة فاتورة
+                        </a>
+                        <a href="/purchase_invoices" class="btn btn-outline-primary">
+                            <i class="fas fa-file-invoice"></i> فواتير المشتريات
+                        </a>
+                        <a href="/suppliers" class="btn btn-outline-info">
+                            <i class="fas fa-truck"></i> الموردين
+                        </a>
+                        <a href="/add_supplier" class="btn btn-outline-secondary">
+                            <i class="fas fa-plus-circle"></i> مورد جديد
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات المشتريات -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_purchases or 0) }}</div>
+                    <div class="stats-label">إجمالي المشتريات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +14.7%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stats-number">{{ total_suppliers or 0 }}</div>
+                    <div class="stats-label">عدد الموردين</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +5.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="stats-number">{{ total_purchase_invoices or 0 }}</div>
+                    <div class="stats-label">عدد الفواتير</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +8.9%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(avg_purchase or 0) }}</div>
+                    <div class="stats-label">متوسط الفاتورة (ر.س)</div>
+                    <div class="stats-change negative">
+                        <i class="fas fa-arrow-down"></i> -2.1%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإجراءات السريعة والموردين الأساسيين -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="quick-actions">
+                <h5><i class="fas fa-bolt"></i> إجراءات سريعة</h5>
+                <a href="/add_purchase_invoice" class="quick-action-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء فاتورة مشتريات</span>
+                </a>
+                <a href="/add_supplier" class="quick-action-btn">
+                    <i class="fas fa-truck"></i>
+                    <span>إضافة مورد جديد</span>
+                </a>
+                <a href="/inventory" class="quick-action-btn">
+                    <i class="fas fa-boxes"></i>
+                    <span>إدارة المخزون</span>
+                </a>
+                <a href="/expenses" class="quick-action-btn">
+                    <i class="fas fa-receipt"></i>
+                    <span>تسجيل مصروف</span>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-8 mb-4">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-truck"></i> الموردين الأساسيين</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" id="refreshSuppliersBtn" onclick="refreshSuppliers()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                        <a href="/suppliers" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-list"></i> عرض الكل
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>اسم المورد</th>
+                                <th>معلومات الاتصال</th>
+                                <th>إجمالي المشتريات</th>
+                                <th>آخر عملية</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supplier in suppliers[:5] %}
+                            <tr>
+                                <td>
+                                    <strong>{{ supplier.name }}</strong>
+                                </td>
+                                <td>{{ supplier.contact_info }}</td>
+                                <td>{{ "{:,.0f}".format(supplier.total_purchases or 0) }} ر.س</td>
+                                <td>{{ supplier.last_purchase_date or 'لا توجد' }}</td>
+                                <td>
+                                    <span class="status-indicator status-active">
+                                        <i class="fas fa-check"></i> نشط
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <a href="{{ url_for('view_supplier', supplier_id=supplier.id) }}"
+                                           class="btn btn-sm btn-outline-primary" title="عرض">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_supplier', supplier_id=supplier.id) }}"
+                                           class="btn btn-sm btn-outline-warning" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>لا توجد موردين مسجلين</p>
+                                    <p>يمكنك إضافة مورد جديد من الأزرار أعلاه</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-area"></i> اتجاه المشتريات</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="purchasesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> أفضل الموردين</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="suppliersChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- آخر فواتير المشتريات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-file-invoice"></i> آخر فواتير المشتريات</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <input type="search" id="searchInput" class="form-control" placeholder="بحث في المشتريات..." style="width: 200px;">
+                        </div>
+                        <div class="table-actions">
+                            <button class="btn btn-sm btn-outline-light" onclick="exportPurchases()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-light" data-print="table" data-print-title="فواتير المشتريات">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                            <button class="btn btn-sm btn-outline-light" id="searchPurchasesBtn" onclick="searchPurchases()">
+                                <i class="fas fa-search"></i> بحث
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>المورد</th>
+                                <th>التاريخ</th>
+                                <th>المبلغ الإجمالي</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in recent_purchase_invoices[:10] %}
+                            <tr>
+                                <td>
+                                    <strong>#{{ invoice.invoice_number or invoice.id }}</strong>
+                                </td>
+                                <td>{{ invoice.supplier.name if invoice.supplier else 'غير محدد' }}</td>
+                                <td>{{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</td>
+                                <td>{{ "{:,.2f}".format(invoice.total_amount or 0) }} ر.س</td>
+                                <td>
+                                    <span class="status-indicator status-completed">
+                                        <i class="fas fa-check"></i> مكتملة
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <a href="{{ url_for('view_purchase_invoice', purchase_invoice_id=invoice.id) }}"
+                                           class="btn btn-sm btn-outline-primary" title="عرض">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_purchase_invoice', purchase_invoice_id=invoice.id) }}"
+                                           class="btn btn-sm btn-outline-warning" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-info"
+                                                title="طباعة" onclick="printPurchaseInvoice({{ invoice.id }})">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>لا توجد فواتير مشتريات</p>
+                                    <p>يمكنك إنشاء فاتورة مشتريات من الأزرار أعلاه</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إضافة Chart.js للرسوم البيانية -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function printPurchaseInvoice(invoiceId) {
+    window.open(`/print_purchase_invoice/${invoiceId}`, '_blank');
+}
+
+// رسم بياني لاتجاه المشتريات
+const purchasesCtx = document.getElementById('purchasesChart').getContext('2d');
+const purchasesChart = new Chart(purchasesCtx, {
+    type: 'line',
+    data: {
+        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        datasets: [{
+            label: 'المشتريات (ر.س)',
+            data: [12000, 19000, 15000, 25000, 22000, 30000],
+            borderColor: 'rgb(40, 167, 69)',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'اتجاه المشتريات الشهرية'
+            }
+        }
+    }
+});
+
+// رسم بياني دائري لأفضل الموردين
+const suppliersCtx = document.getElementById('suppliersChart').getContext('2d');
+const suppliersChart = new Chart(suppliersCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['مورد أ', 'مورد ب', 'مورد ج', 'أخرى'],
+        datasets: [{
+            data: [35, 25, 20, 20],
+            backgroundColor: [
+                'rgb(40, 167, 69)',
+                'rgb(23, 162, 184)',
+                'rgb(255, 193, 7)',
+                'rgb(108, 117, 125)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            },
+            title: {
+                display: true,
+                text: 'توزيع المشتريات حسب المورد'
+            }
+        }
+    }
+});
+
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('table tbody tr');
+
+    tableRows.forEach(row => {
+        const invoiceId = row.cells[0].textContent.toLowerCase();
+        const supplierName = row.cells[1].textContent.toLowerCase();
+        const amount = row.cells[3].textContent.toLowerCase();
+
+        if (invoiceId.includes(searchTerm) ||
+            supplierName.includes(searchTerm) ||
+            amount.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportPurchases() {
+    const table = document.querySelector('table');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'purchases_report.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظائف الأزرار الجديدة
+function refreshSuppliers() {
+    console.log('تحديث قائمة الموردين');
+    location.reload();
+}
+
+function searchPurchases() {
+    const searchTerm = document.getElementById('searchInput').value;
+    console.log('البحث في المشتريات:', searchTerm);
+
+    if (searchTerm.trim() === '') {
+        alert('يرجى إدخال كلمة البحث');
+        return;
+    }
+
+    // تنفيذ البحث
+    alert('البحث عن: ' + searchTerm);
+}
+</script>
+{% endblock %}

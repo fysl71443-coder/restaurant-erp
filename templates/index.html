@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}نظام المحاسبة المتكامل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-2"><i class="fas fa-tachometer-alt text-primary"></i> لوحة التحكم الرئيسية</h2>
+                    <p class="lead">إدارة أعمالك بكفاءة مع حلولنا المحاسبية الشاملة</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" data-print="page" data-print-title="لوحة التحكم الرئيسية">
+                        <i class="fas fa-print"></i> طباعة التقرير
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportDashboard()">
+                        <i class="fas fa-download"></i> تصدير البيانات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات سريعة محسنة -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_sales or 0) }}</div>
+                    <div class="stats-label">إجمالي المبيعات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +12.5%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_purchases or 0) }}</div>
+                    <div class="stats-label">إجمالي المشتريات (ر.س)</div>
+                    <div class="stats-change negative">
+                        <i class="fas fa-arrow-down"></i> مصروفات
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(net_profit or 0) }}</div>
+                    <div class="stats-label">صافي الربح (ر.س)</div>
+                    <div class="stats-change {% if (net_profit or 0) >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-{% if (net_profit or 0) >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                        {% if (net_profit or 0) >= 0 %}ربح{% else %}خسارة{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-number">{{ total_customers or 0 }}</div>
+                    <div class="stats-label">عدد العملاء</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-user-plus"></i> نشط
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-area"></i> المبيعات والمشتريات الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> توزيع الإيرادات</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإجراءات السريعة -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="quick-actions">
+                <h5><i class="fas fa-bolt"></i> إجراءات سريعة</h5>
+                <a href="/add_sales_invoice" class="quick-action-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء فاتورة مبيعات</span>
+                </a>
+                <a href="/add_purchase_invoice" class="quick-action-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>إنشاء فاتورة مشتريات</span>
+                </a>
+                <a href="/add_payment" class="quick-action-btn">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>تسجيل دفعة</span>
+                </a>
+                <a href="/add_product" class="quick-action-btn">
+                    <i class="fas fa-box"></i>
+                    <span>إضافة منتج جديد</span>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-8 mb-4">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-chart-bar"></i> آخر العمليات</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" id="refreshDataBtn" onclick="refreshDashboardData()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" id="exportDataBtn" onclick="exportDashboardData()">
+                            <i class="fas fa-download"></i> تصدير
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>النوع</th>
+                                <th>الوصف</th>
+                                <th>المبلغ</th>
+                                <th>التاريخ</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">مبيعات</span></td>
+                                <td>فاتورة رقم #001</td>
+                                <td>1,250.00 ر.س</td>
+                                <td>{{ datetime.now().strftime('%Y-%m-%d') }}</td>
+                                <td><span class="status-indicator status-completed"><i class="fas fa-check"></i> مكتملة</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning">مشتريات</span></td>
+                                <td>فاتورة رقم #P001</td>
+                                <td>850.00 ر.س</td>
+                                <td>{{ datetime.now().strftime('%Y-%m-%d') }}</td>
+                                <td><span class="status-indicator status-pending"><i class="fas fa-clock"></i> معلقة</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info">دفعة</span></td>
+                                <td>دفعة نقدية</td>
+                                <td>500.00 ر.س</td>
+                                <td>{{ datetime.now().strftime('%Y-%m-%d') }}</td>
+                                <td><span class="status-indicator status-completed"><i class="fas fa-check"></i> مكتملة</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الوحدات الرئيسية -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">المبيعات</h5>
+                    <p class="card-text">إدارة وتتبع مبيعاتك وفواتيرك</p>
+                    <a href="/sales" class="btn btn-primary">الذهاب للمبيعات</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-truck fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">المشتريات</h5>
+                    <p class="card-text">تتبع مشترياتك والموردين</p>
+                    <a href="/purchases" class="btn btn-success">الذهاب للمشتريات</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">التقارير</h5>
+                    <p class="card-text">إنشاء تقارير مالية مفصلة</p>
+                    <a href="/reports" class="btn btn-info">الذهاب للتقارير</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-pie fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">التحليلات</h5>
+                    <p class="card-text">عرض الرؤى والتحليلات</p>
+                    <a href="/analytics" class="btn btn-warning">الذهاب للتحليلات</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-boxes fa-3x text-secondary mb-3"></i>
+                    <h5 class="card-title">المخزون</h5>
+                    <p class="card-text">إدارة مخزونك بفعالية</p>
+                    <a href="/inventory" class="btn btn-secondary">الذهاب للمخزون</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-cog fa-3x text-dark mb-3"></i>
+                    <h5 class="card-title">الإعدادات</h5>
+                    <p class="card-text">تكوين إعدادات النظام والمستخدمين</p>
+                    <a href="/settings" class="btn btn-dark">الذهاب للإعدادات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إضافة Font Awesome للأيقونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+// وظيفة تصدير بيانات لوحة التحكم
+function exportDashboard() {
+    const dashboardData = {
+        'تاريخ التقرير': new Date().toLocaleDateString('ar-SA'),
+        'إجمالي المبيعات': '25,000 ر.س',
+        'عدد العملاء': '150',
+        'الفواتير المعلقة': '12',
+        'عدد المنتجات في المخزون': '89 منتج'
+    };
+
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    csvContent += 'البيان,القيمة\n';
+
+    Object.entries(dashboardData).forEach(([key, value]) => {
+        csvContent += `"${key}","${value}"\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'dashboard_summary_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// رسوم بيانية للشاشة الرئيسية
+document.addEventListener('DOMContentLoaded', function() {
+    // رسم بياني للمبيعات والمشتريات
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+            datasets: [{
+                label: 'المبيعات',
+                data: [{{ total_sales or 0 }}, {{ (total_sales or 0) * 0.8 }}, {{ (total_sales or 0) * 1.2 }}, {{ (total_sales or 0) * 0.9 }}, {{ (total_sales or 0) * 1.1 }}, {{ total_sales or 0 }}],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'المشتريات',
+                data: [{{ total_purchases or 0 }}, {{ (total_purchases or 0) * 0.9 }}, {{ (total_purchases or 0) * 1.1 }}, {{ (total_purchases or 0) * 0.8 }}, {{ (total_purchases or 0) * 1.0 }}, {{ total_purchases or 0 }}],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'المبيعات والمشتريات الشهرية'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // رسم بياني دائري للإيرادات
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['المبيعات', 'المشتريات'],
+            datasets: [{
+                data: [{{ total_sales or 0 }}, {{ total_purchases or 0 }}],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
+                ],
+                borderColor: [
+                    'rgb(75, 192, 192)',
+                    'rgb(255, 99, 132)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'توزيع الإيرادات'
+                }
+            }
+        }
+    });
+});
+
+// وظائف الأزرار
+function refreshDashboardData() {
+    // تحديث بيانات لوحة التحكم
+    console.log('تحديث بيانات لوحة التحكم');
+    location.reload();
+}
+
+function exportDashboardData() {
+    // تصدير بيانات لوحة التحكم
+    console.log('تصدير بيانات لوحة التحكم');
+    window.location.href = '/export_dashboard';
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}

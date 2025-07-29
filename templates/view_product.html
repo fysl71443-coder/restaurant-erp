@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}عرض المنتج - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-box text-primary"></i>
+                        عرض المنتج
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/inventory">المخزون</a></li>
+                            <li class="breadcrumb-item active">عرض المنتج</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/edit_product/{{ product.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> تعديل
+                    </a>
+                    <button class="btn btn-outline-primary" data-print="product-details" data-print-title="تفاصيل المنتج - {{ product.name }}">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <a href="/inventory" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للمخزون
+                    </a>
+                </div>
+            </div>
+
+            <!-- Product Details Card -->
+            <div class="card shadow-sm" id="product-details">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        تفاصيل المنتج
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">المعلومات الأساسية</h6>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>اسم المنتج:</strong></div>
+                                <div class="col-sm-8">{{ product.name }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>الكود:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-secondary">{{ product.code or 'غير محدد' }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>الفئة:</strong></div>
+                                <div class="col-sm-8">{{ product.category or 'غير محدد' }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>الوصف:</strong></div>
+                                <div class="col-sm-8">{{ product.description or 'لا يوجد وصف' }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-success border-bottom pb-2 mb-3">المعلومات المالية</h6>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>سعر الشراء:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="text-success fw-bold">{{ "%.2f"|format(product.purchase_price or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>سعر البيع:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="text-primary fw-bold">{{ "%.2f"|format(product.selling_price or 0) }} ر.س</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>هامش الربح:</strong></div>
+                                <div class="col-sm-8">
+                                    {% set profit_margin = ((product.selling_price or 0) - (product.purchase_price or 0)) %}
+                                    <span class="{% if profit_margin > 0 %}text-success{% elif profit_margin < 0 %}text-danger{% else %}text-muted{% endif %} fw-bold">
+                                        {{ "%.2f"|format(profit_margin) }} ر.س
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Information -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2 mb-3">معلومات المخزون</h6>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-info">الكمية الحالية</h5>
+                                    <h3 class="text-primary">{{ product.quantity or 0 }}</h3>
+                                    <small class="text-muted">وحدة</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-warning">الحد الأدنى</h5>
+                                    <h3 class="text-warning">{{ product.min_quantity or 0 }}</h3>
+                                    <small class="text-muted">وحدة</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-success">القيمة الإجمالية</h5>
+                                    <h3 class="text-success">{{ "%.2f"|format((product.quantity or 0) * (product.purchase_price or 0)) }}</h3>
+                                    <small class="text-muted">ر.س</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">حالة المخزون</h5>
+                                    {% if (product.quantity or 0) <= (product.min_quantity or 0) %}
+                                        <span class="badge bg-danger fs-6">نفاد المخزون</span>
+                                    {% elif (product.quantity or 0) <= (product.min_quantity or 0) * 2 %}
+                                        <span class="badge bg-warning fs-6">مخزون منخفض</span>
+                                    {% else %}
+                                        <span class="badge bg-success fs-6">متوفر</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    {% if product.created_at %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">معلومات إضافية</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        تاريخ الإضافة: {{ product.created_at.strftime('%Y-%m-%d %H:%M') if product.created_at else 'غير محدد' }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/edit_product/{{ product.id }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل المنتج
+                        </a>
+                        <button class="btn btn-danger" onclick="confirmDelete({{ product.id }}, '{{ product.name }}')">
+                            <i class="fas fa-trash"></i> حذف المنتج
+                        </button>
+                        <a href="/add_product" class="btn btn-success">
+                            <i class="fas fa-plus"></i> إضافة منتج جديد
+                        </a>
+                        <a href="/inventory" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> عرض جميع المنتجات
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف المنتج "<span id="productName"></span>"؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(productId, productName) {
+    document.getElementById('productName').textContent = productName;
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        window.location.href = '/delete_product/' + productId;
+    };
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

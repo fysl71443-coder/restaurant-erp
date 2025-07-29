@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}المبيعات - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة المبيعات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-shopping-cart text-primary"></i> إدارة المبيعات</h2>
+                    <p class="text-muted">تتبع وإدارة جميع عمليات البيع</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_sales_invoice" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة فاتورة
+                        </a>
+                        <a href="/sales_invoices" class="btn btn-outline-success">
+                            <i class="fas fa-file-invoice-dollar"></i> فواتير المبيعات
+                        </a>
+                        <a href="/customers" class="btn btn-outline-primary">
+                            <i class="fas fa-users"></i> العملاء
+                        </a>
+                        <a href="/add_payment" class="btn btn-outline-info">
+                            <i class="fas fa-money-bill"></i> تسجيل دفع
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات المبيعات المحسنة -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_sales or 0) }}</div>
+                    <div class="stats-label">إجمالي المبيعات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +18.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calendar-month"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(month_sales or 0) }}</div>
+                    <div class="stats-label">مبيعات الشهر (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +25.4%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="stats-number">{{ total_invoices or 0 }}</div>
+                    <div class="stats-label">عدد الفواتير</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +12.8%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(avg_invoice or 0) }}</div>
+                    <div class="stats-label">متوسط الفاتورة (ر.س)</div>
+                    <div class="stats-change negative">
+                        <i class="fas fa-arrow-down"></i> -3.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-area"></i> اتجاه المبيعات</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> أفضل المنتجات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            منتج أ
+                            <span class="badge bg-primary rounded-pill">35%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            منتج ب
+                            <span class="badge bg-success rounded-pill">28%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            منتج ج
+                            <span class="badge bg-info rounded-pill">20%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            منتج د
+                            <span class="badge bg-warning rounded-pill">17%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط البحث والفلاتر -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث في المبيعات..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="periodFilter">
+                                <option value="">جميع الفترات</option>
+                                <option value="today">اليوم</option>
+                                <option value="week">هذا الأسبوع</option>
+                                <option value="month">هذا الشهر</option>
+                                <option value="year">هذا العام</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateFrom" placeholder="من تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateTo" placeholder="إلى تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100" id="filterBtn" onclick="applySalesFilter()">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول المبيعات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> آخر المبيعات</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <input type="search" id="searchInput" class="form-control" placeholder="بحث في المبيعات..." style="width: 200px;">
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportSales()">
+                                    <i class="fas fa-download"></i> تصدير
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="salesTable" data-print-title="تقرير المبيعات">
+                                    <i class="fas fa-print"></i> طباعة
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" id="searchBtn" onclick="performSearch()">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="salesTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم الفاتورة</th>
+                                    <th>العميل</th>
+                                    <th>المبلغ</th>
+                                    <th>التاريخ</th>
+                                    <th>طريقة الدفع</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if invoices %}
+                                    {% for invoice in invoices %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">
+                                                {% if invoice.invoice_number %}
+                                                    {{ invoice.invoice_number }}
+                                                {% else %}
+                                                    #INV-{{ invoice.id }}
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                                <strong>{{ invoice.customer_name }}</strong>
+                                            </div>
+                                        </td>
+                                        <td><span class="fw-bold text-success">{{ "{:,.2f}".format(invoice.total_amount) }} ر.س</span></td>
+                                        <td><small class="text-muted">{{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</small></td>
+                                        <td>
+                                            {% set payment = invoice.payments.first() %}
+                                            {% if payment %}
+                                                {% if payment.payment_method == 'cash' %}
+                                                    <span class="badge bg-info">نقداً</span>
+                                                {% elif payment.payment_method == 'card' %}
+                                                    <span class="badge bg-warning">بطاقة</span>
+                                                {% elif payment.payment_method == 'bank_transfer' %}
+                                                    <span class="badge bg-success">تحويل</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ payment.payment_method }}</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-light text-dark">غير محدد</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if invoice.status == 'paid' %}
+                                                <span class="badge bg-success">مكتملة</span>
+                                            {% elif invoice.status == 'pending' %}
+                                                <span class="badge bg-warning">معلقة</span>
+                                            {% elif invoice.status == 'overdue' %}
+                                                <span class="badge bg-danger">متأخرة</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ invoice.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}"
+                                                   class="btn btn-sm btn-outline-primary" title="عرض">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-info"
+                                                        title="طباعة" onclick="printInvoice({{ invoice.id }})">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                                <a href="{{ url_for('edit_invoice', invoice_id=invoice.id) }}"
+                                                   class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">لا توجد فواتير مبيعات</h5>
+                                            <p class="text-muted">ابدأ بإنشاء أول فاتورة مبيعات</p>
+                                            <a href="/add_sales_invoice" class="btn btn-primary">
+                                                <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إضافة Chart.js للرسوم البيانية -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// رسم بياني للمبيعات
+const ctx = document.getElementById('salesChart').getContext('2d');
+const salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        datasets: [{
+            label: 'المبيعات (ر.س)',
+            data: [12000, 19000, 15000, 25000, 22000, 30000],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#salesTable tbody tr');
+
+    tableRows.forEach(row => {
+        const saleId = row.cells[0].textContent.toLowerCase();
+        const customerName = row.cells[1].textContent.toLowerCase();
+        const amount = row.cells[2].textContent.toLowerCase();
+
+        if (saleId.includes(searchTerm) ||
+            customerName.includes(searchTerm) ||
+            amount.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportSales() {
+    const table = document.getElementById('salesTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'sales_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظيفة طباعة الفاتورة
+function printInvoice(invoiceId) {
+    window.open(`/view_invoice/${invoiceId}?print=1`, '_blank');
+}
+
+// وظائف الأزرار الجديدة
+function applySalesFilter() {
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+    const customer = document.getElementById('customerFilter').value;
+
+    console.log('تطبيق مرشح المبيعات:', { dateFrom, dateTo, customer });
+    // تطبيق المرشح
+    location.reload();
+}
+
+function performSearch() {
+    const searchTerm = document.getElementById('searchInput').value;
+    console.log('البحث في المبيعات:', searchTerm);
+
+    if (searchTerm.trim() === '') {
+        alert('يرجى إدخال كلمة البحث');
+        return;
+    }
+
+    // تنفيذ البحث
+    alert('البحث عن: ' + searchTerm);
+}
+</script>
+{% endblock %}

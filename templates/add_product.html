@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة منتج جديد - نظام المحاسبة{% endblock %}
+{% block page_title %}إضافة منتج جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- رأس الصفحة -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-cube text-primary"></i> إضافة منتج جديد</h2>
+                    <p class="text-muted">أدخل معلومات المنتج الجديد للمخزون</p>
+                </div>
+                <div>
+                    <a href="/inventory" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للمخزون
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cube"></i> معلومات المنتج</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="productForm" action="{{ url_for('add_product') }}">
+                        <div class="row">
+                            <!-- اسم المنتج -->
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label form-label-enhanced">
+                                    <i class="fas fa-tag text-primary"></i> اسم المنتج
+                                    <span class="required-indicator">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" required
+                                       placeholder="أدخل اسم المنتج">
+                                <div class="invalid-feedback">
+                                    يرجى إدخال اسم المنتج
+                                </div>
+                                <div class="form-help">أدخل اسماً واضحاً ومميزاً للمنتج</div>
+                            </div>
+
+                            <!-- فئة المنتج -->
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-list text-info"></i> فئة المنتج
+                                </label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">اختر الفئة</option>
+                                    <option value="electronics">إلكترونيات</option>
+                                    <option value="clothing">ملابس</option>
+                                    <option value="food">أغذية</option>
+                                    <option value="books">كتب</option>
+                                    <option value="home">منزلية</option>
+                                    <option value="sports">رياضة</option>
+                                    <option value="beauty">تجميل</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- الكمية -->
+                            <div class="col-md-4 mb-3">
+                                <label for="quantity" class="form-label">
+                                    <i class="fas fa-boxes text-success"></i> الكمية *
+                                </label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" required 
+                                       min="0" placeholder="0">
+                                <div class="form-text">الكمية المتاحة في المخزون</div>
+                            </div>
+
+                            <!-- سعر الوحدة -->
+                            <div class="col-md-4 mb-3">
+                                <label for="price" class="form-label">
+                                    <i class="fas fa-money-bill-wave text-warning"></i> سعر الوحدة *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="price" name="price" required 
+                                           step="0.01" min="0" placeholder="0.00">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                            </div>
+
+                            <!-- الحد الأدنى للمخزون -->
+                            <div class="col-md-4 mb-3">
+                                <label for="min_stock" class="form-label">
+                                    <i class="fas fa-exclamation-triangle text-danger"></i> الحد الأدنى
+                                </label>
+                                <input type="number" class="form-control" id="min_stock" name="min_stock" 
+                                       min="0" placeholder="10" value="10">
+                                <div class="form-text">تنبيه عند انخفاض المخزون</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- كود المنتج -->
+                            <div class="col-md-6 mb-3">
+                                <label for="sku" class="form-label">
+                                    <i class="fas fa-barcode text-secondary"></i> كود المنتج (SKU)
+                                </label>
+                                <input type="text" class="form-control" id="sku" name="sku" 
+                                       placeholder="سيتم إنشاؤه تلقائياً">
+                                <div class="form-text">اتركه فارغاً للإنشاء التلقائي</div>
+                            </div>
+
+                            <!-- الوحدة -->
+                            <div class="col-md-6 mb-3">
+                                <label for="unit" class="form-label">
+                                    <i class="fas fa-ruler text-info"></i> وحدة القياس
+                                </label>
+                                <select class="form-select" id="unit" name="unit">
+                                    <option value="piece">قطعة</option>
+                                    <option value="kg">كيلوجرام</option>
+                                    <option value="liter">لتر</option>
+                                    <option value="meter">متر</option>
+                                    <option value="box">صندوق</option>
+                                    <option value="pack">عبوة</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- الوصف -->
+                            <div class="col-12 mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-align-left text-secondary"></i> وصف المنتج
+                                </label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="أدخل وصفاً مفصلاً للمنتج"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- معلومات إضافية -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="supplier" class="form-label">
+                                    <i class="fas fa-truck text-primary"></i> المورد
+                                </label>
+                                <input type="text" class="form-control" id="supplier" name="supplier" 
+                                       placeholder="اسم المورد">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">
+                                    <i class="fas fa-map-marker-alt text-danger"></i> موقع التخزين
+                                </label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       placeholder="مثال: رف A - مستوى 2">
+                            </div>
+                        </div>
+
+                        <!-- ملخص المنتج -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title"><i class="fas fa-calculator"></i> ملخص المنتج</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>القيمة الإجمالية:</strong> <span id="totalValue" class="text-success">0.00 ر.س</span></p>
+                                                <p class="mb-0"><strong>متوسط التكلفة:</strong> <span id="avgCost" class="text-info">0.00 ر.س</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>حالة المخزون:</strong> <span id="stockStatus" class="badge bg-secondary">جديد</span></p>
+                                                <p class="mb-0"><strong>كود المنتج:</strong> <span id="generatedSku" class="text-muted">سيتم إنشاؤه</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- أزرار الإجراءات -->
+                        <div class="form-actions mt-4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="btn-group-enhanced">
+                                        <button type="button" class="btn btn-outline-secondary btn-enhanced" onclick="history.back()">
+                                            <i class="fas fa-times"></i> إلغاء
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning btn-enhanced undo-btn" disabled>
+                                            <i class="fas fa-undo"></i> تراجع
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-enhanced" onclick="autoSaveForm(document.getElementById('productForm'))">
+                                            <i class="fas fa-cloud"></i> حفظ تلقائي
+                                        </button>
+                                        <button type="submit" class="btn btn-primary btn-enhanced save-btn">
+                                            <i class="fas fa-save"></i> حفظ المنتج
+                                        </button>
+                                    </div>
+
+                                    <!-- مؤشر الحالة -->
+                                    <div class="mt-3 text-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle"></i> سيتم حفظ التغييرات تلقائياً كل 30 ثانية
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب القيمة الإجمالية
+function calculateTotalValue() {
+    const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const totalValue = quantity * price;
+    
+    document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' ر.س';
+    document.getElementById('avgCost').textContent = price.toFixed(2) + ' ر.س';
+    
+    // تحديث حالة المخزون
+    const minStock = parseFloat(document.getElementById('min_stock').value) || 10;
+    let stockStatus = 'جديد';
+    let statusClass = 'secondary';
+    
+    if (quantity === 0) {
+        stockStatus = 'نفد المخزون';
+        statusClass = 'danger';
+    } else if (quantity <= minStock) {
+        stockStatus = 'مخزون منخفض';
+        statusClass = 'warning';
+    } else {
+        stockStatus = 'متوفر';
+        statusClass = 'success';
+    }
+    
+    const statusElement = document.getElementById('stockStatus');
+    statusElement.textContent = stockStatus;
+    statusElement.className = `badge bg-${statusClass}`;
+}
+
+// إنشاء كود المنتج تلقائياً
+function generateSku() {
+    const name = document.getElementById('name').value.trim();
+    const category = document.getElementById('category').value;
+    
+    if (name) {
+        const nameCode = name.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, '');
+        const categoryCode = category ? category.substring(0, 2).toUpperCase() : 'GN';
+        const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const sku = `${nameCode}${categoryCode}${randomNum}`;
+        
+        document.getElementById('sku').value = sku;
+        document.getElementById('generatedSku').textContent = sku;
+    }
+}
+
+// ربط الأحداث
+document.getElementById('quantity').addEventListener('input', calculateTotalValue);
+document.getElementById('price').addEventListener('input', calculateTotalValue);
+document.getElementById('min_stock').addEventListener('input', calculateTotalValue);
+document.getElementById('name').addEventListener('input', generateSku);
+document.getElementById('category').addEventListener('change', generateSku);
+
+// التحقق السريع من صحة النموذج
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const quantity = document.getElementById('quantity').value;
+    const price = document.getElementById('price').value;
+
+    if (!name || !quantity || !price) {
+        e.preventDefault();
+        FastFormProcessor.showQuickMessage('يرجى ملء جميع الحقول المطلوبة', 'danger');
+        return false;
+    }
+
+    // معالجة سريعة للزر
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> تم الحفظ';
+        submitBtn.disabled = true;
+    }
+});
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    calculateTotalValue();
+});
+</script>
+{% endblock %}

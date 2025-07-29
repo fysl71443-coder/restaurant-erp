@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}فواتير المشتريات - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة فواتير المشتريات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-file-invoice text-danger"></i> إدارة فواتير المشتريات</h2>
+                    <p class="text-muted">إدارة وتتبع فواتير المشتريات والمصروفات</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_purchase_invoice" class="btn btn-danger">
+                            <i class="fas fa-plus"></i> فاتورة مشتريات جديدة
+                        </a>
+                        <button class="btn btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportPurchaseInvoices()"><i class="fas fa-file-excel"></i> تصدير الفواتير</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> تقرير المشتريات</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-envelope"></i> إرسال كشف</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cogs"></i> إعدادات الفواتير</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات فواتير المشتريات -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_amount or 0) }}</div>
+                    <div class="stats-label">إجمالي المشتريات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +12.5%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="stats-number">{{ total_invoices or 0 }}</div>
+                    <div class="stats-label">عدد الفواتير</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +8.3%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(monthly_total or 0) }}</div>
+                    <div class="stats-label">مشتريات الشهر (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +15.7%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(avg_invoice or 0) }}</div>
+                    <div class="stats-label">متوسط الفاتورة (ر.س)</div>
+                    <div class="stats-change negative">
+                        <i class="fas fa-arrow-down"></i> -3.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- أدوات البحث والتصفية -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="searchInvoice">البحث في الفواتير</label>
+                                <input type="text" class="form-control" id="searchInvoice" placeholder="رقم الفاتورة، المورد، أو المبلغ...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filterSupplier">تصفية حسب المورد</label>
+                                <select class="form-control" id="filterSupplier">
+                                    <option value="">جميع الموردين</option>
+                                    {% set suppliers_list = [] %}
+                                    {% for invoice in purchase_invoices %}
+                                        {% if invoice.supplier and invoice.supplier.name not in suppliers_list %}
+                                            {% set _ = suppliers_list.append(invoice.supplier.name) %}
+                                            <option value="{{ invoice.supplier.name }}">{{ invoice.supplier.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filterDate">تصفية حسب التاريخ</label>
+                                <input type="date" class="form-control" id="filterDate">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="d-flex">
+                                    <button class="btn btn-primary me-2" onclick="filterInvoices()">
+                                        <i class="fas fa-search"></i> بحث
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="clearFilters()">
+                                        <i class="fas fa-times"></i> مسح
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول فواتير المشتريات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-file-invoice"></i> فواتير المشتريات</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" onclick="refreshTable()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" data-print="table" data-print-title="فواتير المشتريات">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> تصدير
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="purchaseInvoicesTable">
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>المورد</th>
+                                <th>التاريخ</th>
+                                <th>المبلغ الإجمالي</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in purchase_invoices %}
+                            <tr>
+                                <td>
+                                    <strong>#{{ invoice.invoice_number or invoice.id }}</strong>
+                                </td>
+                                <td>{{ invoice.supplier.name if invoice.supplier else 'غير محدد' }}</td>
+                                <td>{{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}</td>
+                                <td>{{ "{:,.2f}".format(invoice.total_amount or 0) }} ر.س</td>
+                                <td>
+                                    <span class="status-indicator status-completed">
+                                        <i class="fas fa-check"></i> مكتملة
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions-btn">
+                                        <a href="{{ url_for('view_purchase_invoice', purchase_invoice_id=invoice.id) }}"
+                                           class="btn btn-sm btn-outline-primary" title="عرض">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_purchase_invoice', purchase_invoice_id=invoice.id) }}"
+                                           class="btn btn-sm btn-outline-warning" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-info"
+                                                title="طباعة" onclick="printPurchaseInvoice({{ invoice.id }})">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>لا توجد فواتير مشتريات</p>
+                                    <a href="/add_purchase_invoice" class="btn btn-danger">
+                                        <i class="fas fa-plus"></i> إنشاء فاتورة مشتريات
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printPurchaseInvoice(invoiceId) {
+    window.open(`/print_purchase_invoice/${invoiceId}`, '_blank');
+}
+
+function filterInvoices() {
+    const searchTerm = document.getElementById('searchInvoice').value.toLowerCase();
+    const supplierFilter = document.getElementById('filterSupplier').value;
+    const dateFilter = document.getElementById('filterDate').value;
+    
+    const table = document.getElementById('purchaseInvoicesTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td');
+        
+        if (cells.length > 1) {
+            const invoiceNumber = cells[0].textContent.toLowerCase();
+            const supplier = cells[1].textContent;
+            const date = cells[2].textContent;
+            const amount = cells[3].textContent.toLowerCase();
+            
+            let showRow = true;
+            
+            // البحث النصي
+            if (searchTerm && !invoiceNumber.includes(searchTerm) && 
+                !supplier.toLowerCase().includes(searchTerm) && 
+                !amount.includes(searchTerm)) {
+                showRow = false;
+            }
+            
+            // تصفية المورد
+            if (supplierFilter && supplier !== supplierFilter) {
+                showRow = false;
+            }
+            
+            // تصفية التاريخ
+            if (dateFilter && !date.includes(dateFilter)) {
+                showRow = false;
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+        }
+    }
+}
+
+function clearFilters() {
+    document.getElementById('searchInvoice').value = '';
+    document.getElementById('filterSupplier').value = '';
+    document.getElementById('filterDate').value = '';
+    filterInvoices();
+}
+
+function refreshTable() {
+    location.reload();
+}
+
+function exportToExcel() {
+    // تصدير الجدول إلى Excel
+    const table = document.getElementById('purchaseInvoicesTable');
+    const wb = XLSX.utils.table_to_book(table, {sheet: "فواتير المشتريات"});
+    XLSX.writeFile(wb, "فواتير_المشتريات.xlsx");
+}
+
+function exportPurchaseInvoices() {
+    exportToExcel();
+}
+</script>
+{% endblock %}

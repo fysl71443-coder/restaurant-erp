@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار نظام الحذف السريع</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>اختبار نظام الحذف السريع</h2>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5>اختبار الرسائل السريعة</h5>
+                <button class="btn btn-warning" onclick="testQuickMessage()">
+                    <i class="fas fa-test"></i> اختبار الرسالة السريعة
+                </button>
+                
+                <button class="btn btn-danger ms-2" onclick="testDeleteMessage()">
+                    <i class="fas fa-trash"></i> اختبار رسالة الحذف
+                </button>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5>اختبار حذف وهمي</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>العنصر</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>عنصر تجريبي 1</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(1)">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>عنصر تجريبي 2</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(2)">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/js/fast_delete.js"></script>
+    
+    <script>
+        function testQuickMessage() {
+            if (typeof FastDeleteProcessor !== 'undefined') {
+                FastDeleteProcessor.showQuickMessage('هذه رسالة اختبار!', 'info', 2000);
+            } else {
+                alert('FastDeleteProcessor غير متاح');
+            }
+        }
+        
+        function testDeleteMessage() {
+            if (typeof FastDeleteProcessor !== 'undefined') {
+                FastDeleteProcessor.showQuickMessage('جاري الحذف...', 'warning', 2000);
+            } else {
+                alert('FastDeleteProcessor غير متاح');
+            }
+        }
+        
+        function confirmDelete(id) {
+            console.log('محاولة حذف العنصر:', id);
+            
+            if (typeof FastDeleteProcessor !== 'undefined') {
+                FastDeleteProcessor.showQuickMessage(`جاري حذف العنصر ${id}...`, 'warning', 1000);
+                
+                setTimeout(() => {
+                    FastDeleteProcessor.showQuickMessage(`تم حذف العنصر ${id} بنجاح!`, 'success', 2000);
+                    
+                    // إزالة الصف من الجدول
+                    const button = event.target.closest('button');
+                    const row = button.closest('tr');
+                    if (row) {
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                }, 1000);
+            } else {
+                alert('FastDeleteProcessor غير متاح');
+            }
+        }
+        
+        // اختبار التهيئة
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('FastDeleteProcessor متاح:', typeof FastDeleteProcessor !== 'undefined');
+            console.log('fastDeleteProcessor متاح:', typeof fastDeleteProcessor !== 'undefined');
+        });
+    </script>
+</body>
+</html>

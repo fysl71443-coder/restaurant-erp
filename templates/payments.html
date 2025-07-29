@@ -1,0 +1,553 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة المدفوعات - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة المدفوعات والتحصيلات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-money-bill-wave text-primary"></i> إدارة المدفوعات والتحصيلات</h2>
+                    <p class="text-muted">تسجيل ومتابعة جميع المدفوعات والتحصيلات المالية</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_payment" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> تسجيل دفع جديد
+                        </a>
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportPayments()"><i class="fas fa-file-excel"></i> تصدير المدفوعات</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> تقرير التدفق النقدي</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-balance-scale"></i> مطابقة البنك</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cogs"></i> إعدادات المدفوعات</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات المدفوعات -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6><i class="fas fa-arrow-down me-1"></i> إجمالي المقبوضات</h6>
+                            <h3 class="mb-1">{{ "{:,.2f}".format(total_received or 0) }} ر.س</h3>
+                            <small><i class="fas fa-calendar-day me-1"></i> المبالغ المحصلة</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-hand-holding-usd fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6><i class="fas fa-arrow-up me-1"></i> إجمالي المدفوعات</h6>
+                            <h3 class="mb-1">{{ "{:,.2f}".format(total_paid or 0) }} ر.س</h3>
+                            <small><i class="fas fa-credit-card me-1"></i> المبالغ المدفوعة</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6><i class="fas fa-balance-scale me-1"></i> صافي التدفق</h6>
+                            <h3 class="mb-1">{{ "{:,.2f}".format(net_flow or 0) }} ر.س</h3>
+                            <small>
+                                {% if (net_flow or 0) >= 0 %}
+                                    <i class="fas fa-arrow-up text-success"></i> موجب
+                                {% else %}
+                                    <i class="fas fa-arrow-down text-warning"></i> سالب
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6><i class="fas fa-list me-1"></i> عدد المعاملات</h6>
+                            <h3 class="mb-1">{{ total_transactions or 0 }}</h3>
+                            <small><i class="fas fa-exchange-alt me-1"></i> معاملة مالية</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calculator fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات إضافية -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h5 class="text-success"><i class="fas fa-calendar-day"></i> اليوم</h5>
+                    <h4>{{ today_payments or 0 }}</h4>
+                    <small class="text-muted">معاملة اليوم</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h5 class="text-primary"><i class="fas fa-calendar-alt"></i> هذا الشهر</h5>
+                    <h4>{{ this_month_payments or 0 }}</h4>
+                    <small class="text-muted">معاملة هذا الشهر</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="text-info"><i class="fas fa-percentage"></i> متوسط المعاملة</h5>
+                    <h4>
+                        {% if total_transactions and total_transactions > 0 %}
+                            {{ "{:,.0f}".format((total_received + total_paid) / total_transactions) }} ر.س
+                        {% else %}
+                            0 ر.س
+                        {% endif %}
+                    </h4>
+                    <small class="text-muted">متوسط قيمة المعاملة</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات طرق الدفع -->
+    {% if payment_methods_stats %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> إحصائيات طرق الدفع</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for method, stats in payment_methods_stats.items() %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-secondary">
+                                <div class="card-body text-center">
+                                    <h6>
+                                        {% if method == 'cash' %}
+                                            <i class="fas fa-money-bill text-success"></i> نقدي
+                                        {% elif method == 'bank_transfer' %}
+                                            <i class="fas fa-university text-primary"></i> تحويل بنكي
+                                        {% elif method == 'check' %}
+                                            <i class="fas fa-file-invoice text-warning"></i> شيك
+                                        {% elif method == 'card' %}
+                                            <i class="fas fa-credit-card text-info"></i> بطاقة
+                                        {% else %}
+                                            <i class="fas fa-question-circle text-muted"></i> {{ method }}
+                                        {% endif %}
+                                    </h6>
+                                    <h5>{{ stats.count }}</h5>
+                                    <small class="text-muted">{{ "{:,.0f}".format(stats.total) }} ر.س</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- فلاتر البحث -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-filter"></i> البحث والتصفية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">جميع الأنواع</option>
+                                <option value="received">مقبوضات</option>
+                                <option value="paid">مدفوعات</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="methodFilter">
+                                <option value="">جميع الطرق</option>
+                                <option value="cash">نقدي</option>
+                                <option value="bank_transfer">تحويل بنكي</option>
+                                <option value="check">شيك</option>
+                                <option value="card">بطاقة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateFromFilter" placeholder="من تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateToFilter" placeholder="إلى تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-times"></i> مسح
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="exportPayments()">
+                                    <i class="fas fa-download"></i> تصدير
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول المدفوعات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> سجل المدفوعات والتحصيلات</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportPayments()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="printTable()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="paymentsTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>النوع</th>
+                                    <th>المبلغ</th>
+                                    <th>طريقة الدفع</th>
+                                    <th>العميل/المورد</th>
+                                    <th>رقم المرجع</th>
+                                    <th>الفاتورة</th>
+                                    <th>الملاحظات</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ payment.date.strftime('%Y-%m-%d') if payment.date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if payment.payment_type == 'received' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-arrow-down"></i> مقبوضات
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-arrow-up"></i> مدفوعات
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold {% if payment.payment_type == 'received' %}text-success{% else %}text-danger{% endif %} fs-5">
+                                            {{ "{:,.2f}".format(payment.amount) }} ر.س
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if payment.payment_method == 'cash' %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-money-bill"></i> نقدي
+                                            </span>
+                                        {% elif payment.payment_method == 'bank_transfer' %}
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-university"></i> تحويل بنكي
+                                            </span>
+                                        {% elif payment.payment_method == 'check' %}
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-money-check"></i> شيك
+                                            </span>
+                                        {% elif payment.payment_method == 'card' %}
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-credit-card"></i> بطاقة
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">{{ payment.payment_method }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.customer_name %}
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user text-success me-2"></i>
+                                                <span>{{ payment.customer_name }}</span>
+                                            </div>
+                                        {% elif payment.supplier_name %}
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-truck text-danger me-2"></i>
+                                                <span>{{ payment.supplier_name }}</span>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.reference_number %}
+                                            <code>{{ payment.reference_number }}</code>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.invoice_id %}
+                                            <a href="{{ url_for('view_invoice', invoice_id=payment.invoice_id) }}" 
+                                               class="badge bg-success text-decoration-none">
+                                                #SALES-{{ payment.invoice_id }}
+                                            </a>
+                                        {% elif payment.purchase_invoice_id %}
+                                            <span class="badge bg-danger">
+                                                #PURCH-{{ payment.purchase_invoice_id }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.notes %}
+                                            <span title="{{ payment.notes }}">
+                                                {{ payment.notes[:30] }}{% if payment.notes|length > 30 %}...{% endif %}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    title="عرض" onclick="viewPayment({{ payment.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    title="معاينة" onclick="viewPayment({{ payment.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning"
+                                                    title="تعديل" onclick="editPayment({{ payment.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-info"
+                                                    title="طباعة إيصال" onclick="printReceipt({{ payment.id }})">
+                                                <i class="fas fa-print"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="حذف" onclick="confirmDelete({{ payment.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد مدفوعات</h4>
+                        <p class="text-muted">ابدأ بتسجيل أول معاملة مالية</p>
+                        <a href="/add_payment" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> تسجيل دفع جديد
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذا الدفع؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظائف البحث والتصفية
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#paymentsTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب النوع
+document.getElementById('typeFilter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const tableRows = document.querySelectorAll('#paymentsTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const type = row.cells[1].textContent.trim();
+        
+        if (filterValue === '') {
+            row.style.display = '';
+        } else if (filterValue === 'received' && type.includes('مقبوضات')) {
+            row.style.display = '';
+        } else if (filterValue === 'paid' && type.includes('مدفوعات')) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+function confirmDelete(paymentId) {
+    // الحذف السريع بدون نافذة تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف المدفوعة...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_payment/${paymentId}`;
+    }, 500);
+}
+
+function viewPayment(paymentId) {
+    window.location.href = `/view_payment/${paymentId}`;
+}
+
+function viewPayment(paymentId) {
+    window.location.href = `/view_payment/${paymentId}`;
+}
+
+function editPayment(paymentId) {
+    alert('سيتم تطوير صفحة تعديل الدفع قريباً');
+}
+
+function printReceipt(paymentId) {
+    window.open(`/print_payment/${paymentId}`, '_blank');
+}
+
+function printTable() {
+    window.print();
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('methodFilter').value = '';
+    document.getElementById('dateFromFilter').value = '';
+    document.getElementById('dateToFilter').value = '';
+    
+    // إظهار جميع الصفوف
+    const tableRows = document.querySelectorAll('#paymentsTable tbody tr');
+    tableRows.forEach(row => {
+        row.style.display = '';
+    });
+}
+
+function exportPayments() {
+    const table = document.getElementById('paymentsTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'payments_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+<style>
+@media print {
+    .btn, .modal, .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+{% endblock %}

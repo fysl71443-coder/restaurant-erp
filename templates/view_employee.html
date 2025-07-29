@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}عرض الموظف - {{ employee.name }}{% endblock %}
+{% block page_title %}عرض بيانات الموظف{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-user text-primary"></i> عرض بيانات الموظف</h2>
+                    <p class="text-muted">تفاصيل شاملة عن الموظف</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="{{ url_for('edit_employee', employee_id=employee.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل
+                        </a>
+                        <a href="{{ url_for('employees') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- البيانات الشخصية -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card"></i> البيانات الشخصية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">رقم الموظف:</label>
+                            <p class="form-control-plaintext">{{ employee.employee_id }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">الاسم الكامل:</label>
+                            <p class="form-control-plaintext">{{ employee.name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">البريد الإلكتروني:</label>
+                            <p class="form-control-plaintext">{{ employee.email or 'غير محدد' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">رقم الهاتف:</label>
+                            <p class="form-control-plaintext">{{ employee.phone or 'غير محدد' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">رقم الهوية:</label>
+                            <p class="form-control-plaintext">{{ employee.national_id or 'غير محدد' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">تاريخ الميلاد:</label>
+                            <p class="form-control-plaintext">
+                                {{ employee.birth_date.strftime('%Y-%m-%d') if employee.birth_date else 'غير محدد' }}
+                            </p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-bold">العنوان:</label>
+                            <p class="form-control-plaintext">{{ employee.address or 'غير محدد' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- البيانات الوظيفية -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-briefcase"></i> البيانات الوظيفية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">المنصب:</label>
+                            <p class="form-control-plaintext">{{ employee.position or 'غير محدد' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">القسم:</label>
+                            <p class="form-control-plaintext">{{ employee.department or 'غير محدد' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">تاريخ التوظيف:</label>
+                            <p class="form-control-plaintext">
+                                {{ employee.hire_date.strftime('%Y-%m-%d') if employee.hire_date else 'غير محدد' }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">نوع العقد:</label>
+                            <p class="form-control-plaintext">
+                                {% if employee.contract_type == 'full_time' %}
+                                    دوام كامل
+                                {% elif employee.contract_type == 'part_time' %}
+                                    دوام جزئي
+                                {% elif employee.contract_type == 'contract' %}
+                                    عقد مؤقت
+                                {% else %}
+                                    غير محدد
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">الراتب الأساسي:</label>
+                            <p class="form-control-plaintext text-success fw-bold">
+                                {{ "{:,.2f}".format(employee.salary) if employee.salary else '0.00' }} ر.س
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">الحالة:</label>
+                            <p class="form-control-plaintext">
+                                {% if employee.status == 'active' %}
+                                    <span class="badge bg-success">نشط</span>
+                                {% elif employee.status == 'inactive' %}
+                                    <span class="badge bg-danger">غير نشط</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">غير محدد</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- البيانات المصرفية -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-university"></i> البيانات المصرفية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">رقم الحساب:</label>
+                            <p class="form-control-plaintext">{{ employee.bank_account or 'غير محدد' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">رقم الآيبان:</label>
+                            <p class="form-control-plaintext">{{ employee.iban or 'غير محدد' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الشريط الجانبي -->
+        <div class="col-lg-4">
+            <!-- معلومات الطوارئ -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-phone-alt"></i> معلومات الطوارئ</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">جهة الاتصال:</label>
+                        <p class="form-control-plaintext">{{ employee.emergency_contact or 'غير محدد' }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">رقم الطوارئ:</label>
+                        <p class="form-control-plaintext">{{ employee.emergency_phone or 'غير محدد' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الملاحظات -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-sticky-note"></i> الملاحظات</h5>
+                </div>
+                <div class="card-body">
+                    <p class="form-control-plaintext">{{ employee.notes or 'لا توجد ملاحظات' }}</p>
+                </div>
+            </div>
+
+            <!-- إحصائيات سريعة -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> إحصائيات سريعة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">تاريخ الإنشاء:</label>
+                        <p class="form-control-plaintext">
+                            {{ employee.created_at.strftime('%Y-%m-%d %H:%M') if employee.created_at else 'غير محدد' }}
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">مدة الخدمة:</label>
+                        <p class="form-control-plaintext">
+                            {% if employee.hire_date %}
+                                {% set service_days = (datetime.now().date() - employee.hire_date).days %}
+                                {% if service_days > 365 %}
+                                    {{ (service_days / 365)|round(1) }} سنة
+                                {% else %}
+                                    {{ service_days }} يوم
+                                {% endif %}
+                            {% else %}
+                                غير محدد
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إجراءات سريعة -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-tools"></i> إجراءات سريعة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('edit_employee', employee_id=employee.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل البيانات
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="printEmployee()">
+                            <i class="fas fa-print"></i> طباعة البيانات
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="exportEmployee()">
+                            <i class="fas fa-download"></i> تصدير البيانات
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete({{ employee.id }})">
+                            <i class="fas fa-trash"></i> حذف الموظف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذا الموظف؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(employeeId) {
+    const deleteForm = document.getElementById('deleteForm');
+    deleteForm.action = `/delete_employee/${employeeId}`;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+function printEmployee() {
+    window.print();
+}
+
+function exportEmployee() {
+    // تصدير بيانات الموظف
+    const employeeData = {
+        'رقم الموظف': '{{ employee.employee_id }}',
+        'الاسم': '{{ employee.name }}',
+        'البريد الإلكتروني': '{{ employee.email or "غير محدد" }}',
+        'الهاتف': '{{ employee.phone or "غير محدد" }}',
+        'المنصب': '{{ employee.position or "غير محدد" }}',
+        'القسم': '{{ employee.department or "غير محدد" }}',
+        'الراتب': '{{ employee.salary or 0 }}'
+    };
+    
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    csvContent += Object.keys(employeeData).join(',') + '\n';
+    csvContent += Object.values(employeeData).map(value => `"${value}"`).join(',') + '\n';
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'employee_{{ employee.employee_id }}.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+<style>
+@media print {
+    .btn, .card-header .btn-group, #deleteModal {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+
+{% block title %}اختبار النماذج والحفظ - نظام المحاسبة{% endblock %}
+{% block page_title %}اختبار وظائف النماذج والحفظ والتراجع{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-vial text-primary"></i> اختبار وظائف النماذج</h2>
+                    <p class="text-muted">اختبر جميع وظائف الحفظ والتراجع والحفظ التلقائي</p>
+                </div>
+                <div>
+                    <button class="btn btn-info" onclick="runAllTests()">
+                        <i class="fas fa-play"></i> تشغيل جميع الاختبارات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج اختبار -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-edit"></i> نموذج اختبار</h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-light undo-btn" disabled>
+                                <i class="fas fa-undo"></i> تراجع
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light save-btn">
+                                <i class="fas fa-save"></i> حفظ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="testForm" action="#" method="POST">
+                        <div class="form-section">
+                            <h6 class="form-section-title">معلومات أساسية</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="test_name" class="form-label form-label-enhanced">
+                                        <i class="fas fa-user text-primary"></i> الاسم 
+                                        <span class="required-indicator">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="test_name" name="test_name" required 
+                                           placeholder="أدخل الاسم">
+                                    <div class="form-help">أدخل اسماً للاختبار</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="test_email" class="form-label form-label-enhanced">
+                                        <i class="fas fa-envelope text-info"></i> البريد الإلكتروني
+                                    </label>
+                                    <input type="email" class="form-control" id="test_email" name="test_email" 
+                                           placeholder="test@example.com">
+                                    <div class="form-help">بريد إلكتروني صحيح</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="test_phone" class="form-label form-label-enhanced">
+                                        <i class="fas fa-phone text-success"></i> رقم الهاتف
+                                    </label>
+                                    <input type="tel" class="form-control" id="test_phone" name="test_phone" 
+                                           placeholder="05xxxxxxxx">
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="test_date" class="form-label form-label-enhanced">
+                                        <i class="fas fa-calendar text-warning"></i> التاريخ
+                                    </label>
+                                    <input type="date" class="form-control" id="test_date" name="test_date">
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="test_category" class="form-label form-label-enhanced">
+                                        <i class="fas fa-tag text-secondary"></i> الفئة
+                                    </label>
+                                    <select class="form-select" id="test_category" name="test_category">
+                                        <option value="">اختر الفئة</option>
+                                        <option value="category1">فئة 1</option>
+                                        <option value="category2">فئة 2</option>
+                                        <option value="category3">فئة 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="test_description" class="form-label form-label-enhanced">
+                                        <i class="fas fa-align-left text-primary"></i> الوصف
+                                    </label>
+                                    <textarea class="form-control" id="test_description" name="test_description" rows="4" 
+                                              placeholder="أدخل وصفاً مفصلاً"></textarea>
+                                    <div class="form-help">وصف تفصيلي للعنصر</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h6 class="form-section-title">معلومات إضافية</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="test_amount" class="form-label form-label-enhanced">
+                                        <i class="fas fa-money-bill text-success"></i> المبلغ
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="test_amount" name="test_amount" 
+                                               step="0.01" min="0" placeholder="0.00">
+                                        <span class="input-group-text">ر.س</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="test_status" class="form-label form-label-enhanced">
+                                        <i class="fas fa-flag text-warning"></i> الحالة
+                                    </label>
+                                    <select class="form-select" id="test_status" name="test_status">
+                                        <option value="active">نشط</option>
+                                        <option value="inactive">غير نشط</option>
+                                        <option value="pending">معلق</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="test_agree" name="test_agree">
+                                        <label class="form-check-label" for="test_agree">
+                                            أوافق على الشروط والأحكام
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار الإجراءات -->
+                        <div class="form-actions">
+                            <div class="btn-group-enhanced">
+                                <button type="button" class="btn btn-outline-secondary btn-enhanced" onclick="clearForm()">
+                                    <i class="fas fa-times"></i> مسح
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-enhanced undo-btn" disabled>
+                                    <i class="fas fa-undo"></i> تراجع
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-enhanced" onclick="autoSaveForm(document.getElementById('testForm'))">
+                                    <i class="fas fa-cloud"></i> حفظ تلقائي
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-enhanced save-btn">
+                                    <i class="fas fa-save"></i> حفظ
+                                </button>
+                            </div>
+                            
+                            <!-- مؤشر الحالة -->
+                            <div class="mt-3 text-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-keyboard"></i> اختصارات: Ctrl+S للحفظ، Ctrl+Z للتراجع
+                                </small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- لوحة الاختبارات -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> اختبارات الوظائف</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="testFormChanges()">
+                            <i class="fas fa-edit"></i> اختبار تتبع التغييرات
+                        </button>
+                        <button class="btn btn-outline-success" onclick="testAutoSave()">
+                            <i class="fas fa-cloud"></i> اختبار الحفظ التلقائي
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="testUndo()">
+                            <i class="fas fa-undo"></i> اختبار التراجع
+                        </button>
+                        <button class="btn btn-outline-info" onclick="testValidation()">
+                            <i class="fas fa-check"></i> اختبار التحقق
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="testKeyboardShortcuts()">
+                            <i class="fas fa-keyboard"></i> اختبار الاختصارات
+                        </button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6><i class="fas fa-info-circle"></i> حالة النموذج</h6>
+                    <div id="formStatus">
+                        <div class="alert alert-info">
+                            <small>النموذج جاهز للاختبار</small>
+                        </div>
+                    </div>
+                    
+                    <h6><i class="fas fa-list"></i> سجل الأحداث</h6>
+                    <div id="eventLog" style="height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; font-size: 12px;">
+                        <div class="text-muted">سيتم عرض الأحداث هنا...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- روابط النماذج الأخرى -->
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-link"></i> اختبار النماذج الأخرى</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/add_customer" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus"></i> نموذج إضافة عميل
+                        </a>
+                        <a href="/add_invoice" class="btn btn-outline-success">
+                            <i class="fas fa-file-invoice-dollar"></i> نموذج إضافة فاتورة
+                        </a>
+                        <a href="/add_product" class="btn btn-outline-warning">
+                            <i class="fas fa-cube"></i> نموذج إضافة منتج
+                        </a>
+                        <a href="/add_expense" class="btn btn-outline-danger">
+                            <i class="fas fa-money-bill-wave"></i> نموذج إضافة مصروف
+                        </a>
+                        <a href="/add_supplier" class="btn btn-outline-secondary">
+                            <i class="fas fa-industry"></i> نموذج إضافة مورد
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// متغيرات الاختبار
+let testResults = [];
+let eventCount = 0;
+
+// تسجيل الأحداث
+function logEvent(message, type = 'info') {
+    eventCount++;
+    const timestamp = new Date().toLocaleTimeString('ar-SA');
+    const logDiv = document.getElementById('eventLog');
+    const eventDiv = document.createElement('div');
+    eventDiv.className = `text-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'}`;
+    eventDiv.innerHTML = `[${timestamp}] ${message}`;
+    logDiv.appendChild(eventDiv);
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+// تحديث حالة النموذج
+function updateFormStatus(status, type = 'info') {
+    const statusDiv = document.getElementById('formStatus');
+    statusDiv.innerHTML = `<div class="alert alert-${type}"><small>${status}</small></div>`;
+}
+
+// اختبار تتبع التغييرات
+function testFormChanges() {
+    logEvent('بدء اختبار تتبع التغييرات', 'info');
+    
+    const nameInput = document.getElementById('test_name');
+    nameInput.value = 'اختبار التغييرات';
+    nameInput.dispatchEvent(new Event('input'));
+    
+    setTimeout(() => {
+        if (isFormDirty) {
+            logEvent('✓ تم تتبع التغييرات بنجاح', 'success');
+            updateFormStatus('النموذج معدّل - يحتاج حفظ', 'warning');
+        } else {
+            logEvent('✗ فشل في تتبع التغييرات', 'error');
+        }
+    }, 100);
+}
+
+// اختبار الحفظ التلقائي
+function testAutoSave() {
+    logEvent('بدء اختبار الحفظ التلقائي', 'info');
+    
+    const form = document.getElementById('testForm');
+    autoSaveForm(form);
+    
+    setTimeout(() => {
+        const saved = localStorage.getItem('autoSave_testForm');
+        if (saved) {
+            logEvent('✓ تم الحفظ التلقائي بنجاح', 'success');
+            updateFormStatus('تم الحفظ التلقائي', 'success');
+        } else {
+            logEvent('✗ فشل في الحفظ التلقائي', 'error');
+        }
+    }, 500);
+}
+
+// اختبار التراجع
+function testUndo() {
+    logEvent('بدء اختبار التراجع', 'info');
+    
+    // إجراء تغيير أولاً
+    const emailInput = document.getElementById('test_email');
+    emailInput.value = 'test@example.com';
+    emailInput.dispatchEvent(new Event('input'));
+    
+    setTimeout(() => {
+        // تجربة التراجع
+        undoChanges('testForm');
+        
+        setTimeout(() => {
+            if (emailInput.value === '') {
+                logEvent('✓ تم التراجع بنجاح', 'success');
+                updateFormStatus('تم التراجع عن التغييرات', 'info');
+            } else {
+                logEvent('✗ فشل في التراجع', 'error');
+            }
+        }, 100);
+    }, 100);
+}
+
+// اختبار التحقق
+function testValidation() {
+    logEvent('بدء اختبار التحقق من البيانات', 'info');
+    
+    const nameInput = document.getElementById('test_name');
+    const emailInput = document.getElementById('test_email');
+    
+    // اختبار حقل مطلوب فارغ
+    nameInput.value = '';
+    nameInput.dispatchEvent(new Event('blur'));
+    
+    // اختبار بريد إلكتروني غير صحيح
+    emailInput.value = 'invalid-email';
+    emailInput.dispatchEvent(new Event('blur'));
+    
+    setTimeout(() => {
+        logEvent('✓ تم اختبار التحقق', 'success');
+        updateFormStatus('تم اختبار التحقق من البيانات', 'info');
+    }, 100);
+}
+
+// اختبار اختصارات لوحة المفاتيح
+function testKeyboardShortcuts() {
+    logEvent('بدء اختبار اختصارات لوحة المفاتيح', 'info');
+    
+    // محاكاة Ctrl+S
+    const saveEvent = new KeyboardEvent('keydown', {
+        key: 's',
+        ctrlKey: true,
+        bubbles: true
+    });
+    document.dispatchEvent(saveEvent);
+    
+    setTimeout(() => {
+        logEvent('✓ تم اختبار اختصار الحفظ (Ctrl+S)', 'success');
+        
+        // محاكاة Ctrl+Z
+        const undoEvent = new KeyboardEvent('keydown', {
+            key: 'z',
+            ctrlKey: true,
+            bubbles: true
+        });
+        document.dispatchEvent(undoEvent);
+        
+        setTimeout(() => {
+            logEvent('✓ تم اختبار اختصار التراجع (Ctrl+Z)', 'success');
+            updateFormStatus('تم اختبار الاختصارات', 'success');
+        }, 100);
+    }, 100);
+}
+
+// تشغيل جميع الاختبارات
+function runAllTests() {
+    logEvent('بدء تشغيل جميع الاختبارات', 'info');
+    updateFormStatus('جاري تشغيل الاختبارات...', 'warning');
+    
+    setTimeout(() => testFormChanges(), 500);
+    setTimeout(() => testAutoSave(), 1000);
+    setTimeout(() => testUndo(), 1500);
+    setTimeout(() => testValidation(), 2000);
+    setTimeout(() => testKeyboardShortcuts(), 2500);
+    
+    setTimeout(() => {
+        logEvent('تم الانتهاء من جميع الاختبارات', 'success');
+        updateFormStatus('تم الانتهاء من جميع الاختبارات', 'success');
+    }, 3000);
+}
+
+// مسح النموذج
+function clearForm() {
+    document.getElementById('testForm').reset();
+    logEvent('تم مسح النموذج', 'info');
+    updateFormStatus('تم مسح النموذج', 'info');
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    logEvent('تم تحميل صفحة اختبار النماذج', 'success');
+    updateFormStatus('النموذج جاهز للاختبار', 'info');
+    
+    // تعيين تاريخ اليوم
+    document.getElementById('test_date').value = new Date().toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

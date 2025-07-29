@@ -1,0 +1,267 @@
+{
+  "test_summary": {
+    "total_tests": 40,
+    "passed_tests": 33,
+    "failed_tests": 0,
+    "warning_tests": 7,
+    "success_rate": 82.5,
+    "execution_time": 0.341399,
+    "total_buttons": {
+      "save": 8,
+      "edit": 4,
+      "delete": 1,
+      "cancel": 4,
+      "print": 12,
+      "search": 0,
+      "add": 21,
+      "view": 16,
+      "export": 9,
+      "submit": 0,
+      "other": 76
+    },
+    "total_button_count": 151
+  },
+  "test_results": [
+    {
+      "test_name": "أزرار الصفحة الرئيسية",
+      "status": "PASS",
+      "details": "إجمالي: 14 | print: 1 | add: 4 | export: 2 | other: 7",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار المبيعات",
+      "status": "PASS",
+      "details": "إجمالي: 12 | edit: 1 | print: 3 | add: 3 | view: 1 | export: 1 | other: 3",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار المشتريات",
+      "status": "PASS",
+      "details": "إجمالي: 20 | edit: 2 | print: 2 | add: 6 | view: 4 | other: 6",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار المخزون",
+      "status": "PASS",
+      "details": "إجمالي: 11 | edit: 1 | delete: 1 | print: 2 | add: 2 | view: 1 | export: 1 | other: 3",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار العملاء",
+      "status": "PASS",
+      "details": "إجمالي: 9 | print: 2 | add: 2 | export: 1 | other: 4",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار الموظفين",
+      "status": "PASS",
+      "details": "إجمالي: 13 | print: 2 | add: 2 | export: 2 | other: 7",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار التقارير",
+      "status": "PASS",
+      "details": "إجمالي: 35 | add: 1 | export: 2 | other: 32",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار إضافة فاتورة مبيعات",
+      "status": "PASS",
+      "details": "إجمالي: 4 | save: 1 | cancel: 1 | other: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار إضافة فاتورة مشتريات",
+      "status": "PASS",
+      "details": "إجمالي: 4 | save: 1 | cancel: 1 | other: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار تعديل منتج",
+      "status": "PASS",
+      "details": "إجمالي: 6 | save: 1 | view: 3 | other: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار تعديل مورد",
+      "status": "PASS",
+      "details": "إجمالي: 7 | save: 1 | add: 1 | view: 3 | other: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار تعديل عميل",
+      "status": "PASS",
+      "details": "إجمالي: 8 | save: 2 | cancel: 1 | view: 2 | other: 3",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "أزرار تعديل موظف",
+      "status": "PASS",
+      "details": "إجمالي: 8 | save: 2 | cancel: 1 | view: 2 | other: 3",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج الصفحة الرئيسية",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج المبيعات",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج المشتريات",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج المخزون",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج العملاء",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج الموظفين",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج التقارير",
+      "status": "WARN",
+      "details": "لا توجد نماذج",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج إضافة فاتورة مبيعات",
+      "status": "PASS",
+      "details": "نموذج1(POST, 7 حقل)",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج إضافة فاتورة مشتريات",
+      "status": "PASS",
+      "details": "نموذج1(POST, 6 حقل)",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج تعديل منتج",
+      "status": "PASS",
+      "details": "نموذج1(POST, 9 حقل)",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج تعديل مورد",
+      "status": "PASS",
+      "details": "نموذج1(POST, 8 حقل)",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج تعديل عميل",
+      "status": "PASS",
+      "details": "نموذج1(POST, 3 حقل)",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "نماذج تعديل موظف",
+      "status": "PASS",
+      "details": "نموذج1(POST, 14 حقل)",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS الصفحة الرئيسية",
+      "status": "PASS",
+      "details": "وظائف: 1 | أحداث: 1",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS المبيعات",
+      "status": "PASS",
+      "details": "وظائف: 2 | أحداث: 3",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS المشتريات",
+      "status": "PASS",
+      "details": "وظائف: 1 | أحداث: 1",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS المخزون",
+      "status": "PASS",
+      "details": "وظائف: 2 | أحداث: 4",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS العملاء",
+      "status": "PASS",
+      "details": "وظائف: 1 | أحداث: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS الموظفين",
+      "status": "PASS",
+      "details": "وظائف: 1 | أحداث: 5",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS التقارير",
+      "status": "PASS",
+      "details": "وظائف: 4",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS إضافة فاتورة مبيعات",
+      "status": "PASS",
+      "details": "وظائف: 4 | أحداث: 7",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS إضافة فاتورة مشتريات",
+      "status": "PASS",
+      "details": "وظائف: 3 | أحداث: 7",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS تعديل منتج",
+      "status": "PASS",
+      "details": "وظائف: 2 | أحداث: 7",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS تعديل مورد",
+      "status": "PASS",
+      "details": "وظائف: 2 | أحداث: 6",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS تعديل عميل",
+      "status": "PASS",
+      "details": "وظائف: 1 | أحداث: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "JS تعديل موظف",
+      "status": "PASS",
+      "details": "وظائف: 1 | أحداث: 2",
+      "timestamp": "2025-07-29 02:09:25"
+    },
+    {
+      "test_name": "روابط التنقل",
+      "status": "PASS",
+      "details": "داخلية: 19 | خارجية: 0",
+      "timestamp": "2025-07-29 02:09:25"
+    }
+  ],
+  "generated_at": "2025-07-29T02:09:25.412204"
+}

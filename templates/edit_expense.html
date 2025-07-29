@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل المصروف - {{ expense.description }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل المصروف
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/expenses">المصروفات</a></li>
+                            <li class="breadcrumb-item"><a href="/view_expense/{{ expense.id }}">عرض المصروف</a></li>
+                            <li class="breadcrumb-item active">تعديل</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_expense/{{ expense.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض المصروف
+                    </a>
+                    <a href="/expenses" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> قائمة المصروفات
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" id="editExpenseForm" class="needs-validation" novalidate>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-receipt"></i>
+                            بيانات المصروف
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Description -->
+                            <div class="col-md-6 mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-align-left text-primary"></i>
+                                    وصف المصروف <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="description" name="description" 
+                                       value="{{ expense.description }}" required 
+                                       placeholder="مثال: فاتورة كهرباء، مصروفات مكتبية">
+                                <div class="invalid-feedback">
+                                    يرجى إدخال وصف المصروف
+                                </div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="fas fa-dollar-sign text-success"></i>
+                                    المبلغ <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="amount" name="amount" 
+                                           value="{{ expense.amount }}" min="0" step="0.01" required>
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال المبلغ
+                                </div>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar text-info"></i>
+                                    تاريخ المصروف <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       value="{{ expense.date.strftime('%Y-%m-%d') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال تاريخ المصروف
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-tags text-warning"></i>
+                                    الفئة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">اختر الفئة</option>
+                                    <option value="office_supplies" {% if expense.category == 'office_supplies' %}selected{% endif %}>مستلزمات مكتبية</option>
+                                    <option value="utilities" {% if expense.category == 'utilities' %}selected{% endif %}>فواتير (كهرباء، ماء، هاتف)</option>
+                                    <option value="rent" {% if expense.category == 'rent' %}selected{% endif %}>إيجار</option>
+                                    <option value="maintenance" {% if expense.category == 'maintenance' %}selected{% endif %}>صيانة</option>
+                                    <option value="transportation" {% if expense.category == 'transportation' %}selected{% endif %}>مواصلات</option>
+                                    <option value="marketing" {% if expense.category == 'marketing' %}selected{% endif %}>تسويق وإعلان</option>
+                                    <option value="training" {% if expense.category == 'training' %}selected{% endif %}>تدريب</option>
+                                    <option value="legal" {% if expense.category == 'legal' %}selected{% endif %}>قانونية ومحاسبية</option>
+                                    <option value="insurance" {% if expense.category == 'insurance' %}selected{% endif %}>تأمين</option>
+                                    <option value="meals" {% if expense.category == 'meals' %}selected{% endif %}>وجبات</option>
+                                    <option value="travel" {% if expense.category == 'travel' %}selected{% endif %}>سفر</option>
+                                    <option value="equipment" {% if expense.category == 'equipment' %}selected{% endif %}>معدات</option>
+                                    <option value="software" {% if expense.category == 'software' %}selected{% endif %}>برمجيات</option>
+                                    <option value="other" {% if expense.category == 'other' %}selected{% endif %}>أخرى</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الفئة
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">
+                                    <i class="fas fa-credit-card text-info"></i>
+                                    طريقة الدفع <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">اختر طريقة الدفع</option>
+                                    <option value="cash" {% if expense.payment_method == 'cash' %}selected{% endif %}>نقداً</option>
+                                    <option value="credit_card" {% if expense.payment_method == 'credit_card' %}selected{% endif %}>بطاقة ائتمان</option>
+                                    <option value="debit_card" {% if expense.payment_method == 'debit_card' %}selected{% endif %}>بطاقة خصم</option>
+                                    <option value="bank_transfer" {% if expense.payment_method == 'bank_transfer' %}selected{% endif %}>تحويل بنكي</option>
+                                    <option value="check" {% if expense.payment_method == 'check' %}selected{% endif %}>شيك</option>
+                                    <option value="petty_cash" {% if expense.payment_method == 'petty_cash' %}selected{% endif %}>صندوق صغير</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار طريقة الدفع
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle text-secondary"></i>
+                                    الحالة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">اختر الحالة</option>
+                                    <option value="paid" {% if expense.status == 'paid' %}selected{% endif %}>مدفوع</option>
+                                    <option value="pending" {% if expense.status == 'pending' %}selected{% endif %}>قيد الانتظار</option>
+                                    <option value="approved" {% if expense.status == 'approved' %}selected{% endif %}>موافق عليه</option>
+                                    <option value="rejected" {% if expense.status == 'rejected' %}selected{% endif %}>مرفوض</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الحالة
+                                </div>
+                            </div>
+
+                            <!-- Priority -->
+                            <div class="col-md-6 mb-3">
+                                <label for="priority" class="form-label">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    الأولوية
+                                </label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="low" {% if expense.priority == 'low' %}selected{% endif %}>منخفضة</option>
+                                    <option value="medium" {% if expense.priority == 'medium' %}selected{% endif %}>متوسطة</option>
+                                    <option value="high" {% if expense.priority == 'high' %}selected{% endif %}>عالية</option>
+                                    <option value="urgent" {% if expense.priority == 'urgent' %}selected{% endif %}>عاجلة</option>
+                                </select>
+                            </div>
+
+                            <!-- Vendor/Supplier -->
+                            <div class="col-md-6 mb-3">
+                                <label for="vendor" class="form-label">
+                                    <i class="fas fa-store text-primary"></i>
+                                    المورد/البائع
+                                </label>
+                                <input type="text" class="form-control" id="vendor" name="vendor" 
+                                       value="{{ expense.vendor or '' }}" 
+                                       placeholder="اسم المورد أو البائع">
+                            </div>
+
+                            <!-- Receipt Number -->
+                            <div class="col-md-6 mb-3">
+                                <label for="receipt_number" class="form-label">
+                                    <i class="fas fa-receipt text-info"></i>
+                                    رقم الإيصال
+                                </label>
+                                <input type="text" class="form-control" id="receipt_number" name="receipt_number" 
+                                       value="{{ expense.receipt_number or '' }}" 
+                                       placeholder="رقم الإيصال أو الفاتورة">
+                            </div>
+                        </div>
+
+                        <!-- Expense Analysis -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">تحليل المصروف</h6>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                                        <h6 class="text-success">المبلغ</h6>
+                                        <h4 class="text-success" id="amountDisplay">{{ expense.amount }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-tags fa-2x text-warning mb-2"></i>
+                                        <h6 class="text-warning">الفئة</h6>
+                                        <h6 class="text-warning" id="categoryDisplay">{{ expense.category }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-exclamation-triangle fa-2x text-info mb-2"></i>
+                                        <h6 class="text-info">الأولوية</h6>
+                                        <h6 class="text-info" id="priorityDisplay">{{ expense.priority }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-info-circle fa-2x text-secondary mb-2"></i>
+                                        <h6 class="text-secondary">الحالة</h6>
+                                        <h6 id="statusDisplay">
+                                            {% if expense.status == 'paid' %}
+                                                <span class="badge bg-success">مدفوع</span>
+                                            {% elif expense.status == 'pending' %}
+                                                <span class="badge bg-warning">قيد الانتظار</span>
+                                            {% elif expense.status == 'approved' %}
+                                                <span class="badge bg-info">موافق عليه</span>
+                                            {% elif expense.status == 'rejected' %}
+                                                <span class="badge bg-danger">مرفوض</span>
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-secondary"></i>
+                                    ملاحظات
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="أدخل أي ملاحظات حول المصروف...">{{ expense.notes or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <a href="/view_expense/{{ expense.id }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> عرض المصروف
+                            </a>
+                            <a href="/expenses" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// تحديث العرض عند تغيير البيانات
+function updateDisplays() {
+    const amount = document.getElementById('amount').value;
+    const category = document.getElementById('category').value;
+    const priority = document.getElementById('priority').value;
+    const status = document.getElementById('status').value;
+    
+    document.getElementById('amountDisplay').textContent = amount || '0';
+    
+    // تحديث عرض الفئة
+    const categoryNames = {
+        'office_supplies': 'مستلزمات مكتبية',
+        'utilities': 'فواتير',
+        'rent': 'إيجار',
+        'maintenance': 'صيانة',
+        'transportation': 'مواصلات',
+        'marketing': 'تسويق وإعلان',
+        'training': 'تدريب',
+        'legal': 'قانونية ومحاسبية',
+        'insurance': 'تأمين',
+        'meals': 'وجبات',
+        'travel': 'سفر',
+        'equipment': 'معدات',
+        'software': 'برمجيات',
+        'other': 'أخرى'
+    };
+    document.getElementById('categoryDisplay').textContent = categoryNames[category] || category;
+    
+    // تحديث عرض الأولوية
+    const priorityNames = {
+        'low': 'منخفضة',
+        'medium': 'متوسطة',
+        'high': 'عالية',
+        'urgent': 'عاجلة'
+    };
+    document.getElementById('priorityDisplay').textContent = priorityNames[priority] || priority;
+    
+    // تحديث عرض الحالة
+    const statusBadges = {
+        'paid': '<span class="badge bg-success">مدفوع</span>',
+        'pending': '<span class="badge bg-warning">قيد الانتظار</span>',
+        'approved': '<span class="badge bg-info">موافق عليه</span>',
+        'rejected': '<span class="badge bg-danger">مرفوض</span>'
+    };
+    document.getElementById('statusDisplay').innerHTML = statusBadges[status] || status;
+}
+
+// إعادة تعيين النموذج
+function resetForm() {
+    if (confirm('هل تريد إعادة تعيين جميع البيانات؟')) {
+        document.getElementById('editExpenseForm').reset();
+        updateDisplays();
+    }
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // إضافة event listeners
+    document.getElementById('amount').addEventListener('input', updateDisplays);
+    document.getElementById('category').addEventListener('change', updateDisplays);
+    document.getElementById('priority').addEventListener('change', updateDisplays);
+    document.getElementById('status').addEventListener('change', updateDisplays);
+    
+    // تحديث أولي
+    updateDisplays();
+    
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editExpenseForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

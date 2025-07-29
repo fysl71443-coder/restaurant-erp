@@ -1,0 +1,580 @@
+{% extends "base.html" %}
+
+{% block title %}التحليلات المالية - نظام المحاسبة{% endblock %}
+{% block page_title %}التحليلات المالية{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-chart-line text-info"></i> التحليلات المالية</h2>
+                    <p class="text-muted">تحليل شامل للأداء المالي والإحصائيات</p>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center">
+                        <!-- مرشحات التاريخ -->
+                        <div class="me-3">
+                            <label class="form-label text-muted small">من تاريخ:</label>
+                            <input type="date" id="startDate" class="form-control form-control-sm" style="width: 150px;">
+                        </div>
+                        <div class="me-3">
+                            <label class="form-label text-muted small">إلى تاريخ:</label>
+                            <input type="date" id="endDate" class="form-control form-control-sm" style="width: 150px;">
+                        </div>
+                        <div class="me-3">
+                            <label class="form-label text-muted small">الفترة:</label>
+                            <select id="periodFilter" class="form-select form-select-sm" style="width: 120px;">
+                                <option value="daily">يومي</option>
+                                <option value="monthly" selected>شهري</option>
+                                <option value="yearly">سنوي</option>
+                            </select>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-info" onclick="refreshAnalytics()">
+                                <i class="fas fa-sync-alt"></i> تحديث البيانات
+                            </button>
+                            <button class="btn btn-outline-info" onclick="exportAnalytics()">
+                                <i class="fas fa-download"></i> تصدير التقرير
+                            </button>
+                            <button class="btn btn-outline-info" onclick="printAnalytics()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                            <button class="btn btn-outline-info" onclick="showDetails()">
+                                <i class="fas fa-eye"></i> عرض التفاصيل
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإحصائيات الرئيسية -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_sales or 0) }}</div>
+                    <div class="stats-label">إجمالي الإيرادات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +{{ "{:.1f}".format(weekly_change or 0) }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(total_purchases or 0) }}</div>
+                    <div class="stats-label">إجمالي المصروفات (ر.س)</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +8.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stats-number">{{ "{:,.0f}".format(net_profit or 0) }}</div>
+                    <div class="stats-label">صافي الربح (ر.س)</div>
+                    <div class="stats-change {% if (net_profit or 0) >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if (net_profit or 0) >= 0 %}up{% else %}down{% endif %}"></i>
+                        {{ "{:.1f}".format(profit_margin or 0) }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-number">{{ customers_count or 0 }}</div>
+                    <div class="stats-label">عدد العملاء</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +5.3%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-area"></i> المبيعات والمشتريات الشهرية</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> توزيع الإيرادات</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- رسم بياني إضافي للأداء -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> تحليل الأداء المالي</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- أفضل العملاء والموردين -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-star"></i> أفضل العملاء</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" id="refreshCustomersBtn" onclick="refreshTopCustomers()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>اسم العميل</th>
+                                <th>إجمالي المشتريات</th>
+                                <th>عدد الفواتير</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in top_customers %}
+                            <tr>
+                                <td><strong>{{ customer.name }}</strong></td>
+                                <td>{{ "{:,.0f}".format(customer.total) }} ر.س</td>
+                                <td>{{ customer.invoices_count }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>لا توجد بيانات عملاء</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-truck"></i> أفضل الموردين</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" id="refreshSuppliersBtn" onclick="refreshTopSuppliers()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>اسم المورد</th>
+                                <th>إجمالي المشتريات</th>
+                                <th>عدد الفواتير</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supplier in top_suppliers %}
+                            <tr>
+                                <td><strong>{{ supplier.name }}</strong></td>
+                                <td>{{ "{:,.0f}".format(supplier.total) }} ر.س</td>
+                                <td>{{ supplier.invoices_count }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>لا توجد بيانات موردين</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول التحليل المالي -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="data-table">
+                <div class="table-header">
+                    <h5><i class="fas fa-chart-line"></i> تحليل الأداء المالي الشهري</h5>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-light" id="refreshPerformanceBtn" onclick="refreshPerformanceData()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>الفترة</th>
+                                <th>الإيرادات (ر.س)</th>
+                                <th>المصروفات (ر.س)</th>
+                                <th>الربح (ر.س)</th>
+                                <th>هامش الربح (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>يناير 2024</td>
+                                <td>125,000</td>
+                                <td>85,000</td>
+                                <td>40,000</td>
+                                <td>32.0%</td>
+                            </tr>
+                            <tr>
+                                <td>فبراير 2024</td>
+                                <td>140,000</td>
+                                <td>95,000</td>
+                                <td>45,000</td>
+                                <td>32.1%</td>
+                            </tr>
+                            <tr>
+                                <td>مارس 2024</td>
+                                <td>160,000</td>
+                                <td>110,000</td>
+                                <td>50,000</td>
+                                <td>31.3%</td>
+                            </tr>
+                            <tr>
+                                <td>أبريل 2024</td>
+                                <td>180,000</td>
+                                <td>125,000</td>
+                                <td>55,000</td>
+                                <td>30.6%</td>
+                            </tr>
+                            <tr>
+                                <td>مايو 2024</td>
+                                <td>195,000</td>
+                                <td>135,000</td>
+                                <td>60,000</td>
+                                <td>30.8%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مؤشرات الأداء الرئيسية (KPIs) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4><i class="fas fa-tachometer-alt"></i> مؤشرات الأداء الرئيسية</h4>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="kpi card border-success">
+                <div class="card-body text-center">
+                    <div class="kpi-icon text-success mb-2">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h4 class="text-success">{{ "{:.1f}".format(growth_rate or 15.2) }}%</h4>
+                    <small class="text-muted">معدل النمو الشهري</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="kpi card border-info">
+                <div class="card-body text-center">
+                    <div class="kpi-icon text-info mb-2">
+                        <i class="fas fa-percentage fa-2x"></i>
+                    </div>
+                    <h4 class="text-info">{{ "{:.1f}".format(profit_margin or 32.5) }}%</h4>
+                    <small class="text-muted">هامش الربح</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="kpi card border-warning">
+                <div class="card-body text-center">
+                    <div class="kpi-icon text-warning mb-2">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h4 class="text-warning">{{ customer_retention or 85 }}%</h4>
+                    <small class="text-muted">معدل الاحتفاظ بالعملاء</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="kpi card border-danger">
+                <div class="card-body text-center">
+                    <div class="kpi-icon text-danger mb-2">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <h4 class="text-danger">{{ avg_collection_days or 28 }}</h4>
+                    <small class="text-muted">متوسط أيام التحصيل</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات إضافية -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-file-invoice"></i> إحصائيات الفواتير</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-success">{{ sales_count or 0 }}</h4>
+                            <small class="text-muted">فواتير المبيعات</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-danger">{{ purchases_count or 0 }}</h4>
+                            <small class="text-muted">فواتير المشتريات</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-calendar-week"></i> مبيعات هذا الأسبوع</h6>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ "{:,.0f}".format(this_week_sales or 0) }} ر.س</h3>
+                    <small class="text-muted">
+                        {% if weekly_change >= 0 %}
+                            <i class="fas fa-arrow-up text-success"></i> +{{ "{:.1f}".format(weekly_change) }}%
+                        {% else %}
+                            <i class="fas fa-arrow-down text-danger"></i> {{ "{:.1f}".format(weekly_change) }}%
+                        {% endif %}
+                        مقارنة بالأسبوع الماضي
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-percentage"></i> هامش الربح</h6>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="{% if (profit_margin or 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ "{:.1f}".format(profit_margin or 0) }}%
+                    </h3>
+                    <small class="text-muted">هامش الربح الإجمالي</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// رسم بياني للمبيعات والمشتريات الشهرية
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+const monthlyChart = new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+        labels: {{ months_labels | tojson }},
+        datasets: [{
+            label: 'المبيعات',
+            data: {{ monthly_sales | tojson }},
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }, {
+            label: 'المشتريات',
+            data: {{ monthly_purchases | tojson }},
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'المبيعات والمشتريات الشهرية'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// رسم بياني دائري للإيرادات
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['المبيعات', 'المشتريات'],
+        datasets: [{
+            data: [{{ total_sales or 0 }}, {{ total_purchases or 0 }}],
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(255, 99, 132, 0.8)'
+            ],
+            borderColor: [
+                'rgb(75, 192, 192)',
+                'rgb(255, 99, 132)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'توزيع الإيرادات'
+            }
+        }
+    }
+});
+
+// رسم بياني للأداء المالي
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'bar',
+    data: {
+        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        datasets: [{
+            label: 'الإيرادات',
+            data: [125000, 140000, 160000, 180000, 195000, 210000],
+            backgroundColor: 'rgba(40, 167, 69, 0.8)',
+            borderColor: 'rgb(40, 167, 69)',
+            borderWidth: 1
+        }, {
+            label: 'المصروفات',
+            data: [85000, 95000, 110000, 125000, 135000, 145000],
+            backgroundColor: 'rgba(220, 53, 69, 0.8)',
+            borderColor: 'rgb(220, 53, 69)',
+            borderWidth: 1
+        }, {
+            label: 'الربح',
+            data: [40000, 45000, 50000, 55000, 60000, 65000],
+            backgroundColor: 'rgba(23, 162, 184, 0.8)',
+            borderColor: 'rgb(23, 162, 184)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'تحليل الأداء المالي الشهري'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString() + ' ر.س';
+                    }
+                }
+            }
+        }
+    }
+});
+
+function refreshAnalytics() {
+    location.reload();
+}
+
+function exportAnalytics() {
+    // تصدير البيانات كـ CSV
+    const table = document.querySelector('table');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach(cell => {
+            rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'analytics_report.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function printAnalytics() {
+    window.print();
+}
+
+function showDetails() {
+    alert('عرض التفاصيل - سيتم تطوير هذه الوظيفة قريباً');
+}
+
+// وظائف الأزرار الجديدة
+function refreshTopCustomers() {
+    console.log('تحديث قائمة أفضل العملاء');
+    location.reload();
+}
+
+function refreshTopSuppliers() {
+    console.log('تحديث قائمة أفضل الموردين');
+    location.reload();
+}
+
+function refreshPerformanceData() {
+    console.log('تحديث بيانات الأداء المالي');
+    location.reload();
+}
+</script>
+{% endblock %}

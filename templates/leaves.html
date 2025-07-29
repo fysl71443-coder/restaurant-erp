@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الإجازات - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة إجازات الموظفين{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-calendar-alt text-info"></i> إدارة إجازات الموظفين</h2>
+                    <p class="text-muted">تتبع وإدارة جميع أنواع الإجازات والطلبات</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_leave" class="btn btn-info">
+                            <i class="fas fa-plus"></i> طلب إجازة جديد
+                        </a>
+                        <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportLeaves()"><i class="fas fa-file-excel"></i> تصدير الإجازات</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> تقرير الإجازات</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-envelope"></i> إرسال تنبيهات</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cogs"></i> إعدادات الإجازات</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات الإجازات -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي الطلبات</h6>
+                            <h3>{{ leaves|length if leaves else 0 }}</h3>
+                            <small>طلب إجازة</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجازات موافق عليها</h6>
+                            <h3>
+                                {% set approved_count = 0 %}
+                                {% if leaves %}
+                                    {% for leave in leaves %}
+                                        {% if leave.status == 'approved' %}
+                                            {% set approved_count = approved_count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ approved_count }}
+                            </h3>
+                            <small>إجازة مقبولة</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>في انتظار الموافقة</h6>
+                            <h3>
+                                {% set pending_count = 0 %}
+                                {% if leaves %}
+                                    {% for leave in leaves %}
+                                        {% if leave.status == 'pending' %}
+                                            {% set pending_count = pending_count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ pending_count }}
+                            </h3>
+                            <small>طلب معلق</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجازات مرفوضة</h6>
+                            <h3>
+                                {% set rejected_count = 0 %}
+                                {% if leaves %}
+                                    {% for leave in leaves %}
+                                        {% if leave.status == 'rejected' %}
+                                            {% set rejected_count = rejected_count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ rejected_count }}
+                            </h3>
+                            <small>طلب مرفوض</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-times-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- فلاتر البحث -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث عن موظف..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="pending">معلقة</option>
+                                <option value="approved">موافق عليها</option>
+                                <option value="rejected">مرفوضة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">جميع الأنواع</option>
+                                <option value="annual">إجازة سنوية</option>
+                                <option value="sick">إجازة مرضية</option>
+                                <option value="emergency">إجازة طارئة</option>
+                                <option value="maternity">إجازة أمومة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateFromFilter" placeholder="من تاريخ">
+                        </div>
+                        <div class="col-md-3">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-times"></i> مسح
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="exportLeaves()">
+                                    <i class="fas fa-download"></i> تصدير
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الإجازات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> قائمة طلبات الإجازات</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportLeaves()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="printTable()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if leaves %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="leavesTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>الموظف</th>
+                                    <th>نوع الإجازة</th>
+                                    <th>تاريخ البداية</th>
+                                    <th>تاريخ النهاية</th>
+                                    <th>عدد الأيام</th>
+                                    <th>السبب</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الطلب</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in leaves %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ leave.employee.name if leave.employee else 'غير محدد' }}</strong>
+                                                <br><small class="text-muted">{{ leave.employee.employee_id if leave.employee else '' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if leave.leave_type == 'annual' %}
+                                            <span class="badge bg-primary">إجازة سنوية</span>
+                                        {% elif leave.leave_type == 'sick' %}
+                                            <span class="badge bg-warning">إجازة مرضية</span>
+                                        {% elif leave.leave_type == 'emergency' %}
+                                            <span class="badge bg-danger">إجازة طارئة</span>
+                                        {% elif leave.leave_type == 'maternity' %}
+                                            <span class="badge bg-info">إجازة أمومة</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ leave.leave_type }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ leave.start_date.strftime('%Y-%m-%d') if leave.start_date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ leave.end_date.strftime('%Y-%m-%d') if leave.end_date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if leave.start_date and leave.end_date %}
+                                            {% set days_diff = (leave.end_date - leave.start_date).days + 1 %}
+                                            <span class="badge bg-info fs-6">{{ days_diff }} يوم</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if leave.reason %}
+                                            <span title="{{ leave.reason }}">
+                                                {{ leave.reason[:30] }}{% if leave.reason|length > 30 %}...{% endif %}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if leave.status == 'approved' %}
+                                            <span class="badge bg-success">موافق عليها</span>
+                                        {% elif leave.status == 'pending' %}
+                                            <span class="badge bg-warning">معلقة</span>
+                                        {% elif leave.status == 'rejected' %}
+                                            <span class="badge bg-danger">مرفوضة</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ leave.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ leave.created_at.strftime('%Y-%m-%d') if leave.created_at else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            {% if leave.status == 'pending' %}
+                                            <button type="button" class="btn btn-sm btn-outline-success" 
+                                                    title="موافقة" onclick="approveLeave({{ leave.id }})">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="رفض" onclick="rejectLeave({{ leave.id }})">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    title="عرض" onclick="viewLeave({{ leave.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                    title="تعديل" onclick="editLeave({{ leave.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                    title="حذف" onclick="confirmDelete({{ leave.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد طلبات إجازات</h4>
+                        <p class="text-muted">ابدأ بإنشاء أول طلب إجازة</p>
+                        <a href="/add_leave" class="btn btn-info">
+                            <i class="fas fa-plus"></i> طلب إجازة جديد
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف طلب الإجازة هذا؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظائف البحث والتصفية
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#leavesTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const employeeName = row.cells[0].textContent.toLowerCase();
+        
+        if (employeeName.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب الحالة
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const tableRows = document.querySelectorAll('#leavesTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const status = row.cells[6].textContent.trim();
+        
+        if (filterValue === '') {
+            row.style.display = '';
+        } else if (filterValue === 'approved' && status.includes('موافق عليها')) {
+            row.style.display = '';
+        } else if (filterValue === 'pending' && status.includes('معلقة')) {
+            row.style.display = '';
+        } else if (filterValue === 'rejected' && status.includes('مرفوضة')) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+function approveLeave(leaveId) {
+    if (confirm('هل أنت متأكد من الموافقة على طلب الإجازة؟')) {
+        // إرسال طلب الموافقة
+        fetch(`/approve_leave/${leaveId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء الموافقة على الطلب');
+            }
+        });
+    }
+}
+
+function rejectLeave(leaveId) {
+    const reason = prompt('يرجى إدخال سبب الرفض:');
+    if (reason) {
+        // إرسال طلب الرفض
+        fetch(`/reject_leave/${leaveId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({reason: reason})
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء رفض الطلب');
+            }
+        });
+    }
+}
+
+function viewLeave(leaveId) {
+    window.location.href = `/view_leave/${leaveId}`;
+}
+
+function editLeave(leaveId) {
+    window.location.href = `/edit_leave/${leaveId}`;
+}
+
+function confirmDelete(leaveId) {
+    // الحذف السريع بدون نافذة تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف الإجازة...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_leave/${leaveId}`;
+    }, 500);
+}
+
+function printTable() {
+    window.print();
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('dateFromFilter').value = '';
+    
+    // إظهار جميع الصفوف
+    const tableRows = document.querySelectorAll('#leavesTable tbody tr');
+    tableRows.forEach(row => {
+        row.style.display = '';
+    });
+}
+
+function exportLeaves() {
+    const table = document.getElementById('leavesTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'leaves_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+<style>
+@media print {
+    .btn, .modal, .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+{% endblock %}

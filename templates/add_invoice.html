@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء فاتورة جديدة - نظام المحاسبة{% endblock %}
+{% block page_title %}إنشاء فاتورة جديدة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- رأس الصفحة -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-file-invoice-dollar text-primary"></i> إنشاء فاتورة جديدة</h2>
+                    <p class="text-muted">أنشئ فاتورة جديدة لعملائك</p>
+                </div>
+                <div>
+                    <a href="/invoices" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للفواتير
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="invoiceForm" action="{{ url_for('add_invoice') }}">
+        <div class="row">
+            <!-- معلومات الفاتورة الأساسية -->
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> معلومات الفاتورة</h5>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light undo-btn" disabled>
+                                    <i class="fas fa-undo"></i> تراجع
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light save-btn">
+                                    <i class="fas fa-save"></i> حفظ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_name" class="form-label">
+                                    <i class="fas fa-user text-primary"></i> اسم العميل *
+                                </label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" required
+                                       placeholder="أدخل اسم العميل">
+                                <div class="invalid-feedback">
+                                    يرجى إدخال اسم العميل
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="invoice_date" class="form-label">
+                                    <i class="fas fa-calendar text-info"></i> تاريخ الفاتورة
+                                </label>
+                                <input type="date" class="form-control" id="invoice_date" name="invoice_date"
+                                       value="{{ datetime.now().strftime('%Y-%m-%d') }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="due_date" class="form-label">
+                                    <i class="fas fa-clock text-warning"></i> تاريخ الاستحقاق
+                                </label>
+                                <input type="date" class="form-control" id="due_date" name="due_date">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_terms" class="form-label">
+                                    <i class="fas fa-handshake text-success"></i> شروط الدفع
+                                </label>
+                                <select class="form-select" id="payment_terms" name="payment_terms">
+                                    <option value="cash">نقداً</option>
+                                    <option value="30_days">30 يوم</option>
+                                    <option value="60_days">60 يوم</option>
+                                    <option value="90_days">90 يوم</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عناصر الفاتورة -->
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-list"></i> عناصر الفاتورة</h5>
+                            <button type="button" class="btn btn-light btn-sm" onclick="addInvoiceItem()">
+                                <i class="fas fa-plus"></i> إضافة عنصر
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="invoiceItemsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="40%">الوصف</th>
+                                        <th width="15%">الكمية</th>
+                                        <th width="20%">السعر الوحدة</th>
+                                        <th width="20%">المجموع</th>
+                                        <th width="5%">حذف</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceItems">
+                                    <tr>
+                                        <td>
+                                            <input type="text" class="form-control" name="item_description[]"
+                                                   placeholder="وصف المنتج أو الخدمة" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control quantity" name="item_quantity[]"
+                                                   value="1" min="1" required onchange="calculateRowTotal(this)">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control price" name="item_price[]"
+                                                   step="0.01" min="0" required onchange="calculateRowTotal(this)">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control total" name="item_total[]"
+                                                   readonly>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="removeInvoiceItem(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ملخص الفاتورة -->
+            <div class="col-lg-4">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-calculator"></i> ملخص الفاتورة</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label">المجموع الفرعي:</label>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="subtotal" class="fw-bold">0.00 ر.س</span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-8">
+                                <label for="discount" class="form-label">الخصم (%):</label>
+                                <input type="number" class="form-control form-control-sm" id="discount"
+                                       name="discount" value="0" min="0" max="100" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-4 text-end">
+                                <span id="discountAmount" class="text-muted">0.00 ر.س</span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-8">
+                                <label for="tax" class="form-label">الضريبة (%):</label>
+                                <input type="number" class="form-control form-control-sm" id="tax"
+                                       name="tax" value="15" min="0" max="100" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-4 text-end">
+                                <span id="taxAmount" class="text-muted">0.00 ر.س</span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-bold">المجموع الإجمالي:</label>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="grandTotal" class="fw-bold text-success fs-5">0.00 ر.س</span>
+                                <input type="hidden" id="total_amount" name="total_amount" value="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">ملاحظات:</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"
+                                      placeholder="أي ملاحظات إضافية"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-enhanced save-btn">
+                                <i class="fas fa-save"></i> حفظ الفاتورة
+                            </button>
+                            <button type="button" class="btn btn-outline-warning undo-btn" disabled>
+                                <i class="fas fa-undo"></i> تراجع عن التغييرات
+                            </button>
+                            <button type="button" class="btn btn-outline-info" onclick="autoSaveForm(document.getElementById('invoiceForm'))">
+                                <i class="fas fa-cloud"></i> حفظ تلقائي
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                                <i class="fas fa-times"></i> إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// إضافة عنصر جديد للفاتورة
+function addInvoiceItem() {
+    const tbody = document.getElementById('invoiceItems');
+    const newRow = tbody.insertRow();
+    newRow.innerHTML = `
+        <td>
+            <input type="text" class="form-control" name="item_description[]"
+                   placeholder="وصف المنتج أو الخدمة" required>
+        </td>
+        <td>
+            <input type="number" class="form-control quantity" name="item_quantity[]"
+                   value="1" min="1" required onchange="calculateRowTotal(this)">
+        </td>
+        <td>
+            <input type="number" class="form-control price" name="item_price[]"
+                   step="0.01" min="0" required onchange="calculateRowTotal(this)">
+        </td>
+        <td>
+            <input type="number" class="form-control total" name="item_total[]" readonly>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    onclick="removeInvoiceItem(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+}
+
+// حذف عنصر من الفاتورة
+function removeInvoiceItem(button) {
+    const row = button.closest('tr');
+    row.remove();
+    calculateTotal();
+}
+
+// حساب مجموع الصف
+function calculateRowTotal(input) {
+    const row = input.closest('tr');
+    const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+    const price = parseFloat(row.querySelector('.price').value) || 0;
+    const total = quantity * price;
+
+    row.querySelector('.total').value = total.toFixed(2);
+    calculateTotal();
+}
+
+// حساب المجموع الإجمالي
+function calculateTotal() {
+    const totals = document.querySelectorAll('.total');
+    let subtotal = 0;
+
+    totals.forEach(total => {
+        subtotal += parseFloat(total.value) || 0;
+    });
+
+    const discount = parseFloat(document.getElementById('discount').value) || 0;
+    const tax = parseFloat(document.getElementById('tax').value) || 0;
+
+    const discountAmount = subtotal * (discount / 100);
+    const afterDiscount = subtotal - discountAmount;
+    const taxAmount = afterDiscount * (tax / 100);
+    const grandTotal = afterDiscount + taxAmount;
+
+    document.getElementById('subtotal').textContent = subtotal.toFixed(2) + ' ر.س';
+    document.getElementById('discountAmount').textContent = discountAmount.toFixed(2) + ' ر.س';
+    document.getElementById('taxAmount').textContent = taxAmount.toFixed(2) + ' ر.س';
+    document.getElementById('grandTotal').textContent = grandTotal.toFixed(2) + ' ر.س';
+    document.getElementById('total_amount').value = grandTotal.toFixed(2);
+}
+
+// تعيين تاريخ اليوم
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('invoice_date').value = today;
+});
+
+// التحقق السريع من صحة النموذج
+document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+    const customerName = document.getElementById('customer_name').value.trim();
+    const totalAmount = document.getElementById('total_amount').value;
+
+    if (!customerName) {
+        e.preventDefault();
+        FastFormProcessor.showQuickMessage('يرجى إدخال اسم العميل', 'danger');
+        return false;
+    }
+
+    if (!totalAmount || parseFloat(totalAmount) <= 0) {
+        e.preventDefault();
+        FastFormProcessor.showQuickMessage('يرجى إدخال مبلغ صحيح للفاتورة', 'danger');
+        return false;
+    }
+
+    // معالجة سريعة للزر
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> تم الحفظ';
+        submitBtn.disabled = true;
+
+        // إعادة تفعيل الزر بعد ثانيتين فقط
+        setTimeout(() => {
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الفاتورة';
+            submitBtn.disabled = false;
+        }, 2000);
+    }
+});
+</script>
+{% endblock %}

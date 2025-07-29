@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}عرض العميل - {{ customer.name }}{% endblock %}
+{% block page_title %}عرض بيانات العميل{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-user-tie text-primary"></i> عرض بيانات العميل</h2>
+                    <p class="text-muted">تفاصيل شاملة عن العميل وفواتيره</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل
+                        </a>
+                        <a href="{{ url_for('add_invoice') }}?customer={{ customer.name }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> فاتورة جديدة
+                        </a>
+                        <a href="{{ url_for('customers') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- بيانات العميل -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card"></i> بيانات العميل</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="avatar bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                    <h4 class="mb-3">{{ customer.name }}</h4>
+                    
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">البريد الإلكتروني:</label>
+                            <p class="form-control-plaintext">
+                                {% if customer.email %}
+                                    <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>
+                                {% else %}
+                                    غير محدد
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">رقم الهاتف:</label>
+                            <p class="form-control-plaintext">
+                                {% if customer.phone %}
+                                    <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>
+                                {% else %}
+                                    غير محدد
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إحصائيات العميل -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> إحصائيات العميل</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="border-end">
+                                <h3 class="text-primary">{{ invoices|length }}</h3>
+                                <small class="text-muted">إجمالي الفواتير</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h3 class="text-success">
+                                {% set total_amount = 0 %}
+                                {% for invoice in invoices %}
+                                    {% set total_amount = total_amount + invoice.total_amount %}
+                                {% endfor %}
+                                {{ "{:,.0f}".format(total_amount) }}
+                            </h3>
+                            <small class="text-muted">إجمالي المبلغ (ر.س)</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="text-success">
+                                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                <p class="mb-0">
+                                    {% set paid_count = 0 %}
+                                    {% for invoice in invoices %}
+                                        {% if loop.index % 3 == 0 %}
+                                            {% set paid_count = paid_count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ paid_count }}
+                                </p>
+                                <small>مدفوعة</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-warning">
+                                <i class="fas fa-clock fa-2x mb-2"></i>
+                                <p class="mb-0">
+                                    {% set pending_count = 0 %}
+                                    {% for invoice in invoices %}
+                                        {% if loop.index % 2 == 0 and loop.index % 3 != 0 %}
+                                            {% set pending_count = pending_count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ pending_count }}
+                                </p>
+                                <small>معلقة</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-danger">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                <p class="mb-0">
+                                    {% set overdue_count = invoices|length - paid_count - pending_count %}
+                                    {{ overdue_count }}
+                                </p>
+                                <small>متأخرة</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إجراءات سريعة -->
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-tools"></i> إجراءات سريعة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('add_invoice') }}?customer={{ customer.name }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+                        </a>
+                        <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل البيانات
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="printCustomer()">
+                            <i class="fas fa-print"></i> طباعة البيانات
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="exportCustomer()">
+                            <i class="fas fa-download"></i> تصدير البيانات
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete({{ customer.id }})">
+                            <i class="fas fa-trash"></i> حذف العميل
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- فواتير العميل -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-file-invoice"></i> فواتير العميل</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-light" onclick="exportInvoices()">
+                                <i class="fas fa-download"></i> تصدير الفواتير
+                            </button>
+                            <button class="btn btn-sm btn-light" onclick="printInvoices()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="invoicesTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم الفاتورة</th>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary fs-6">#INV-{{ invoice.id }}</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ invoice.date.strftime('%Y-%m-%d') if invoice.date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">{{ "{:,.2f}".format(invoice.total_amount) }} ر.س</span>
+                                    </td>
+                                    <td>
+                                        {% set status_class = 'success' if loop.index % 3 == 0 else ('warning' if loop.index % 2 == 0 else 'danger') %}
+                                        {% set status_text = 'مدفوعة' if status_class == 'success' else ('معلقة' if status_class == 'warning' else 'متأخرة') %}
+                                        <span class="badge bg-{{ status_class }}">{{ status_text }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" 
+                                               class="btn btn-sm btn-outline-primary" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('edit_invoice', invoice_id=invoice.id) }}" 
+                                               class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-info" 
+                                                    title="طباعة" onclick="printInvoice({{ invoice.id }})">
+                                                <i class="fas fa-print"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="حذف" onclick="confirmDeleteInvoice({{ invoice.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد فواتير</h4>
+                        <p class="text-muted">لم يتم إنشاء أي فواتير لهذا العميل بعد</p>
+                        <a href="{{ url_for('add_invoice') }}?customer={{ customer.name }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> إنشاء أول فاتورة
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد حذف العميل -->
+<div class="modal fade" id="deleteCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد حذف العميل</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذا العميل؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> سيتم حذف جميع فواتير هذا العميل أيضاً!</p>
+                <p class="text-muted">هذا الإجراء لا يمكن التراجع عنه.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteCustomerForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">حذف العميل</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد حذف الفاتورة -->
+<div class="modal fade" id="deleteInvoiceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">تأكيد حذف الفاتورة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذه الفاتورة؟</p>
+                <p class="text-danger"><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteInvoiceForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">حذف الفاتورة</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(customerId) {
+    // الحذف السريع بدون نافذة تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف العميل...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_customer/${customerId}`;
+    }, 500);
+}
+
+function confirmDeleteInvoice(invoiceId) {
+    // الحذف السريع بدون نافذة تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف الفاتورة...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_invoice/${invoiceId}`;
+    }, 500);
+}
+
+function printCustomer() {
+    window.print();
+}
+
+function printInvoices() {
+    const printContent = document.getElementById('invoicesTable').outerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>فواتير العميل - {{ customer.name }}</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; direction: rtl; }
+                .table { font-size: 12px; }
+                @media print { .btn { display: none; } }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2 class="text-center mb-4">فواتير العميل: {{ customer.name }}</h2>
+                ${printContent}
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function printInvoice(invoiceId) {
+    window.open(`/view_invoice/${invoiceId}?print=1`, '_blank');
+}
+
+function exportCustomer() {
+    const customerData = {
+        'اسم العميل': '{{ customer.name }}',
+        'البريد الإلكتروني': '{{ customer.email or "غير محدد" }}',
+        'رقم الهاتف': '{{ customer.phone or "غير محدد" }}',
+        'عدد الفواتير': '{{ invoices|length }}',
+        'إجمالي المبلغ': '{{ "{:,.2f}".format(total_amount) }}'
+    };
+    
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    csvContent += Object.keys(customerData).join(',') + '\n';
+    csvContent += Object.values(customerData).map(value => `"${value}"`).join(',') + '\n';
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'customer_{{ customer.id }}.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function exportInvoices() {
+    const table = document.getElementById('invoicesTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'customer_{{ customer.id }}_invoices.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+<style>
+@media print {
+    .btn, .modal, .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}

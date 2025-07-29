@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الدفعة - {{ payment.payment_reference }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-edit text-warning"></i>
+                        تعديل الدفعة
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/payments">الدفعات</a></li>
+                            <li class="breadcrumb-item"><a href="/view_payment/{{ payment.id }}">عرض الدفعة</a></li>
+                            <li class="breadcrumb-item active">تعديل</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/view_payment/{{ payment.id }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> عرض الدفعة
+                    </a>
+                    <a href="/payments" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> قائمة الدفعات
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" id="editPaymentForm" class="needs-validation" novalidate>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-money-bill-wave"></i>
+                            بيانات الدفعة - {{ payment.payment_reference }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Payment Reference -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_reference" class="form-label">
+                                    <i class="fas fa-hashtag text-primary"></i>
+                                    رقم المرجع <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="payment_reference" name="payment_reference" 
+                                       value="{{ payment.payment_reference }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال رقم المرجع
+                                </div>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar text-info"></i>
+                                    تاريخ الدفعة <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       value="{{ payment.date.strftime('%Y-%m-%d') }}" required>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال تاريخ الدفعة
+                                </div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="fas fa-dollar-sign text-success"></i>
+                                    المبلغ <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="amount" name="amount" 
+                                           value="{{ payment.amount }}" min="0" step="0.01" required>
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                                <div class="invalid-feedback">
+                                    يرجى إدخال المبلغ
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">
+                                    <i class="fas fa-credit-card text-warning"></i>
+                                    طريقة الدفع <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">اختر طريقة الدفع</option>
+                                    <option value="cash" {% if payment.payment_method == 'cash' %}selected{% endif %}>نقداً</option>
+                                    <option value="credit_card" {% if payment.payment_method == 'credit_card' %}selected{% endif %}>بطاقة ائتمان</option>
+                                    <option value="debit_card" {% if payment.payment_method == 'debit_card' %}selected{% endif %}>بطاقة خصم</option>
+                                    <option value="bank_transfer" {% if payment.payment_method == 'bank_transfer' %}selected{% endif %}>تحويل بنكي</option>
+                                    <option value="check" {% if payment.payment_method == 'check' %}selected{% endif %}>شيك</option>
+                                    <option value="online" {% if payment.payment_method == 'online' %}selected{% endif %}>دفع إلكتروني</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار طريقة الدفع
+                                </div>
+                            </div>
+
+                            <!-- Payment Type -->
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_type" class="form-label">
+                                    <i class="fas fa-exchange-alt text-info"></i>
+                                    نوع الدفعة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="payment_type" name="payment_type" required>
+                                    <option value="">اختر نوع الدفعة</option>
+                                    <option value="incoming" {% if payment.payment_type == 'incoming' %}selected{% endif %}>دفعة واردة</option>
+                                    <option value="outgoing" {% if payment.payment_type == 'outgoing' %}selected{% endif %}>دفعة صادرة</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار نوع الدفعة
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle text-secondary"></i>
+                                    الحالة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">اختر الحالة</option>
+                                    <option value="completed" {% if payment.status == 'completed' %}selected{% endif %}>مكتملة</option>
+                                    <option value="pending" {% if payment.status == 'pending' %}selected{% endif %}>قيد المعالجة</option>
+                                    <option value="failed" {% if payment.status == 'failed' %}selected{% endif %}>فاشلة</option>
+                                    <option value="cancelled" {% if payment.status == 'cancelled' %}selected{% endif %}>ملغية</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    يرجى اختيار الحالة
+                                </div>
+                            </div>
+
+                            <!-- Invoice (if applicable) -->
+                            <div class="col-md-6 mb-3">
+                                <label for="invoice_id" class="form-label">
+                                    <i class="fas fa-file-invoice text-primary"></i>
+                                    الفاتورة المرتبطة
+                                </label>
+                                <select class="form-select" id="invoice_id" name="invoice_id">
+                                    <option value="">لا توجد فاتورة مرتبطة</option>
+                                    {% for invoice in invoices %}
+                                    <option value="{{ invoice.id }}" 
+                                            {% if invoice.id == payment.invoice_id %}selected{% endif %}>
+                                        {{ invoice.invoice_number }} - {{ invoice.total }} ريال
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Customer/Supplier -->
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_supplier" class="form-label">
+                                    <i class="fas fa-users text-success"></i>
+                                    العميل/المورد
+                                </label>
+                                <input type="text" class="form-control" id="customer_supplier" name="customer_supplier" 
+                                       value="{{ payment.customer_supplier or '' }}" 
+                                       placeholder="اسم العميل أو المورد">
+                            </div>
+                        </div>
+
+                        <!-- Payment Details -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">تفاصيل إضافية</h6>
+                            </div>
+
+                            <!-- Transaction ID -->
+                            <div class="col-md-6 mb-3">
+                                <label for="transaction_id" class="form-label">
+                                    <i class="fas fa-receipt text-info"></i>
+                                    رقم المعاملة
+                                </label>
+                                <input type="text" class="form-control" id="transaction_id" name="transaction_id" 
+                                       value="{{ payment.transaction_id or '' }}" 
+                                       placeholder="رقم المعاملة البنكية أو الإلكترونية">
+                            </div>
+
+                            <!-- Bank Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="bank_name" class="form-label">
+                                    <i class="fas fa-university text-primary"></i>
+                                    اسم البنك
+                                </label>
+                                <input type="text" class="form-control" id="bank_name" name="bank_name" 
+                                       value="{{ payment.bank_name or '' }}" 
+                                       placeholder="اسم البنك (في حالة التحويل البنكي)">
+                            </div>
+
+                            <!-- Check Number -->
+                            <div class="col-md-6 mb-3">
+                                <label for="check_number" class="form-label">
+                                    <i class="fas fa-money-check text-warning"></i>
+                                    رقم الشيك
+                                </label>
+                                <input type="text" class="form-control" id="check_number" name="check_number" 
+                                       value="{{ payment.check_number or '' }}" 
+                                       placeholder="رقم الشيك (في حالة الدفع بالشيك)">
+                            </div>
+
+                            <!-- Due Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="due_date" class="form-label">
+                                    <i class="fas fa-calendar-alt text-danger"></i>
+                                    تاريخ الاستحقاق
+                                </label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" 
+                                       value="{{ payment.due_date.strftime('%Y-%m-%d') if payment.due_date else '' }}">
+                            </div>
+                        </div>
+
+                        <!-- Payment Summary -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="text-success border-bottom pb-2 mb-3">ملخص الدفعة</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                                        <h6 class="text-success">المبلغ</h6>
+                                        <h4 class="text-success" id="amountDisplay">{{ payment.amount }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-credit-card fa-2x text-info mb-2"></i>
+                                        <h6 class="text-info">طريقة الدفع</h6>
+                                        <h6 class="text-info" id="methodDisplay">
+                                            {% if payment.payment_method == 'cash' %}نقداً
+                                            {% elif payment.payment_method == 'credit_card' %}بطاقة ائتمان
+                                            {% elif payment.payment_method == 'bank_transfer' %}تحويل بنكي
+                                            {% elif payment.payment_method == 'check' %}شيك
+                                            {% else %}{{ payment.payment_method }}{% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-info-circle fa-2x text-warning mb-2"></i>
+                                        <h6 class="text-warning">الحالة</h6>
+                                        <h6 id="statusDisplay">
+                                            {% if payment.status == 'completed' %}
+                                                <span class="badge bg-success">مكتملة</span>
+                                            {% elif payment.status == 'pending' %}
+                                                <span class="badge bg-warning">قيد المعالجة</span>
+                                            {% elif payment.status == 'failed' %}
+                                                <span class="badge bg-danger">فاشلة</span>
+                                            {% elif payment.status == 'cancelled' %}
+                                                <span class="badge bg-secondary">ملغية</span>
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note text-secondary"></i>
+                                    ملاحظات
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="أدخل أي ملاحظات حول الدفعة...">{{ payment.notes or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <a href="/view_payment/{{ payment.id }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> عرض الدفعة
+                            </a>
+                            <a href="/payments" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// تحديث العرض عند تغيير البيانات
+function updateDisplays() {
+    const amount = document.getElementById('amount').value;
+    const method = document.getElementById('payment_method').value;
+    const status = document.getElementById('status').value;
+    
+    document.getElementById('amountDisplay').textContent = amount || '0';
+    
+    // تحديث عرض طريقة الدفع
+    const methodNames = {
+        'cash': 'نقداً',
+        'credit_card': 'بطاقة ائتمان',
+        'debit_card': 'بطاقة خصم',
+        'bank_transfer': 'تحويل بنكي',
+        'check': 'شيك',
+        'online': 'دفع إلكتروني'
+    };
+    document.getElementById('methodDisplay').textContent = methodNames[method] || method;
+    
+    // تحديث عرض الحالة
+    const statusBadges = {
+        'completed': '<span class="badge bg-success">مكتملة</span>',
+        'pending': '<span class="badge bg-warning">قيد المعالجة</span>',
+        'failed': '<span class="badge bg-danger">فاشلة</span>',
+        'cancelled': '<span class="badge bg-secondary">ملغية</span>'
+    };
+    document.getElementById('statusDisplay').innerHTML = statusBadges[status] || status;
+}
+
+// إعادة تعيين النموذج
+function resetForm() {
+    if (confirm('هل تريد إعادة تعيين جميع البيانات؟')) {
+        document.getElementById('editPaymentForm').reset();
+        updateDisplays();
+    }
+}
+
+// تهيئة الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // إضافة event listeners
+    document.getElementById('amount').addEventListener('input', updateDisplays);
+    document.getElementById('payment_method').addEventListener('change', updateDisplays);
+    document.getElementById('status').addEventListener('change', updateDisplays);
+    
+    // تحديث أولي
+    updateDisplays();
+    
+    // التحقق من صحة النموذج
+    const form = document.getElementById('editPaymentForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

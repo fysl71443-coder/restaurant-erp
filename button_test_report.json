@@ -1,0 +1,3956 @@
+{
+  "timestamp": "2025-07-29T12:18:31.275981",
+  "test_results": {
+    "total_buttons": 150,
+    "working_buttons": 111,
+    "broken_buttons": 39,
+    "redundant_buttons": 7,
+    "screens_tested": 8,
+    "detailed_results": {
+      "الشاشة الرئيسية": {
+        "total_buttons": 16,
+        "working_buttons": 16,
+        "broken_buttons": 0,
+        "redundant_buttons": 0,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة التقرير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-print": "page",
+                "data-print-title": "لوحة التحكم الرئيسية"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "طباعة التقرير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير البيانات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary"
+              ],
+              "onclick": "exportDashboard()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير البيانات__exportDashboard()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "refreshDataBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshDashboardData()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تحديث_refreshDataBtn_refreshDashboardData()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير",
+              "id": "exportDataBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "exportDashboardData()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تصدير_exportDataBtn_exportDashboardData()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إنشاء فاتورة مبيعات",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/add_sales_invoice",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء فاتورة مبيعات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إنشاء فاتورة مشتريات",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/add_purchase_invoice",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء فاتورة مشتريات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تسجيل دفعة",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/add_payment",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تسجيل دفعة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إضافة منتج جديد",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/add_product",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إضافة منتج جديد__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الذهاب للمبيعات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "href": "/sales",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الذهاب للمبيعات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الذهاب للمشتريات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-success"
+              ],
+              "href": "/purchases",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الذهاب للمشتريات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الذهاب للتقارير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-info"
+              ],
+              "href": "/reports",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الذهاب للتقارير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الذهاب للتحليلات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-warning"
+              ],
+              "href": "/analytics",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الذهاب للتحليلات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الذهاب للمخزون",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-secondary"
+              ],
+              "href": "/inventory",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الذهاب للمخزون__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الذهاب للإعدادات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-dark"
+              ],
+              "href": "/settings",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "الشاشة الرئيسية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الذهاب للإعدادات__"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [],
+        "recommendations": []
+      },
+      "شاشة المبيعات": {
+        "total_buttons": 11,
+        "working_buttons": 11,
+        "broken_buttons": 0,
+        "redundant_buttons": 0,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصفية",
+              "id": "filterBtn",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "w-100"
+              ],
+              "onclick": "applySalesFilter()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تصفية_filterBtn_applySalesFilter()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "exportSales()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير__exportSales()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-secondary"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-print": "table",
+                "data-table-id": "salesTable",
+                "data-print-title": "تقرير المبيعات"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "طباعة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "بحث",
+              "id": "searchBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "performSearch()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "بحث_searchBtn_performSearch()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إضافة فاتورة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "href": "/add_sales_invoice",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إضافة فاتورة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "فواتير المبيعات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-success"
+              ],
+              "href": "/sales_invoices",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "فواتير المبيعات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "العملاء",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "href": "/customers",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "العملاء__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تسجيل دفع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-info"
+              ],
+              "href": "/add_payment",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تسجيل دفع__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إنشاء فاتورة جديدة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "href": "/add_sales_invoice",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المبيعات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء فاتورة جديدة__"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [],
+        "recommendations": []
+      },
+      "شاشة المشتريات": {
+        "total_buttons": 15,
+        "working_buttons": 15,
+        "broken_buttons": 0,
+        "redundant_buttons": 0,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "refreshSuppliersBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshSuppliers()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تحديث_refreshSuppliersBtn_refreshSuppliers()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "exportPurchases()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير__exportPurchases()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-print": "table",
+                "data-print-title": "فواتير المشتريات"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "طباعة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "بحث",
+              "id": "searchPurchasesBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "searchPurchases()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "بحث_searchPurchasesBtn_searchPurchases()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إضافة فاتورة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-success"
+              ],
+              "href": "/add_purchase_invoice",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إضافة فاتورة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "فواتير المشتريات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "href": "/purchase_invoices",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "فواتير المشتريات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "الموردين",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-info"
+              ],
+              "href": "/suppliers",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "الموردين__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "مورد جديد",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary"
+              ],
+              "href": "/add_supplier",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مورد جديد__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إنشاء فاتورة مشتريات",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/add_purchase_invoice",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء فاتورة مشتريات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إضافة مورد جديد",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/add_supplier",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إضافة مورد جديد__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إدارة المخزون",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/inventory",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إدارة المخزون__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تسجيل مصروف",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "/expenses",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تسجيل مصروف__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "عرض الكل",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "href": "/suppliers",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة المشتريات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "عرض الكل__"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [],
+        "recommendations": []
+      },
+      "شاشة التحليلات": {
+        "total_buttons": 9,
+        "working_buttons": 9,
+        "broken_buttons": 0,
+        "redundant_buttons": 0,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث البيانات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-info"
+              ],
+              "onclick": "refreshAnalytics()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تحديث البيانات__refreshAnalytics()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير التقرير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-info"
+              ],
+              "onclick": "exportAnalytics()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير التقرير__exportAnalytics()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-info"
+              ],
+              "onclick": "printAnalytics()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "طباعة__printAnalytics()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "عرض التفاصيل",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-info"
+              ],
+              "onclick": "showDetails()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "عرض التفاصيل__showDetails()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "refreshCustomersBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshTopCustomers()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تحديث_refreshCustomersBtn_refreshTopCustomers()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "refreshSuppliersBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshTopSuppliers()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تحديث_refreshSuppliersBtn_refreshTopSuppliers()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "refreshPerformanceBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshPerformanceData()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التحليلات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تحديث_refreshPerformanceBtn_refreshPerformanceData()"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [],
+        "recommendations": []
+      },
+      "شاشة ضريبة القيمة المضافة": {
+        "total_buttons": 12,
+        "working_buttons": 12,
+        "broken_buttons": 0,
+        "redundant_buttons": 1,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تقرير ضريبي",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-warning"
+              ],
+              "onclick": "generateVATReport()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تقرير ضريبي__generateVATReport()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير التقرير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-warning"
+              ],
+              "onclick": "exportVATData()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير التقرير__exportVATData()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-warning"
+              ],
+              "onclick": "printVATReport()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "طباعة__printVATReport()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-warning"
+              ],
+              "onclick": "saveVATSettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "حفظ الإعدادات__saveVATSettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حساب الضريبة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-warning",
+                "w-100"
+              ],
+              "onclick": "calculateVAT()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "حساب الضريبة__calculateVAT()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-success"
+              ],
+              "onclick": "saveVATSettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID",
+                "زر مكرر"
+              ],
+              "signature": "حفظ الإعدادات__saveVATSettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshVATData()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تحديث__refreshVATData()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "exportMonthlyVAT()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير__exportMonthlyVAT()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshInvoiceVAT()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تحديث__refreshInvoiceVAT()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "exportInvoiceVAT()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة ضريبة القيمة المضافة"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير__exportInvoiceVAT()"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [],
+        "recommendations": [
+          "حذف 1 زر مكرر"
+        ]
+      },
+      "شاشة الرواتب": {
+        "total_buttons": 24,
+        "working_buttons": 14,
+        "broken_buttons": 10,
+        "redundant_buttons": 0,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إجراءات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إجراءات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصفية",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary"
+              ],
+              "onclick": "applyFilters()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصفية__applyFilters()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير كشف الرواتب",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "exportPayroll()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير كشف الرواتب__exportPayroll()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مسح المرشحات",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-success"
+              ],
+              "onclick": "clearFilters()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مسح المرشحات__clearFilters()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حساب الراتب",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-warning",
+                "w-100"
+              ],
+              "onclick": "calculateSalary()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "حساب الراتب__calculateSalary()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إضافة راتب",
+              "id": "addSalaryBtn",
+              "class": [
+                "btn",
+                "btn-success",
+                "w-100"
+              ],
+              "onclick": "addSalary()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "إضافة راتب_addSalaryBtn_addSalary()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إنشاء كشف راتب",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary",
+                "w-100"
+              ],
+              "onclick": "generatePayslip()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء كشف راتب__generatePayslip()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير كشف الرواتب",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary",
+                "w-100"
+              ],
+              "onclick": "exportPayslip()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير كشف الرواتب__exportPayslip()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "exportPayroll()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تصدير__exportPayroll()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-secondary"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-print": "table",
+                "data-table-id": "payrollTable",
+                "data-print-title": "تقرير الرواتب"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "طباعة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewPayslip(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewPayslip(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "confirmPayment(2)",
+              "data_attributes": {},
+              "disabled": "",
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__confirmPayment(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printPayslip(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printPayslip(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-warning"
+              ],
+              "onclick": "editPayroll(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__editPayroll(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-danger"
+              ],
+              "onclick": "deletePayroll(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__deletePayroll(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewPayslip(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewPayslip(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "confirmPayment(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__confirmPayment(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printPayslip(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printPayslip(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-warning"
+              ],
+              "onclick": "editPayroll(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__editPayroll(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-danger"
+              ],
+              "onclick": "deletePayroll(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__deletePayroll(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إنشاء رواتب",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "href": "/generate_payroll",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء رواتب__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إنشاء راتب جديد",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "href": "/generate_payroll",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة الرواتب"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إنشاء راتب جديد__"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID"
+        ],
+        "recommendations": [
+          "إصلاح 10 زر لا يعمل"
+        ]
+      },
+      "شاشة التقارير المالية": {
+        "total_buttons": 44,
+        "working_buttons": 20,
+        "broken_buttons": 24,
+        "redundant_buttons": 2,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تقرير جديد",
+              "id": "newReportBtn",
+              "class": [
+                "btn",
+                "btn-info"
+              ],
+              "onclick": "showCreateReportModal()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تقرير جديد_newReportBtn_showCreateReportModal()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير جميع التقارير",
+              "id": "exportAllReportsBtn",
+              "class": [
+                "btn",
+                "btn-outline-success"
+              ],
+              "onclick": "exportAllReports()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تصدير جميع التقارير_exportAllReportsBtn_exportAllReports()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تطبيق المرشحات",
+              "id": "applyFilters",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "onclick": "applyReportFilters()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تطبيق المرشحات_applyFilters_applyReportFilters()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إعادة تعيين",
+              "id": "resetFilters",
+              "class": [
+                "btn",
+                "btn-outline-secondary"
+              ],
+              "onclick": "resetReportFilters()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "إعادة تعيين_resetFilters_resetReportFilters()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إنشاء تقرير",
+              "id": "createReportBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-primary"
+              ],
+              "onclick": "createNewReport()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "إنشاء تقرير_createReportBtn_createNewReport()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير التقرير",
+              "id": "exportReportBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-success"
+              ],
+              "onclick": "exportCurrentReport()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تصدير التقرير_exportReportBtn_exportCurrentReport()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "طباعة التقرير",
+              "id": "printReportBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-info"
+              ],
+              "onclick": "printCurrentReport()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "طباعة التقرير_printReportBtn_printCurrentReport()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تحديث البيانات",
+              "id": "refreshDataBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "refreshReportData()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تحديث البيانات_refreshDataBtn_refreshReportData()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "عرض التفاصيل",
+              "id": "viewDetailsBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-secondary"
+              ],
+              "onclick": "viewReportDetails()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "عرض التفاصيل_viewDetailsBtn_viewReportDetails()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewReportDetails(1)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewReportDetails(1)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "exportReport(1)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__exportReport(1)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printReport(1)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printReport(1)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewReportDetails(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewReportDetails(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "exportReport(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__exportReport(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printReport(2)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printReport(2)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewReportDetails(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewReportDetails(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "exportReport(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__exportReport(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printReport(3)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printReport(3)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewReportDetails(4)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewReportDetails(4)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "exportReport(4)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__exportReport(4)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printReport(4)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printReport(4)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إنشاء التقرير",
+              "id": "createReportSubmitBtn",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "onclick": "createNewReport()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "إنشاء التقرير_createReportSubmitBtn_createNewReport()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "saveReportSettingsBtn",
+              "class": [
+                "btn",
+                "btn-success"
+              ],
+              "onclick": "saveReportSettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "حفظ الإعدادات_saveReportSettingsBtn_saveReportSettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "فلترة",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "فلترة__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "تصدير الكل",
+              "id": "exportAllBtn",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-light"
+              ],
+              "onclick": "exportAllReports()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "تصدير الكل_exportAllBtn_exportAllReports()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewReportDetails(5)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewReportDetails(5)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "exportReport(5)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__exportReport(5)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printReport(5)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printReport(5)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-warning"
+              ],
+              "onclick": "scheduleReport(5)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__scheduleReport(5)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "onclick": "viewReportDetails(6)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__viewReportDetails(6)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-success"
+              ],
+              "onclick": "exportReport(6)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__exportReport(6)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-info"
+              ],
+              "onclick": "printReport(6)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__printReport(6)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-warning"
+              ],
+              "onclick": "scheduleReport(6)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__scheduleReport(6)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-secondary"
+              ],
+              "onclick": "",
+              "data_attributes": {},
+              "disabled": "",
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "الزر لا يحتوي على وظيفة واضحة"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-secondary"
+              ],
+              "onclick": "",
+              "data_attributes": {},
+              "disabled": "",
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "الزر لا يحتوي على وظيفة واضحة",
+                "زر مكرر"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-secondary"
+              ],
+              "onclick": "",
+              "data_attributes": {},
+              "disabled": "",
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "الزر لا يحتوي على وظيفة واضحة",
+                "زر مكرر"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-warning"
+              ],
+              "onclick": "scheduleReport(7)",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__scheduleReport(7)"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "التقارير المالية",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "#financial-reports",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "التقارير المالية__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تقارير المبيعات",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "#sales-reports",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تقارير المبيعات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تقارير المشتريات",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "#purchase-reports",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تقارير المشتريات__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تقارير المخزون",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "#inventory-reports",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تقارير المخزون__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "تقارير الموظفين",
+              "id": "",
+              "class": [
+                "quick-action-btn"
+              ],
+              "href": "#employee-reports",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة التقارير المالية"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "تقارير الموظفين__"
+            },
+            "status": "✅ يعمل"
+          }
+        ],
+        "issues": [
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على وظيفة واضحة",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على وظيفة واضحة",
+          "زر مكرر",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على وظيفة واضحة",
+          "زر مكرر",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID"
+        ],
+        "recommendations": [
+          "حذف 2 زر مكرر",
+          "إصلاح 24 زر لا يعمل"
+        ]
+      },
+      "شاشة الإعدادات": {
+        "total_buttons": 19,
+        "working_buttons": 14,
+        "broken_buttons": 5,
+        "redundant_buttons": 4,
+        "button_details": [
+          {
+            "button": {
+              "type": "button",
+              "text": "رجوع",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-primary"
+              ],
+              "onclick": "history.back()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "رجوع__history.back()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "مدير",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-outline-secondary",
+                "dropdown-toggle"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "dropdown"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "مدير__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn-close"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-dismiss": "alert"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn-close"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-dismiss": "alert"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "زر مكرر"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn-close"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-dismiss": "alert"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "زر مكرر"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إدارة المستخدمين",
+              "id": "users-tab",
+              "class": [
+                "nav-link",
+                "active"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "tab",
+                "data-bs-target": "#users"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "إدارة المستخدمين_users-tab_"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إعدادات النظام",
+              "id": "system-tab",
+              "class": [
+                "nav-link"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "tab",
+                "data-bs-target": "#system"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "إعدادات النظام_system-tab_"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "المظهر",
+              "id": "appearance-tab",
+              "class": [
+                "nav-link"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "tab",
+                "data-bs-target": "#appearance"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "المظهر_appearance-tab_"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "الأمان",
+              "id": "security-tab",
+              "class": [
+                "nav-link"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "tab",
+                "data-bs-target": "#security"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "الأمان_security-tab_"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "الطباعة",
+              "id": "printing-tab",
+              "class": [
+                "nav-link"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-toggle": "tab",
+                "data-bs-target": "#printing"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "الطباعة_printing-tab_"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "saveGeneralBtn",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "onclick": "saveGeneralSettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "حفظ الإعدادات_saveGeneralBtn_saveGeneralSettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "saveAppearanceBtn",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "onclick": "saveAppearanceSettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "حفظ الإعدادات_saveAppearanceBtn_saveAppearanceSettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "saveSecurityBtn",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "onclick": "saveSecuritySettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "حفظ الإعدادات_saveSecurityBtn_saveSecuritySettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حفظ الإعدادات",
+              "id": "savePrintBtn",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "onclick": "savePrintSettings()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "حفظ الإعدادات_savePrintBtn_savePrintSettings()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn-close"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-dismiss": "modal"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "زر مكرر"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "إلغاء",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-secondary"
+              ],
+              "onclick": "",
+              "data_attributes": {
+                "data-bs-dismiss": "modal"
+              },
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إلغاء__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "button",
+              "text": "حذف",
+              "id": "confirmDeleteBtn",
+              "class": [
+                "btn",
+                "btn-danger"
+              ],
+              "onclick": "confirmDelete()",
+              "data_attributes": {},
+              "disabled": false,
+              "form": "",
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [],
+              "signature": "حذف_confirmDeleteBtn_confirmDelete()"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "إضافة مستخدم جديد",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-primary"
+              ],
+              "href": "/add_user",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": true,
+              "issues": [
+                "الزر لا يحتوي على ID"
+              ],
+              "signature": "إضافة مستخدم جديد__"
+            },
+            "status": "✅ يعمل"
+          },
+          {
+            "button": {
+              "type": "link",
+              "text": "",
+              "id": "",
+              "class": [
+                "btn",
+                "btn-sm",
+                "btn-outline-primary"
+              ],
+              "href": "/edit_user/1",
+              "onclick": "",
+              "data_attributes": {},
+              "page": "شاشة الإعدادات"
+            },
+            "test_result": {
+              "working": false,
+              "issues": [
+                "الزر لا يحتوي على نص واضح",
+                "الزر لا يحتوي على ID",
+                "زر مكرر"
+              ],
+              "signature": "__"
+            },
+            "status": "❌ لا يعمل"
+          }
+        ],
+        "issues": [
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "زر مكرر",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "زر مكرر",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "زر مكرر",
+          "الزر لا يحتوي على نص واضح",
+          "الزر لا يحتوي على ID",
+          "زر مكرر"
+        ],
+        "recommendations": [
+          "حذف 4 زر مكرر",
+          "إصلاح 5 زر لا يعمل"
+        ]
+      }
+    },
+    "issues_found": [
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على وظيفة واضحة",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على وظيفة واضحة",
+      "زر مكرر",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على وظيفة واضحة",
+      "زر مكرر",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "زر مكرر",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "زر مكرر",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "زر مكرر",
+      "الزر لا يحتوي على نص واضح",
+      "الزر لا يحتوي على ID",
+      "زر مكرر"
+    ],
+    "recommendations": [
+      "حذف 1 زر مكرر",
+      "إصلاح 10 زر لا يعمل",
+      "حذف 2 زر مكرر",
+      "إصلاح 24 زر لا يعمل",
+      "حذف 4 زر مكرر",
+      "إصلاح 5 زر لا يعمل"
+    ]
+  }
+}

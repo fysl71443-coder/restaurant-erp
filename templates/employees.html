@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+
+{% block title %}الموظفين - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة الموظفين{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-users text-primary"></i> إدارة الموظفين</h2>
+                    <p class="text-muted">إدارة وتتبع معلومات الموظفين والموارد البشرية</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_employee" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> إضافة موظف جديد
+                        </a>
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/attendance"><i class="fas fa-clock"></i> إدارة الحضور</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-money-check-alt"></i> إدارة الرواتب</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-calendar-times"></i> إدارة الإجازات</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> تصدير الموظفين</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i> تقرير الموظفين</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات الموظفين المحسنة -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-number">{{ employees|length if employees else 0 }}</div>
+                    <div class="stats-label">إجمالي الموظفين</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +5.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>موظفين نشطين</h6>
+                            <h3>
+                                {% set active_employees = 0 %}
+                                {% if employees %}
+                                    {% for employee in employees %}
+                                        {% if employee.status == 'active' %}
+                                            {% set active_employees = active_employees + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ active_employees }}
+                            </h3>
+                            <small>يعملون حالياً</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>موظفين جدد</h6>
+                            <h3>5</h3>
+                            <small>هذا الشهر</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-plus fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي الرواتب</h6>
+                            <h3>
+                                {% set total_salaries = 0 %}
+                                {% if employees %}
+                                    {% for employee in employees %}
+                                        {% if employee.salary and employee.status == 'active' %}
+                                            {% set total_salaries = total_salaries + employee.salary %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ "{:,.0f}".format(total_salaries) }} ر.س
+                            </h3>
+                            <small>شهرياً</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> توزيع الموظفين حسب الأقسام</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="departmentChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-birthday-cake"></i> أعياد الميلاد القادمة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% if employees %}
+                            {% for employee in employees[:5] %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                    <div>
+                                        <strong>{{ employee.name }}</strong>
+                                        <br><small class="text-muted">{{ employee.department or 'غير محدد' }}</small>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ loop.index + 15 }}/{{ loop.index }}</small>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center text-muted">
+                                <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                                <p>لا توجد أعياد ميلاد قادمة</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط البحث والفلاتر -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث عن موظف..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="departmentFilter">
+                                <option value="">جميع الأقسام</option>
+                                <option value="hr">الموارد البشرية</option>
+                                <option value="finance">المالية</option>
+                                <option value="it">تقنية المعلومات</option>
+                                <option value="sales">المبيعات</option>
+                                <option value="marketing">التسويق</option>
+                                <option value="operations">العمليات</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="active">نشط</option>
+                                <option value="inactive">غير نشط</option>
+                                <option value="terminated">منتهي الخدمة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="contractFilter">
+                                <option value="">جميع أنواع العقود</option>
+                                <option value="full_time">دوام كامل</option>
+                                <option value="part_time">دوام جزئي</option>
+                                <option value="contract">عقد مؤقت</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-secondary">
+                                    <i class="fas fa-filter"></i> تصفية
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="exportEmployees()">
+                                    <i class="fas fa-download"></i> تصدير
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الموظفين -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> قائمة الموظفين</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportEmployees()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="employeesTable" data-print-title="تقرير الموظفين">
+                                <i class="fas fa-print"></i> طباعة الجدول
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-print="page" data-print-title="إدارة الموظفين">
+                                <i class="fas fa-file-pdf"></i> طباعة الصفحة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if employees %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="employeesTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم الموظف</th>
+                                    <th>الاسم</th>
+                                    <th>المنصب</th>
+                                    <th>القسم</th>
+                                    <th>تاريخ التوظيف</th>
+                                    <th>الراتب</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employees %}
+                                <tr>
+                                    <td><span class="badge bg-primary">{{ employee.employee_id }}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ employee.name }}</strong>
+                                                <br><small class="text-muted">
+                                                    {% if employee.email %}
+                                                        <i class="fas fa-envelope"></i> {{ employee.email }}
+                                                    {% endif %}
+                                                    {% if employee.phone %}
+                                                        <br><i class="fas fa-phone"></i> {{ employee.phone }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold">{{ employee.position or 'غير محدد' }}</span>
+                                    </td>
+                                    <td>
+                                        {% set departments = ['الموارد البشرية', 'المالية', 'تقنية المعلومات', 'المبيعات', 'التسويق', 'العمليات'] %}
+                                        {% set colors = ['primary', 'success', 'info', 'warning', 'secondary', 'danger'] %}
+                                        {% set dept_index = loop.index0 % 6 %}
+                                        <span class="badge bg-{{ colors[dept_index] }}">
+                                            {{ employee.department or departments[dept_index] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ employee.hire_date.strftime('%Y-%m-%d') if employee.hire_date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if employee.salary %}
+                                            <span class="fw-bold text-success">{{ "{:,.0f}".format(employee.salary) }} ر.س</span>
+                                        {% else %}
+                                            <span class="text-muted">غير محدد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if employee.status == 'active' %}
+                                            <span class="badge bg-success">نشط</span>
+                                        {% elif employee.status == 'inactive' %}
+                                            <span class="badge bg-warning">غير نشط</span>
+                                        {% elif employee.status == 'terminated' %}
+                                            <span class="badge bg-danger">منتهي الخدمة</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ employee.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" title="عرض الملف الشخصي">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-success" title="تسجيل حضور">
+                                                <i class="fas fa-clock"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" title="إدارة الراتب">
+                                                <i class="fas fa-money-check-alt"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد موظفين مسجلين</h4>
+                        <p class="text-muted">ابدأ بإضافة موظف جديد لإدارة الموارد البشرية</p>
+                        <a href="/add_employee" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> إضافة أول موظف
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إضافة Chart.js للرسوم البيانية -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// رسم بياني للأقسام
+const ctx = document.getElementById('departmentChart').getContext('2d');
+const departmentChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['الموارد البشرية', 'المالية', 'تقنية المعلومات', 'المبيعات', 'التسويق', 'العمليات'],
+        datasets: [{
+            data: [5, 8, 12, 15, 7, 10],
+            backgroundColor: [
+                '#007bff',
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#6c757d',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#employeesTable tbody tr');
+
+    tableRows.forEach(row => {
+        const employeeId = row.cells[0].textContent.toLowerCase();
+        const employeeName = row.cells[1].textContent.toLowerCase();
+        const position = row.cells[2].textContent.toLowerCase();
+        const department = row.cells[3].textContent.toLowerCase();
+
+        if (employeeId.includes(searchTerm) ||
+            employeeName.includes(searchTerm) ||
+            position.includes(searchTerm) ||
+            department.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب القسم
+document.getElementById('departmentFilter').addEventListener('change', function() {
+    const filterValue = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#employeesTable tbody tr');
+
+    tableRows.forEach(row => {
+        const department = row.cells[3].textContent.toLowerCase();
+
+        if (filterValue === '' || department.includes(filterValue)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب الحالة
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const tableRows = document.querySelectorAll('#employeesTable tbody tr');
+
+    tableRows.forEach(row => {
+        const status = row.cells[6].textContent.trim();
+
+        if (filterValue === '') {
+            row.style.display = '';
+        } else if (filterValue === 'active' && status === 'نشط') {
+            row.style.display = '';
+        } else if (filterValue === 'inactive' && status === 'غير نشط') {
+            row.style.display = '';
+        } else if (filterValue === 'terminated' && status === 'منتهي الخدمة') {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportEmployees() {
+    const table = document.getElementById('employeesTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'employees_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %}

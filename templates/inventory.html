@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}المخزون - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة المخزون{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-boxes text-primary"></i> إدارة المخزون</h2>
+                    <p class="text-muted">تتبع وإدارة المنتجات والمخزون</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_product" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة منتج
+                        </a>
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> تصدير المخزون</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-upload"></i> استيراد منتجات</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i> تقرير المخزون</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات المخزون المحسنة -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="stats-number">{{ products|length if products else 0 }}</div>
+                    <div class="stats-label">إجمالي المنتجات</div>
+                    <div class="stats-change positive">
+                        <i class="fas fa-arrow-up"></i> +7.3%
+                    </div>
+                </div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>إجمالي الكمية</h6>
+                            <h3>
+                                {% set total_qty = 0 %}
+                                {% if products %}
+                                    {% for product in products %}
+                                        {% set total_qty = total_qty + product.quantity %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ total_qty }}
+                            </h3>
+                            <small>قطعة</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-boxes fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>منتجات منخفضة</h6>
+                            <h3>
+                                {% set low_stock = 0 %}
+                                {% if products %}
+                                    {% for product in products %}
+                                        {% if product.quantity < 10 %}
+                                            {% set low_stock = low_stock + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ low_stock }}
+                            </h3>
+                            <small>تحتاج تجديد</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>قيمة المخزون</h6>
+                            <h3>
+                                {% set total_value = 0 %}
+                                {% if products %}
+                                    {% for product in products %}
+                                        {% set total_value = total_value + (product.quantity * product.price) %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ "{:,.0f}".format(total_value) }} ر.س
+                            </h3>
+                            <small>القيمة الإجمالية</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط البحث والفلاتر -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث في المنتجات..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="stockFilter">
+                                <option value="">جميع المنتجات</option>
+                                <option value="in_stock">متوفر</option>
+                                <option value="low_stock">مخزون منخفض</option>
+                                <option value="out_of_stock">نفد المخزون</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">جميع الفئات</option>
+                                <option value="electronics">إلكترونيات</option>
+                                <option value="clothing">ملابس</option>
+                                <option value="food">أغذية</option>
+                                <option value="books">كتب</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="sortBy">
+                                <option value="name">ترتيب بالاسم</option>
+                                <option value="quantity">ترتيب بالكمية</option>
+                                <option value="price">ترتيب بالسعر</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول المنتجات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> قائمة المنتجات</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportProducts()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="productsTable" data-print-title="تقرير المخزون">
+                                <i class="fas fa-print"></i> طباعة الجدول
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-print="page" data-print-title="إدارة المخزون">
+                                <i class="fas fa-file-pdf"></i> طباعة الصفحة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="productsTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>كود المنتج</th>
+                                    <th>اسم المنتج</th>
+                                    <th>الكمية المتاحة</th>
+                                    <th>سعر الوحدة</th>
+                                    <th>القيمة الإجمالية</th>
+                                    <th>حالة المخزون</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">#P{{ product.id }}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-cube text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ product.name }}</strong>
+                                                <br><small class="text-muted">SKU: {{ product.name|upper|replace(' ', '') }}{{ product.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold {% if product.quantity < 10 %}text-warning{% elif product.quantity == 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ product.quantity }}
+                                        </span>
+                                        <small class="text-muted">قطعة</small>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold">{{ "{:,.2f}".format(product.price) }} ر.س</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-info">{{ "{:,.2f}".format(product.quantity * product.price) }} ر.س</span>
+                                    </td>
+                                    <td>
+                                        {% if product.quantity == 0 %}
+                                            <span class="badge bg-danger">نفد المخزون</span>
+                                        {% elif product.quantity < 10 %}
+                                            <span class="badge bg-warning">مخزون منخفض</span>
+                                        {% else %}
+                                            <span class="badge bg-success">متوفر</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/view_product/{{ product.id }}" class="btn btn-sm btn-outline-primary" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-success" title="إضافة كمية">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <a href="/edit_product/{{ product.id }}" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="حذف"
+                                                    onclick="confirmDelete({{ product.id }}, '{{ product.name }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد منتجات في المخزون</h4>
+                        <p class="text-muted">ابدأ بإضافة منتجات لإدارة مخزونك</p>
+                        <a href="/add_product" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة أول منتج
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#productsTable tbody tr');
+
+    tableRows.forEach(row => {
+        const productCode = row.cells[0].textContent.toLowerCase();
+        const productName = row.cells[1].textContent.toLowerCase();
+
+        if (productCode.includes(searchTerm) || productName.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// تصفية حسب حالة المخزون
+document.getElementById('stockFilter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const tableRows = document.querySelectorAll('#productsTable tbody tr');
+
+    tableRows.forEach(row => {
+        const stockStatus = row.cells[5].textContent.trim();
+
+        if (filterValue === '') {
+            row.style.display = '';
+        } else if (filterValue === 'in_stock' && stockStatus === 'متوفر') {
+            row.style.display = '';
+        } else if (filterValue === 'low_stock' && stockStatus === 'مخزون منخفض') {
+            row.style.display = '';
+        } else if (filterValue === 'out_of_stock' && stockStatus === 'نفد المخزون') {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportProducts() {
+    const table = document.getElementById('productsTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'inventory_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// وظيفة الحذف السريع
+function confirmDelete(productId, productName) {
+    // الحذف السريع بدون تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف المنتج "${productName}"...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_product/${productId}`;
+    }, 500);
+}
+</script>
+{% endblock %}

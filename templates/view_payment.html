@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}معاينة الدفعة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-money-bill-wave text-success"></i>
+                        تفاصيل الدفعة
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/payments">المدفوعات</a></li>
+                            <li class="breadcrumb-item active">عرض الدفعة</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/edit_payment/{{ payment.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> تعديل
+                    </a>
+                    <a href="/payments" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للمدفوعات
+                    </a>
+                </div>
+            </div>
+
+            <!-- Payment Details Card -->
+            <div class="card shadow-sm mb-4" id="payment-details">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt"></i>
+                        تفاصيل الدفعة #{{ payment.id }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Payment Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">معلومات الدفعة</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">رقم المرجع</label>
+                                <p class="fw-bold fs-5">
+                                    <i class="fas fa-hashtag text-primary me-2"></i>
+                                    {{ payment.payment_reference }}
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ الدفعة</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-calendar-alt text-info me-2"></i>
+                                    {{ payment.date.strftime('%A, %d %B %Y') }}
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">المبلغ</label>
+                                <p class="fw-bold fs-4 text-success">
+                                    <i class="fas fa-coins me-2"></i>
+                                    {{ "{:,.2f}".format(payment.amount) }} ر.س
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">نوع الدفعة</label>
+                                <p>
+                                    {% if payment.payment_type == 'received' %}
+                                        <span class="badge bg-success fs-6">
+                                            <i class="fas fa-arrow-down"></i> مقبوض
+                                        </span>
+                                    {% elif payment.payment_type == 'paid' %}
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="fas fa-arrow-up"></i> مدفوع
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-question-circle"></i> غير محدد
+                                        </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method and Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-success border-bottom pb-2 mb-3">طريقة الدفع والتفاصيل</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">طريقة الدفع</label>
+                                <p class="fw-bold">
+                                    {% if payment.payment_method == 'cash' %}
+                                        <i class="fas fa-money-bill text-success me-2"></i>
+                                        نقداً
+                                    {% elif payment.payment_method == 'bank_transfer' %}
+                                        <i class="fas fa-university text-primary me-2"></i>
+                                        تحويل بنكي
+                                    {% elif payment.payment_method == 'check' %}
+                                        <i class="fas fa-money-check text-info me-2"></i>
+                                        شيك
+                                    {% elif payment.payment_method == 'card' %}
+                                        <i class="fas fa-credit-card text-warning me-2"></i>
+                                        بطاقة ائتمان
+                                    {% else %}
+                                        <i class="fas fa-question-circle text-muted me-2"></i>
+                                        {{ payment.payment_method }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            
+                            {% if payment.reference_number %}
+                            <div class="mb-3">
+                                <label class="form-label text-muted">رقم المرجع الخارجي</label>
+                                <p class="fw-bold">
+                                    <i class="fas fa-barcode text-secondary me-2"></i>
+                                    {{ payment.reference_number }}
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">تاريخ الإنشاء</label>
+                                <p class="text-muted">
+                                    <i class="fas fa-clock me-2"></i>
+                                    {{ payment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer/Supplier Information -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2 mb-3">معلومات الطرف الآخر</h6>
+                        </div>
+                        {% if payment.customer_name %}
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-user me-2"></i>
+                                        العميل
+                                    </h6>
+                                    <p class="fw-bold mb-0">{{ payment.customer_name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if payment.supplier_name %}
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="text-warning">
+                                        <i class="fas fa-truck me-2"></i>
+                                        المورد
+                                    </h6>
+                                    <p class="fw-bold mb-0">{{ payment.supplier_name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Invoice Information -->
+                    {% if payment.invoice %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-warning border-bottom pb-2 mb-3">معلومات الفاتورة المرتبطة</h6>
+                        </div>
+                        <div class="col-12">
+                            <div class="card border-warning">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <small class="text-muted">رقم الفاتورة</small>
+                                            <p class="fw-bold">{{ payment.invoice.invoice_number }}</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted">تاريخ الفاتورة</small>
+                                            <p class="fw-bold">{{ payment.invoice.date.strftime('%Y-%m-%d') }}</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted">إجمالي الفاتورة</small>
+                                            <p class="fw-bold text-info">{{ "{:,.2f}".format(payment.invoice.total_amount) }} ر.س</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted">حالة الفاتورة</small>
+                                            <p>
+                                                {% if payment.invoice.status == 'paid' %}
+                                                    <span class="badge bg-success">مدفوعة</span>
+                                                {% elif payment.invoice.status == 'pending' %}
+                                                    <span class="badge bg-warning">معلقة</span>
+                                                {% elif payment.invoice.status == 'overdue' %}
+                                                    <span class="badge bg-danger">متأخرة</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ payment.invoice.status }}</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="/view_invoice/{{ payment.invoice.id }}" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-eye"></i> عرض الفاتورة
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Notes -->
+                    {% if payment.notes %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">الملاحظات</h6>
+                            <div class="alert alert-light">
+                                <i class="fas fa-sticky-note text-warning me-2"></i>
+                                {{ payment.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        <a href="/edit_payment/{{ payment.id }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل الدفعة
+                        </a>
+                        <button class="btn btn-info" data-print="page" data-print-title="تفاصيل الدفعة - {{ payment.payment_reference }}">
+                            <i class="fas fa-print"></i> طباعة إيصال
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmDelete({{ payment.id }}, '{{ payment.payment_reference }}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                        <a href="/payments" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> عرض جميع المدفوعات
+                        </a>
+                        {% if payment.invoice %}
+                        <a href="/view_invoice/{{ payment.invoice.id }}" class="btn btn-outline-warning">
+                            <i class="fas fa-file-invoice"></i> عرض الفاتورة
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظيفة تأكيد الحذف
+function confirmDelete(paymentId, paymentReference) {
+    if (confirm(`هل أنت متأكد من حذف الدفعة "${paymentReference}"؟\nهذا الإجراء لا يمكن التراجع عنه.`)) {
+        window.location.href = `/delete_payment/${paymentId}`;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}المصروفات - نظام المحاسبة{% endblock %}
+{% block page_title %}إدارة المصروفات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-money-bill-wave text-primary"></i> إدارة المصروفات</h2>
+                    <p class="text-muted">تتبع وإدارة جميع المصروفات والنفقات</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/add_expense" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة مصروف
+                        </a>
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> إجراءات
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> تصدير المصروفات</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i> تقرير المصروفات</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-tags"></i> إدارة الفئات</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات المصروفات -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>مصروفات اليوم</h6>
+                            <h3>1,250 ر.س</h3>
+                            <small>+5% من أمس</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>مصروفات الشهر</h6>
+                            <h3>
+                                {% set total_expenses = 0 %}
+                                {% if expenses %}
+                                    {% for expense in expenses %}
+                                        {% set total_expenses = total_expenses + expense.amount %}
+                                    {% endfor %}
+                                {% endif %}
+                                {{ "{:,.0f}".format(total_expenses) }} ر.س
+                            </h3>
+                            <small>هذا الشهر</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-month fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>عدد المصروفات</h6>
+                            <h3>{{ expenses|length if expenses else 0 }}</h3>
+                            <small>هذا الشهر</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-receipt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>متوسط المصروف</h6>
+                            <h3>
+                                {% if expenses and expenses|length > 0 %}
+                                    {{ "{:,.0f}".format(total_expenses / expenses|length) }} ر.س
+                                {% else %}
+                                    0 ر.س
+                                {% endif %}
+                            </h3>
+                            <small>للمصروف الواحد</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calculator fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> اتجاه المصروفات</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="expensesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> المصروفات حسب الفئة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            مصاريف تشغيلية
+                            <span class="badge bg-danger rounded-pill">40%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            رواتب وأجور
+                            <span class="badge bg-warning rounded-pill">30%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            إيجارات
+                            <span class="badge bg-info rounded-pill">20%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            أخرى
+                            <span class="badge bg-secondary rounded-pill">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط البحث والفلاتر -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="البحث في المصروفات..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">جميع الفئات</option>
+                                <option value="operational">تشغيلية</option>
+                                <option value="salaries">رواتب</option>
+                                <option value="rent">إيجارات</option>
+                                <option value="utilities">مرافق</option>
+                                <option value="marketing">تسويق</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateFrom" placeholder="من تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" id="dateTo" placeholder="إلى تاريخ">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول المصروفات -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list"></i> قائمة المصروفات</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportExpenses()">
+                                <i class="fas fa-download"></i> تصدير
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" data-print="table" data-table-id="expensesTable" data-print-title="تقرير المصروفات">
+                                <i class="fas fa-print"></i> طباعة الجدول
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-print="page" data-print-title="إدارة المصروفات">
+                                <i class="fas fa-file-pdf"></i> طباعة الصفحة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if expenses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="expensesTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم المصروف</th>
+                                    <th>الوصف</th>
+                                    <th>المبلغ</th>
+                                    <th>التاريخ</th>
+                                    <th>الفئة</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in expenses %}
+                                <tr>
+                                    <td><span class="badge bg-danger">#E{{ expense.id }}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                <i class="fas fa-money-bill text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ expense.description }}</strong>
+                                                <br><small class="text-muted">مصروف عام</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-danger">{{ "{:,.2f}".format(expense.amount) }} ر.س</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-muted me-1"></i>
+                                            {{ expense.date.strftime('%Y-%m-%d') if expense.date else 'غير محدد' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% set categories = ['تشغيلية', 'رواتب', 'إيجارات', 'مرافق', 'تسويق'] %}
+                                        {% set colors = ['primary', 'success', 'warning', 'info', 'secondary'] %}
+                                        {% set category_index = loop.index0 % 5 %}
+                                        <span class="badge bg-{{ colors[category_index] }}">{{ categories[category_index] }}</span>
+                                    </td>
+                                    <td>
+                                        {% set status_options = [('مدفوع', 'success'), ('معلق', 'warning'), ('مرفوض', 'danger')] %}
+                                        {% set status = status_options[loop.index0 % 3] %}
+                                        <span class="badge bg-{{ status[1] }}">{{ status[0] }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">لا توجد مصروفات مسجلة</h4>
+                        <p class="text-muted">ابدأ بإضافة مصروف لتتبع نفقاتك</p>
+                        <a href="/add_expense" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة أول مصروف
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إضافة Chart.js للرسوم البيانية -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// رسم بياني للمصروفات
+const ctx = document.getElementById('expensesChart').getContext('2d');
+const expensesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        datasets: [{
+            label: 'المصروفات (ر.س)',
+            data: [8000, 12000, 9500, 15000, 11000, 13500],
+            borderColor: 'rgb(220, 53, 69)',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// وظيفة البحث
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#expensesTable tbody tr');
+
+    tableRows.forEach(row => {
+        const expenseId = row.cells[0].textContent.toLowerCase();
+        const description = row.cells[1].textContent.toLowerCase();
+        const amount = row.cells[2].textContent.toLowerCase();
+
+        if (expenseId.includes(searchTerm) ||
+            description.includes(searchTerm) ||
+            amount.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// وظيفة التصدير
+function exportExpenses() {
+    const table = document.getElementById('expensesTable');
+    const rows = table.querySelectorAll('tr');
+    let csvContent = '\uFEFF'; // BOM for UTF-8
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach((cell, index) => {
+            if (index < cells.length - 1) { // تجاهل عمود الإجراءات
+                rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'expenses_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %}

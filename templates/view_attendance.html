@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}عرض الحضور - {{ attendance.employee.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-clock text-info"></i>
+                        تفاصيل الحضور
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="/attendance">الحضور والغياب</a></li>
+                            <li class="breadcrumb-item active">عرض الحضور</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a href="/edit_attendance/{{ attendance.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> تعديل
+                    </a>
+                    <a href="/attendance" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> العودة للحضور
+                    </a>
+                </div>
+            </div>
+
+            <!-- Employee Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user"></i>
+                        معلومات الموظف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1">{{ attendance.employee.name }}</h4>
+                                    <p class="text-muted mb-0">رقم الموظف: {{ attendance.employee.employee_id }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">القسم</small>
+                                    <p class="fw-bold">{{ attendance.employee.department or 'غير محدد' }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">المنصب</small>
+                                    <p class="fw-bold">{{ attendance.employee.position or 'غير محدد' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Details -->
+            <div class="card shadow-sm mb-4" id="attendance-details">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-day"></i>
+                        تفاصيل الحضور - {{ attendance.date.strftime('%Y-%m-%d') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Date and Status -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">التاريخ والحالة</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">التاريخ</label>
+                                <p class="fw-bold fs-5">
+                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                    {{ attendance.date.strftime('%A, %d %B %Y') }}
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">حالة الحضور</label>
+                                <p>
+                                    {% if attendance.status == 'present' %}
+                                        <span class="badge bg-success fs-6">
+                                            <i class="fas fa-check-circle"></i> حاضر
+                                        </span>
+                                    {% elif attendance.status == 'absent' %}
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="fas fa-times-circle"></i> غائب
+                                        </span>
+                                    {% elif attendance.status == 'late' %}
+                                        <span class="badge bg-warning fs-6">
+                                            <i class="fas fa-clock"></i> متأخر
+                                        </span>
+                                    {% elif attendance.status == 'half_day' %}
+                                        <span class="badge bg-info fs-6">
+                                            <i class="fas fa-clock"></i> نصف يوم
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-question-circle"></i> غير محدد
+                                        </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Time Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-success border-bottom pb-2 mb-3">أوقات الحضور</h6>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted">وقت الدخول</label>
+                                        <p class="fw-bold">
+                                            {% if attendance.check_in %}
+                                                <i class="fas fa-sign-in-alt text-success me-2"></i>
+                                                {{ attendance.check_in.strftime('%H:%M') }}
+                                            {% else %}
+                                                <span class="text-muted">لم يسجل</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted">وقت الخروج</label>
+                                        <p class="fw-bold">
+                                            {% if attendance.check_out %}
+                                                <i class="fas fa-sign-out-alt text-danger me-2"></i>
+                                                {{ attendance.check_out.strftime('%H:%M') }}
+                                            {% else %}
+                                                <span class="text-muted">لم يسجل</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Break Times -->
+                    {% if attendance.break_start or attendance.break_end %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-warning border-bottom pb-2 mb-3">أوقات الاستراحة</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">بداية الاستراحة</label>
+                                <p class="fw-bold">
+                                    {% if attendance.break_start %}
+                                        <i class="fas fa-pause text-warning me-2"></i>
+                                        {{ attendance.break_start.strftime('%H:%M') }}
+                                    {% else %}
+                                        <span class="text-muted">لم تسجل</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">نهاية الاستراحة</label>
+                                <p class="fw-bold">
+                                    {% if attendance.break_end %}
+                                        <i class="fas fa-play text-success me-2"></i>
+                                        {{ attendance.break_end.strftime('%H:%M') }}
+                                    {% else %}
+                                        <span class="text-muted">لم تسجل</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Working Hours Summary -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2 mb-3">ملخص ساعات العمل</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                                    <h4 class="text-primary">{{ "%.2f"|format(attendance.total_hours or 0) }}</h4>
+                                    <small class="text-muted">إجمالي الساعات</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-plus-circle fa-2x text-success mb-2"></i>
+                                    <h4 class="text-success">{{ "%.2f"|format(attendance.overtime_hours or 0) }}</h4>
+                                    <small class="text-muted">الساعات الإضافية</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calculator fa-2x text-info mb-2"></i>
+                                    <h4 class="text-info">{{ "%.2f"|format((attendance.total_hours or 0) + (attendance.overtime_hours or 0)) }}</h4>
+                                    <small class="text-muted">إجمالي الساعات المدفوعة</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    {% if attendance.notes %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-secondary border-bottom pb-2 mb-3">الملاحظات</h6>
+                            <div class="alert alert-light">
+                                <i class="fas fa-sticky-note text-warning me-2"></i>
+                                {{ attendance.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        <a href="/edit_attendance/{{ attendance.id }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> تعديل الحضور
+                        </a>
+                        <button class="btn btn-info" data-print="page" data-print-title="تفاصيل الحضور - {{ attendance.employee.name }}">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmDelete({{ attendance.id }}, '{{ attendance.employee.name }}', '{{ attendance.date.strftime('%Y-%m-%d') }}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                        <a href="/attendance" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> عرض جميع السجلات
+                        </a>
+                        <a href="/view_employee/{{ attendance.employee.id }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user"></i> ملف الموظف
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// وظيفة الحذف السريع
+function confirmDelete(attendanceId, employeeName, date) {
+    // الحذف السريع بدون تأكيد
+    FastDeleteProcessor.showQuickMessage(`جاري حذف سجل حضور الموظف "${employeeName}"...`, 'warning', 1000);
+
+    setTimeout(() => {
+        window.location.href = `/delete_attendance/${attendanceId}`;
+    }, 500);
+}
+</script>
+{% endblock %}

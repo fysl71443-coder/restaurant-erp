@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء راتب - نظام المحاسبة{% endblock %}
+{% block page_title %}إنشاء وحساب راتب موظف{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- رأس الصفحة -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-calculator text-primary"></i> إنشاء وحساب راتب موظف</h2>
+                    <p class="text-muted">حساب الراتب مع البدلات والحوافز والاستقطاعات</p>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="/payroll" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="payrollForm">
+        <div class="row">
+            <!-- بيانات الراتب -->
+            <div class="col-lg-8">
+                <!-- معلومات الموظف والفترة -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-user-tie"></i> معلومات الموظف والفترة</h5>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light undo-btn" disabled>
+                                    <i class="fas fa-undo"></i> تراجع
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light save-btn">
+                                    <i class="fas fa-save"></i> حفظ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="employee_id" class="form-label">
+                                    <i class="fas fa-user text-primary"></i> الموظف *
+                                </label>
+                                <select class="form-select" id="employee_id" name="employee_id" required onchange="loadEmployeeData()">
+                                    <option value="">اختر الموظف</option>
+                                    {% if employees %}
+                                        {% for employee in employees %}
+                                        <option value="{{ employee.id }}"
+                                                data-salary="{{ employee.salary }}"
+                                                data-department="{{ employee.department }}"
+                                                data-position="{{ employee.position }}">
+                                            {{ employee.name }} - {{ employee.employee_id }}
+                                        </option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="" disabled>لا توجد موظفين نشطين</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="month" class="form-label">
+                                    <i class="fas fa-calendar text-primary"></i> الشهر *
+                                </label>
+                                <select class="form-select" id="month" name="month" required>
+                                    <option value="">اختر الشهر</option>
+                                    <option value="1">يناير</option>
+                                    <option value="2">فبراير</option>
+                                    <option value="3">مارس</option>
+                                    <option value="4">أبريل</option>
+                                    <option value="5">مايو</option>
+                                    <option value="6">يونيو</option>
+                                    <option value="7">يوليو</option>
+                                    <option value="8">أغسطس</option>
+                                    <option value="9">سبتمبر</option>
+                                    <option value="10">أكتوبر</option>
+                                    <option value="11">نوفمبر</option>
+                                    <option value="12" selected>ديسمبر</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="year" class="form-label">
+                                    <i class="fas fa-calendar-alt text-primary"></i> السنة *
+                                </label>
+                                <select class="form-select" id="year" name="year" required>
+                                    <option value="">اختر السنة</option>
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2025">2025</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="employeeInfo" style="display: none;">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-info-circle"></i> معلومات الموظف:</h6>
+                                    <p class="mb-1"><strong>القسم:</strong> <span id="empDepartment">-</span></p>
+                                    <p class="mb-0"><strong>المنصب:</strong> <span id="empPosition">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الراتب الأساسي والبدلات -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle"></i> الراتب الأساسي والبدلات والحوافز</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="basic_salary" class="form-label">
+                                    <i class="fas fa-money-bill text-success"></i> الراتب الأساسي *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="basic_salary" name="basic_salary" 
+                                           step="0.01" min="0" required onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="allowances" class="form-label">
+                                    <i class="fas fa-gift text-success"></i> البدلات والحوافز
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="allowances" name="allowances" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">بدل سكن، مواصلات، طعام، حوافز أداء، إلخ</small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="overtime_pay" class="form-label">
+                                    <i class="fas fa-clock text-success"></i> أجر العمل الإضافي
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="overtime_pay" name="overtime_pay" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">ساعات إضافية × معدل الساعة</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bonus" class="form-label">
+                                    <i class="fas fa-star text-success"></i> مكافآت إضافية
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="bonus" name="bonus" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">مكافآت أداء، مكافآت سنوية، إلخ</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الاستقطاعات -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-minus-circle"></i> الاستقطاعات والخصومات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="deductions" class="form-label">
+                                    <i class="fas fa-minus text-warning"></i> استقطاعات عامة
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="deductions" name="deductions" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">غياب، تأخير، قروض، إلخ</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance" class="form-label">
+                                    <i class="fas fa-shield-alt text-warning"></i> التأمينات الاجتماعية
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="insurance" name="insurance" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">نسبة الموظف من التأمينات (10%)</small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tax" class="form-label">
+                                    <i class="fas fa-percentage text-warning"></i> ضريبة الدخل
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="tax" name="tax" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">حسب شرائح ضريبة الدخل</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="other_deductions" class="form-label">
+                                    <i class="fas fa-hand-holding-usd text-warning"></i> استقطاعات أخرى
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="other_deductions" name="other_deductions" 
+                                           step="0.01" min="0" value="0" onchange="calculateNetSalary()">
+                                    <span class="input-group-text">ر.س</span>
+                                </div>
+                                <small class="form-text text-muted">استقطاعات متنوعة</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الشريط الجانبي -->
+            <div class="col-lg-4">
+                <!-- ملخص الراتب -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-calculator"></i> ملخص الراتب</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>الراتب الأساسي:</span>
+                                <span id="displayBasicSalary" class="fw-bold text-primary">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>البدلات والحوافز:</span>
+                                <span id="displayAllowances" class="fw-bold text-success">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>العمل الإضافي:</span>
+                                <span id="displayOvertime" class="fw-bold text-success">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>المكافآت:</span>
+                                <span id="displayBonus" class="fw-bold text-success">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">إجمالي الاستحقاقات:</span>
+                                <span id="displayGrossTotal" class="fw-bold text-success fs-5">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>الاستقطاعات العامة:</span>
+                                <span id="displayDeductions" class="fw-bold text-danger">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>التأمينات:</span>
+                                <span id="displayInsurance" class="fw-bold text-danger">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>ضريبة الدخل:</span>
+                                <span id="displayTax" class="fw-bold text-danger">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>استقطاعات أخرى:</span>
+                                <span id="displayOtherDeductions" class="fw-bold text-danger">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">إجمالي الاستقطاعات:</span>
+                                <span id="displayTotalDeductions" class="fw-bold text-danger fs-5">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-0">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold fs-5">صافي الراتب:</span>
+                                <span id="displayNetSalary" class="fw-bold text-primary fs-4">0.00 ر.س</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="net_salary" name="net_salary" value="0">
+                    </div>
+                </div>
+
+                <!-- ملاحظات -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-sticky-note"></i> ملاحظات</h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                  placeholder="أضف أي ملاحظات حول الراتب..."></textarea>
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-tools"></i> إجراءات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> حفظ الراتب
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> إعادة تعيين
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="calculateInsuranceAuto()">
+                                <i class="fas fa-calculator"></i> حساب التأمينات تلقائياً
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="calculateTaxAuto()">
+                                <i class="fas fa-percentage"></i> حساب الضريبة تلقائياً
+                            </button>
+                            <a href="/payroll" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- تضمين ملف النماذج المتقدمة -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+
+<script>
+function loadEmployeeData() {
+    const employeeSelect = document.getElementById('employee_id');
+    const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
+    
+    if (selectedOption.value) {
+        const salary = selectedOption.getAttribute('data-salary');
+        const department = selectedOption.getAttribute('data-department');
+        const position = selectedOption.getAttribute('data-position');
+        
+        // تحديث الراتب الأساسي
+        if (salary) {
+            document.getElementById('basic_salary').value = salary;
+        }
+        
+        // عرض معلومات الموظف
+        document.getElementById('empDepartment').textContent = department || 'غير محدد';
+        document.getElementById('empPosition').textContent = position || 'غير محدد';
+        document.getElementById('employeeInfo').style.display = 'block';
+        
+        // حساب التأمينات تلقائياً (10% من الراتب الأساسي)
+        if (salary) {
+            const insuranceAmount = parseFloat(salary) * 0.10;
+            document.getElementById('insurance').value = insuranceAmount.toFixed(2);
+        }
+        
+        calculateNetSalary();
+    } else {
+        document.getElementById('employeeInfo').style.display = 'none';
+    }
+}
+
+function calculateNetSalary() {
+    const basicSalary = parseFloat(document.getElementById('basic_salary').value) || 0;
+    const allowances = parseFloat(document.getElementById('allowances').value) || 0;
+    const overtimePay = parseFloat(document.getElementById('overtime_pay').value) || 0;
+    const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+    const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+    const insurance = parseFloat(document.getElementById('insurance').value) || 0;
+    const tax = parseFloat(document.getElementById('tax').value) || 0;
+    const otherDeductions = parseFloat(document.getElementById('other_deductions').value) || 0;
+    
+    // حساب الإجماليات
+    const grossTotal = basicSalary + allowances + overtimePay + bonus;
+    const totalDeductions = deductions + insurance + tax + otherDeductions;
+    const netSalary = grossTotal - totalDeductions;
+    
+    // تحديث العرض
+    document.getElementById('displayBasicSalary').textContent = basicSalary.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayAllowances').textContent = allowances.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayOvertime').textContent = overtimePay.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayBonus').textContent = bonus.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayGrossTotal').textContent = grossTotal.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    
+    document.getElementById('displayDeductions').textContent = deductions.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayInsurance').textContent = insurance.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayTax').textContent = tax.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayOtherDeductions').textContent = otherDeductions.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('displayTotalDeductions').textContent = totalDeductions.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    
+    document.getElementById('displayNetSalary').textContent = netSalary.toLocaleString('ar-SA', {minimumFractionDigits: 2}) + ' ر.س';
+    document.getElementById('net_salary').value = netSalary.toFixed(2);
+}
+
+function calculateInsuranceAuto() {
+    const basicSalary = parseFloat(document.getElementById('basic_salary').value) || 0;
+    if (basicSalary > 0) {
+        const insuranceAmount = basicSalary * 0.10; // 10% من الراتب الأساسي
+        document.getElementById('insurance').value = insuranceAmount.toFixed(2);
+        calculateNetSalary();
+        alert('تم حساب التأمينات تلقائياً (10% من الراتب الأساسي)');
+    } else {
+        alert('يرجى إدخال الراتب الأساسي أولاً');
+    }
+}
+
+function calculateTaxAuto() {
+    const grossTotal = parseFloat(document.getElementById('basic_salary').value) || 0;
+    let taxAmount = 0;
+    
+    // حساب ضريبة الدخل حسب الشرائح (مبسط)
+    if (grossTotal > 1000000) {
+        taxAmount = grossTotal * 0.20; // 20% للشريحة العليا
+    } else if (grossTotal > 500000) {
+        taxAmount = grossTotal * 0.15; // 15% للشريحة المتوسطة
+    } else if (grossTotal > 250000) {
+        taxAmount = grossTotal * 0.10; // 10% للشريحة الأولى
+    } else {
+        taxAmount = 0; // معفى من الضريبة
+    }
+    
+    document.getElementById('tax').value = taxAmount.toFixed(2);
+    calculateNetSalary();
+    alert('تم حساب ضريبة الدخل تلقائياً حسب الشرائح');
+}
+
+function resetForm() {
+    if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ ستفقد جميع البيانات المدخلة.')) {
+        document.getElementById('payrollForm').reset();
+        document.getElementById('employeeInfo').style.display = 'none';
+        calculateNetSalary();
+    }
+}
+
+// تفعيل النماذج المتقدمة
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initAdvancedForms === 'function') {
+        initAdvancedForms('payrollForm');
+    }
+    
+    // حساب الراتب عند تحميل الصفحة
+    calculateNetSalary();
+});
+</script>
+{% endblock %}
