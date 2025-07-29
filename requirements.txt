@@ -1,1 +1,18 @@
-Pillow==9.4.0
+# Core Flask dependencies for Render deployment
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Werkzeug==3.0.1
+SQLAlchemy==2.0.23
+Jinja2==3.1.2
+MarkupSafe==2.1.3
+itsdangerous==2.1.2
+click==8.1.7
+blinker==1.7.0
+
+# Production server
+gunicorn==21.2.0
+
+# Optional dependencies (only if needed)
+python-dotenv==1.0.0
+requests==2.31.0
