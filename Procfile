@@ -1,1 +1,1 @@
-web: gunicorn accounting_system_complete:app
+web: gunicorn app:app
