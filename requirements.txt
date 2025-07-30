@@ -1,21 +1,24 @@
 # نظام المحاسبة الاحترافي - المتطلبات
 # Professional Accounting System - Requirements
-# Compatible with Python 3.10.13
+# Compatible with Python 3.11.7 - Fixed for Render
 
-# Core Flask dependencies (Python 3.10 compatible)
-Flask==2.3.3
+# Core Flask dependencies (Python 3.11 compatible)
+Flask==2.3.2
 Flask-SQLAlchemy==3.0.5
-Flask-Login==0.6.3
-Werkzeug==2.3.7
-SQLAlchemy==2.0.21
+Flask-Login==0.6.2
+Werkzeug==2.3.6
+SQLAlchemy==2.0.19
 Jinja2==3.1.2
 MarkupSafe==2.1.3
 itsdangerous==2.1.2
-click==8.1.7
-blinker==1.6.3
+click==8.1.6
+blinker==1.6.2
 
 # Production server
-gunicorn==21.2.0
+gunicorn==20.1.0
+
+# Database drivers
+psycopg2-binary==2.9.6
 
 # Optional dependencies
 python-dotenv==1.0.0

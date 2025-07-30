@@ -21,7 +21,14 @@ app = Flask(__name__)
 
 # الإعدادات
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'accounting-pro-2024')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///accounting_pro.db')
+
+# إعداد قاعدة البيانات (يدعم SQLite و PostgreSQL)
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///accounting_pro.db')
+# إصلاح رابط PostgreSQL من Render
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # إعداد السجلات
