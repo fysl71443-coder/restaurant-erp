@@ -11,8 +11,8 @@ import sys
 # إضافة المسار الحالي
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# استيراد النظام المبسط المتوافق مع Python 3.13
-from simple_accounting import app
+# استيراد النظام الكامل المتوافق مع Python 3.13
+from accounting_system_complete import app
 
 # للنشر على Render
 if __name__ == '__main__':

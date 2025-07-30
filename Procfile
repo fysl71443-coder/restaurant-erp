@@ -1,1 +1,1 @@
-web: gunicorn simple_accounting:app
+web: gunicorn accounting_system_complete:app
