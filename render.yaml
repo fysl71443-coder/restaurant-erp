@@ -1,17 +1,13 @@
 services:
   - type: web
-    name: accounting-system-pro
+    name: simple-accounting-system
     env: python
     plan: free
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: gunicorn accounting_system_pro:app --bind 0.0.0.0:$PORT
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn simple_accounting:app
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.7
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///accounting_pro.db
+        value: sqlite:///simple_accounting.db
 
