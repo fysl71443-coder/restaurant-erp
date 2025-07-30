@@ -1,10 +1,15 @@
 services:
   - type: web
-    name: restaurant-erp
+    name: accounting-system-pro
     env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn accounting_system_pro:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11
+        value: 3.10.13
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///accounting_pro.db
 
